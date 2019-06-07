@@ -1,0 +1,22 @@
+{
+    "name": "intermundia/yiicms",
+    "description": "Package contains core models, migrations, behaviors, controllers etc. For the Yii2 CMS",
+    "type": "yii2-extension",
+    "keywords": ["yii2","yii2 CMS core","extension"],
+    "license": "BSD-4-Clause",
+    "authors": [
+        {
+            "name": "Zura Sekhniashvili",
+            "email": "zura@intermundia.de"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.0",
+        "kartik-v/yii2-widget-select2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "intermundia\\yiicms\\": ""
+        }
+    }
+}

@@ -1,0 +1,9 @@
+.cke_button_icon.cke_button__link-page_icon {
+    background-image:url('../img/link.png');
+    background-position: 0;
+    background-size:16px;
+}
+
+.file-preview .kv-file-content img {
+    max-height: 100%;
+}
