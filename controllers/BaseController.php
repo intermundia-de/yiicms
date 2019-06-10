@@ -738,18 +738,22 @@ class BaseController extends ContentController
 
         $fileManagerData = [];
         $oldPath = '';
+        $newPath = '';
         foreach ($fileManagerItems as $fileManagerItem) {
             unset($fileManagerItem['id']);
             $oldPath = $fileManagerItem['path'];
             $fileManagerItem['record_id'] = $baseModelId;
             $fileManagerItem['language'] = $to;
-            $fileManagerItem['path'] = str_replace($from, $to, $fileManagerItem['path']);
+            $newPath = $fileManagerItem['path'] = preg_replace('/^' . $from . '/', $to, $fileManagerItem['path']);
             $fileManagerItem = $this->modifyBlameData($fileManagerItem);
             $fileManagerData[] = $fileManagerItem;
         }
+
         if ($fileManagerItems) {
-            $copyToDir = preg_replace('/\/[^\/]+$/', '', Yii::getAlias(FileManagerItem::STORAGE_PATH . $oldPath));
-            $copyFromDir = str_replace($to, $from, $copyToDir);
+            $copyToDir = preg_replace('/\/[^\/]+$/', '',
+                Yii::getAlias(FileManagerItem::STORAGE_PATH . $newPath));
+            $copyFromDir = preg_replace('/\/[^\/]+$/', '',
+                Yii::getAlias(FileManagerItem::STORAGE_PATH . $oldPath));
             if (is_dir($copyFromDir)) {
                 Yii::$app->db->createCommand()->batchInsert(FileManagerItem::tableName(), array_keys($fileManagerItem),
                     $fileManagerData)->execute();
