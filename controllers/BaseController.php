@@ -98,7 +98,8 @@ class BaseController extends ContentController
                 $tree = ContentTree::find()->byId($parentContentId)->one();
             } else {
                 $foreignKey = $model->getModel('baseTrasnlationModel')->getForeignKeyNameOnModel();
-                $tree = ContentTree::find()->byRecordIdTableName($model->getBaseTranslationModel()->$foreignKey, $tableName)->one();
+                $tree = ContentTree::find()->byRecordIdTableName($model->getBaseTranslationModel()->$foreignKey,
+                    $tableName)->one();
             }
             $transaction->commit();
             return $this->redirect($tree->getFullUrl());
@@ -610,7 +611,10 @@ class BaseController extends ContentController
                         $translation->move = $newMovedTree->depth - $movedTree->depth;
                         if (!$translation->save()) {
                             $transaction->rollBack();
-                            return ['code' => 0, 'message' => 'Could not save transalation for language: ' . $translation->language];
+                            return [
+                                'code' => 0,
+                                'message' => 'Could not save transalation for language: ' . $translation->language
+                            ];
                         }
                     }
                     $transaction->commit();
@@ -718,6 +722,8 @@ class BaseController extends ContentController
      * @param $from
      * @param $to
      * @param $tableName
+     * @return bool
+     * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
     private function copyFileManagerItems($baseModelId, $from, $to, $tableName)
@@ -730,7 +736,8 @@ class BaseController extends ContentController
             ->asArray()
             ->all();
 
-        $fileManagerData;
+        $fileManagerData = [];
+        $oldPath = '';
         foreach ($fileManagerItems as $fileManagerItem) {
             unset($fileManagerItem['id']);
             $oldPath = $fileManagerItem['path'];
@@ -741,11 +748,14 @@ class BaseController extends ContentController
             $fileManagerData[] = $fileManagerItem;
         }
         if ($fileManagerItems) {
-            $copyToDir = preg_replace('/\/[^\/]+$/', '', Yii::getAlias(FileManagerItem::STORAGE_PATH . $fileManagerItem['path']));
+            $copyToDir = preg_replace('/\/[^\/]+$/', '', Yii::getAlias(FileManagerItem::STORAGE_PATH . $oldPath));
             $copyFromDir = str_replace($to, $from, $copyToDir);
-            Yii::$app->db->createCommand()->batchInsert(FileManagerItem::tableName(), array_keys($fileManagerItem), $fileManagerData)->execute();
-            FileHelper::createDirectory($copyToDir, 0775, true);
-            FileHelper::copyDirectory($copyFromDir, $copyToDir, ['dirMode' => 0775]);
+            if (is_dir($copyFromDir)) {
+                Yii::$app->db->createCommand()->batchInsert(FileManagerItem::tableName(), array_keys($fileManagerItem),
+                    $fileManagerData)->execute();
+                FileHelper::createDirectory($copyToDir, 0775, true);
+                FileHelper::copyDirectory($copyFromDir, $copyToDir, ['dirMode' => 0775]);
+            }
             return true;
         }
 
