@@ -16,6 +16,8 @@ use intermundia\yiicms\models\Search;
 use intermundia\yiicms\models\FileManagerItem;
 use Yii;
 use yii\console\Controller;
+use yii\db\ActiveQuery;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
 
@@ -419,6 +421,84 @@ class SyncController extends Controller
             }
             Console::output('----------------------------------');
         }
+    }
+
+    public function actionFileManagerFromExistingLanguage($websiteKey, $from, $to)
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
+        $contentTrees = ContentTree::find()
+            ->joinWith('translations')
+            ->asArray()
+            ->all();
+        FileManagerItem::deleteAll(['language' => $to]);
+        FileHelper::removeDirectory(Yii::getAlias(FileManagerItem::STORAGE_PATH . $to));
+
+        foreach ($contentTrees as $contentTree) {
+            $translations = ArrayHelper::index($contentTree['translations'], 'language');
+            if (!(isset($translations[$from]) && isset($translations[$to]))) {
+                continue;
+            }
+            $fromTranslation = $translations[$from];
+            $toTranslation = $translations[$to];
+            $newAliasPath = $toTranslation['alias_path'];
+            $fileManagerItems = FileManagerItem::find()
+                ->byRecordId($contentTree['record_id'])
+                ->byLanguage($fromTranslation['language'])
+                ->byTable($contentTree['table_name'])
+                ->asArray()
+                ->all();
+
+            $oldPath = '';
+            $newPath = '';
+
+            $copyToDir = Yii::getAlias(FileManagerItem::STORAGE_PATH . "$to/$newAliasPath");
+
+            foreach ($fileManagerItems as $fileManagerItem) {
+                unset($fileManagerItem['id']);
+                $oldPath = $fileManagerItem['path'];
+                $fileName = preg_replace('/^.*\/\s*/', '', $oldPath);
+                $fileManagerItem['record_id'] = $contentTree['record_id'];
+                $fileManagerItem['language'] = $to;
+                $fileManagerItem['path'] = "$to/$newAliasPath/" . $fileName;
+                $fileManagerItem = $this->modifyBlameData($fileManagerItem);
+                $copyFromFile = Yii::getAlias(FileManagerItem::STORAGE_PATH . $oldPath);
+                FileHelper::createDirectory($copyToDir);
+                $copyToFile = $copyToDir . '/' . $fileName;
+                if (file_exists($copyFromFile)) {
+                    copy($copyFromFile, $copyToFile);
+                }
+                Yii::$app->db->createCommand()->batchInsert(FileManagerItem::tableName(), array_keys($fileManagerItem),
+                    [$fileManagerItem])->execute();
+            }
+        }
+
+        $transaction->commit();
+
+    }
+
+    private function modifyBlameData($data)
+    {
+        $modifiedData = $data;
+        if (isset($modifiedData['created_at'])) {
+            $modifiedData['created_at'] = time();
+        }
+        if (isset($modifiedData['created_by'])) {
+            $modifiedData['created_by'] = Yii::$app->user->id;
+        }
+        if (isset($modifiedData['updated_at'])) {
+            $modifiedData['updated_at'] = time();
+        }
+        if (isset($modifiedData['updated_by'])) {
+            $modifiedData['updated_by'] = Yii::$app->user->id;
+        }
+        if (isset($modifiedData['deleted_at']) && $modifiedData['deleted_at']) {
+            $modifiedData['updated_at'] = time();
+            $modifiedData['deleted_by'] = Yii::$app->user->id;
+        }
+
+        return $modifiedData;
+
     }
 
     private function log($message, $type = 'log')
