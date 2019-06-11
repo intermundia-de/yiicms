@@ -2,10 +2,10 @@
 
 namespace intermundia\yiicms\behaviors;
 
-use apollo11\envAnalyzer\helpers\ArrayHelper;
 use intermundia\yiicms\components\ContentTree;
 use intermundia\yiicms\models\ContentTreeTranslation;
 use yii\db\BaseActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class SluggableBehavior
@@ -142,23 +142,35 @@ class SluggableBehavior extends \yii\behaviors\SluggableBehavior
         /** @var  $contentTreeTranslation ContentTreeTranslation */
         $contentTreeTranslation = $this->owner;
         $language = $contentTreeTranslation->language;
+        $masterLanguage = \Yii::$app->websiteMasterLanguage;
         $contentTree = $contentTreeTranslation->contentTree;
         /** @var ContentTree $parentContentTree */
         $parentContentTree = $contentTree->getParent();
         $aliasPath = $contentTreeTranslation->alias;
-
         if ($parentContentTree && $contentTree->depth > 1) {
             /** @var ContentTreeTranslation $parentContentTreeTranslation */
             $parentContentTreeTranslation = $parentContentTree->getTranslation()->andWhere(['language' => $language])->one();
-            if (!$parentContentTreeTranslation) {
-                $parentContentTreeTranslation = $parentContentTree->getTranslation()
-                    ->andWhere(['language' => \Yii::$app->websiteMasterLanguage])
-                    ->one();
+            if ($parentContentTreeTranslation) {
+                return $this->ensureAliasPathUnique($parentContentTreeTranslation->alias_path . '/' . $contentTreeTranslation->alias);
             }
-            $aliasPath = $parentContentTreeTranslation->alias_path . '/' . $contentTreeTranslation->alias;
+            $aliasPath = '';
+            $parentContentTrees = $contentTree
+                ->parents()
+                ->joinWith('translations')
+                ->andWhere(['>', \intermundia\yiicms\models\ContentTree::tableName() . '.depth', 0])
+                ->asArray()
+                ->all();
+
+            foreach ($parentContentTrees as $contentTree) {
+                $translations = ArrayHelper::index($contentTree['translations'], 'language');
+                $parentTranslationAlias = isset($translations[$language]) ? $translations[$language]['alias'] : $translations[$masterLanguage]['alias'];
+                $aliasPath .= "$parentTranslationAlias/";
+            }
+
+            return $this->ensureAliasPathUnique($aliasPath . $contentTreeTranslation->alias);
         }
 
-        return $this->ensureAliasPathUnique($aliasPath);
+        return $this->ensureAliasPathUnique($contentTreeTranslation->alias);
     }
 
     /**

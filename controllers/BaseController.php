@@ -220,7 +220,8 @@ class BaseController extends ContentController
             $translateModel->language = $to;
             $transaction = Yii::$app->db->beginTransaction();
             if ($translateModel->load($fromTranslation, '') && $translateModel->save()) {
-                $this->copyFileManagerItems($id, $from, $to, $tableName);
+                $ctt = $translateModel->contentTree->getTranslation()->andWhere(['language' => $to])->one();
+                $this->copyFileManagerItems($id, $from, $to, $tableName, $ctt->alias_path);
                 $transaction->commit();
                 return $this->redirect($baseModel->getUpdateUrlByLanguage($to));
             }
@@ -726,7 +727,7 @@ class BaseController extends ContentController
      * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
-    private function copyFileManagerItems($baseModelId, $from, $to, $tableName)
+    private function copyFileManagerItems($baseModelId, $from, $to, $tableName, $newAliasPath)
     {
         /** copy filemanager items */
         $fileManagerItems = FileManagerItem::find()
@@ -742,18 +743,17 @@ class BaseController extends ContentController
         foreach ($fileManagerItems as $fileManagerItem) {
             unset($fileManagerItem['id']);
             $oldPath = $fileManagerItem['path'];
+            $fileName = preg_replace('/^.*\/\s*/', '', $oldPath);
             $fileManagerItem['record_id'] = $baseModelId;
             $fileManagerItem['language'] = $to;
-            $newPath = $fileManagerItem['path'] = preg_replace('/^' . $from . '/', $to, $fileManagerItem['path']);
+            $fileManagerItem['path'] = "$to/$newAliasPath/$fileName";
             $fileManagerItem = $this->modifyBlameData($fileManagerItem);
             $fileManagerData[] = $fileManagerItem;
         }
 
         if ($fileManagerItems) {
-            $copyToDir = preg_replace('/\/[^\/]+$/', '',
-                Yii::getAlias(FileManagerItem::STORAGE_PATH . $newPath));
-            $copyFromDir = preg_replace('/\/[^\/]+$/', '',
-                Yii::getAlias(FileManagerItem::STORAGE_PATH . $oldPath));
+            $copyToDir = Yii::getAlias(FileManagerItem::STORAGE_PATH . "$to/$newAliasPath");
+            $copyFromDir = preg_replace('/\/[^\/]+$/', '', Yii::getAlias(FileManagerItem::STORAGE_PATH . $oldPath));
             if (is_dir($copyFromDir)) {
                 Yii::$app->db->createCommand()->batchInsert(FileManagerItem::tableName(), array_keys($fileManagerItem),
                     $fileManagerData)->execute();
