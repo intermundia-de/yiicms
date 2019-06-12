@@ -56,20 +56,22 @@ class ContactForm extends Model
     /**
      * Sends an email to the specified email address using the information collected by this model.
      * @param string $email the target email address
+     * @param string $contactView the view of email body
      * @return boolean whether the model passes validation
      */
-    public function contact($email)
+    public function contact($email, $contactView = null)
     {
+        if (!$contactView) {
+            $pathToContact = 'mail/contact';
+            $contactView = file_exists(Yii::getAlias("@frontend/$pathToContact.php")) ? "@frontend/$pathToContact" : "@cmsCore/$pathToContact";
+        }
 
-        $pathToBody = 'views/email/body';
-        $bodyView = file_exists(Yii::getAlias("@frontend/$pathToBody.php")) ? "@frontend/$pathToBody" : "@cmsCore/$pathToBody";
-        
         $websiteContentTree = Yii::$app->websiteContentTree->getModel();
         $ccEmail = $websiteContentTree->activeTranslation->cc_email ?: Yii::$app->params['ccEmail'];
         $bccEmail = $websiteContentTree->activeTranslation->bcc_email ?: Yii::$app->params['bccEmail'];
 
         if ($this->validate()) {
-            $message = Yii::$app->mailer->compose()
+            $message = Yii::$app->mailer->compose($contactView, ['model' => $this])
                 ->setTo($email)
                 ->setFrom(Yii::$app->params['robotEmail']);
 
@@ -83,7 +85,6 @@ class ContactForm extends Model
             return $message->setReplyTo($this->email)
                 ->setSubject(Yii::t('frontend',
                     'Contact request from website: "' . Yii::$app->websiteContentTree->getName() . '"'))
-                ->setHtmlBody(Yii::$app->controller->renderPartial($bodyView, ['model' => $this]))
                 ->send();
         } else {
             return false;
