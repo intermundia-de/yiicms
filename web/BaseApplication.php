@@ -15,6 +15,7 @@ use intermundia\yiicms\models\Language;
 use yii\base\Exception;
 use yii\base\InvalidCallException;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * Class BaseApplication
@@ -117,7 +118,8 @@ class BaseApplication extends \yii\web\Application
 
                     \Yii::setAlias('@frontendUrl', $matches[1] . $frontendHost);
                     $this->setHomeUrl($matches[1] . $frontendHost);
-                    \Yii::setAlias('@storageUrl', $websiteData['storageUrl']);
+                    $storageUrl = isset($websiteData['storageUrl']) ? $websiteData['storageUrl'] : Url::base(true) . "/storage/web";
+                    \Yii::setAlias('@storageUrl', $storageUrl);
                     break;
                 }
             }
