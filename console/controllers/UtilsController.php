@@ -33,6 +33,7 @@ use yii\console\Controller;
 use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
+use yii\helpers\FileHelper;
 
 /**
  * Class UtilsController
@@ -537,6 +538,85 @@ class UtilsController extends Controller
             array_splice($attributes, array_search($attr, $attributes), 1);
         }
     }
+
+    public function actionCopyFilemanagerItemsFromWebsiteToWebsite($fromWebsite, $toWebsite, $from, $to)
+    {
+        $connection = Yii::$app->db;
+        $user = User::findOne(1);
+        Yii::$app->user->setIdentity($user);
+        $transaction = Yii::$app->db->beginTransaction();
+        $storagePath = Yii::getAlias('@storage/web/source/');
+        // Update in base model translations
+        Console::output("Copying has started");
+        FileManagerItem::deleteAll(['language' => $to]);
+        if (strpos($fromWebsite, '.en') !== false) {
+            $fromWebsite = 'website';
+        }
+
+        /** @var ContentTreeTranslation[] $fromTranslations */
+        $fromTranslations = ArrayHelper::index(ContentTreeTranslation::find()
+            ->byLanguage($from)
+            ->andWhere(['not', ['alias_path' => $fromWebsite]])
+            ->asArray()
+            ->all(),
+            'alias_path');
+        $toTranslations = ArrayHelper::index(
+            ContentTreeTranslation::find()
+                ->asArray()
+                ->andWhere(['not', ['alias_path' => $toWebsite]])
+                ->byLanguage($to)
+                ->all(),
+            'alias_path');
+
+
+        foreach ($fromTranslations as $alias_path => $fromTranslation) {
+            if (isset($toTranslations[$alias_path])) {
+                $toTranslation = $toTranslations[$alias_path];
+                $toTranslationContentTree = ContentTree::findClean()
+                    ->byId($toTranslation['content_tree_id'])
+                    ->linkedIdIsNull()
+                    ->one();
+                $fromTranslationContentTree = ContentTree::findClean()
+                    ->byId($fromTranslation['content_tree_id'])
+                    ->linkedIdIsNull()
+                    ->one();
+                if (!$fromTranslationContentTree) {
+                    continue;
+                }
+                $fileManagerItems = FileManagerItem::find()
+                    ->byRecordId($fromTranslationContentTree->record_id)
+                    ->byTable($fromTranslationContentTree->table_name)
+                    ->byLanguage($from)
+                    ->asArray()
+                    ->all();
+                $fileManagerData = [];
+                foreach ($fileManagerItems as $fileManagerItem) {
+                    unset($fileManagerItem['id']);
+                    $fileManagerItem['language'] = $to;
+                    $fileManagerItem['record_id'] = $toTranslationContentTree->record_id;
+                    $pathes = explode('/', $fileManagerItem['path']);
+                    $pathes[0] = $to;
+                    $fileManagerItem['path'] = implode('/', $pathes);
+                    $fileManagerData[] = $this->modifyBlameData($fileManagerItem);
+                }
+
+                if ($fileManagerData) {
+                    $connection->createCommand()
+                        ->batchInsert(FileManagerItem::tableName(), array_keys($fileManagerItem), $fileManagerData)
+                        ->execute();
+                }
+            }
+        }
+
+        FileHelper::removeDirectory($storagePath . $to);
+        FileHelper::createDirectory($storagePath . $to);
+        $this->copyDirectory($storagePath . $from, $storagePath . $to);
+        $transaction->commit();
+
+        Console::output("=========================================================================");
+        Console::output("Copying has finished");
+    }
+
 
     /**
      *
