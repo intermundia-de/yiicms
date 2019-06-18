@@ -16,6 +16,8 @@ class SluggableBehavior extends \yii\behaviors\SluggableBehavior
     /**
      * Where key will be replaced with value in slug generation proccess. For example,
      *
+     * 'value' must contains lation characters
+     *
      * ```php
      * [
      *     'key' => 'value',
