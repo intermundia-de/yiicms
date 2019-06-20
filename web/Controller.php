@@ -8,6 +8,7 @@
 namespace intermundia\yiicms\web;
 
 use common\models\ContentTree;
+use http\Url;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -49,12 +50,15 @@ class Controller extends \yii\web\Controller
             ContentTree::find()->byId($matches[1])->with('activeTranslation')->all(),
             'id',
             function ($model) {
-            /** @var $model ContentTree */
-            return [
-                'replace' => '/{{contentTreeId:' . $model->id . '}}/',
-                'alias_path' => '/' . $model->activeTranslation->alias_path
-            ];
-        });
+                /** @var $model ContentTree */
+                return [
+                    'replace' => '/{{contentTreeId:' . $model->id . '}}/',
+                    'alias_path' => \yii\helpers\Url::to([
+                        'content-tree/index',
+                        'nodes' => $model->activeTranslation->alias_path
+                    ])
+                ];
+            });
 
         return preg_replace(
             ArrayHelper::getColumn($aliasPaths, 'replace'),

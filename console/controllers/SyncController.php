@@ -429,8 +429,10 @@ class SyncController extends Controller
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
         $contentTrees = ContentTree::find()
             ->joinWith('translations')
+            ->linkedIdIsNull()
             ->asArray()
             ->all();
+        Console::output("Copying has started");
         FileManagerItem::deleteAll(['language' => $to]);
         FileHelper::removeDirectory(Yii::getAlias(FileManagerItem::STORAGE_PATH . $to));
 
@@ -474,7 +476,8 @@ class SyncController extends Controller
         }
 
         $transaction->commit();
-
+        Console::output("=========================================================================");
+        Console::output("Copying has finished");
     }
 
     private function modifyBlameData($data)

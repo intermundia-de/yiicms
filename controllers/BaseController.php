@@ -3,6 +3,7 @@
 namespace intermundia\yiicms\controllers;
 
 use intermundia\yiicms\commands\AddToTimelineCommand;
+use intermundia\yiicms\helpers\CopyTranslation;
 use intermundia\yiicms\models\BaseModel;
 use intermundia\yiicms\models\BaseTranslateModel;
 use intermundia\yiicms\models\ContentTreeMenu;
@@ -193,6 +194,7 @@ class BaseController extends ContentController
                 throw new InvalidArgumentException();
             }
 
+
             $className = Yii::$app->contentTree->getClassName($tableName);
             /** @var $baseModel BaseModel */
             $baseModel = $className::find()->byId($id)->one();
@@ -202,29 +204,14 @@ class BaseController extends ContentController
             }
 
             $contentTree = ContentTree::find()->byTableName($tableName)->byRecordId($id)->notDeleted()->one();
-            $parentContentTree = $contentTree->getParent();
 
-            $parentContentId = $baseModel->getParentId();
-            $translateClass = $className::getTranslateModelClass();
-            $fromTranslation = $translateClass::find()
-                ->findByObjectIdAndLanguage($id, $from, $translateClass::getForeignKeyNameOnModel())
-                ->asArray()
-                ->one();
-
-            unset($fromTranslation['id']);
-            $fromTranslation['language'] = $to;
-
-            /** @var BaseTranslateModel $translateModel */
-            $translateModel = new $translateClass();
-            $translateModel->parentContentId = $parentContentId;
-            $translateModel->language = $to;
             $transaction = Yii::$app->db->beginTransaction();
-            if ($translateModel->load($fromTranslation, '') && $translateModel->save()) {
-                $ctt = $translateModel->contentTree->getTranslation()->andWhere(['language' => $to])->one();
-                $this->copyFileManagerItems($id, $from, $to, $tableName, $ctt->alias_path);
-                $transaction->commit();
-                return $this->redirect($baseModel->getUpdateUrlByLanguage($to));
-            }
+
+            $copyTranslations = new CopyTranslation($from, $to, $contentTree);
+            $copyTranslations->copyAll();
+
+            $transaction->commit();
+            return $this->redirect($copyTranslations->getBaseModel()->getUpdateUrlByLanguage($to));
 
 
             $transaction->rollBack();
@@ -740,6 +727,10 @@ class BaseController extends ContentController
         $fileManagerData = [];
         $oldPath = '';
         $newPath = '';
+        if ($fileManagerItems) {
+            $copyToDir = Yii::getAlias(FileManagerItem::STORAGE_PATH . "$to/$newAliasPath");
+            FileHelper::createDirectory($copyToDir, 0775, true);
+        }
         foreach ($fileManagerItems as $fileManagerItem) {
             unset($fileManagerItem['id']);
             $oldPath = $fileManagerItem['path'];
@@ -749,18 +740,12 @@ class BaseController extends ContentController
             $fileManagerItem['path'] = "$to/$newAliasPath/$fileName";
             $fileManagerItem = $this->modifyBlameData($fileManagerItem);
             $fileManagerData[] = $fileManagerItem;
-        }
-
-        if ($fileManagerItems) {
-            $copyToDir = Yii::getAlias(FileManagerItem::STORAGE_PATH . "$to/$newAliasPath");
-            $copyFromDir = preg_replace('/\/[^\/]+$/', '', Yii::getAlias(FileManagerItem::STORAGE_PATH . $oldPath));
-            if (is_dir($copyFromDir)) {
+            $copyFromFile = Yii::getAlias(FileManagerItem::STORAGE_PATH . $oldPath);
+            $copyToFile = $copyToDir . '/' . $fileName;
+            if (file_exists($copyFromFile) && copy($copyFromFile, $copyToFile)) {
                 Yii::$app->db->createCommand()->batchInsert(FileManagerItem::tableName(), array_keys($fileManagerItem),
-                    $fileManagerData)->execute();
-                FileHelper::createDirectory($copyToDir, 0775, true);
-                FileHelper::copyDirectory($copyFromDir, $copyToDir, ['dirMode' => 0775]);
+                    [$fileManagerItem])->execute();
             }
-            return true;
         }
 
         return true;
