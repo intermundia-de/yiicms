@@ -191,7 +191,7 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     {
         $contentTree = $this->contentTree;
         $this->children = $contentTree->children()
-            ->select(['table_name', 'record_id', ContentTree::tableName() . '.id as content_tree_id', "SUBSTRING_INDEX(alias_path, '/', $contentTree->depth ) as parent_old_path"])
+            ->select(['link_id', 'table_name', 'record_id', ContentTree::tableName() . '.id as content_tree_id', "SUBSTRING_INDEX(alias_path, '/', $contentTree->depth ) as parent_old_path"])
             ->leftJoin(ContentTreeTranslation::tableName() . ' t',
                 't' . '.content_tree_id = ' . ContentTree::tableName() . ".id AND t.language = :language", [
                     'language' => $this->language
@@ -285,10 +285,13 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     {
         /** @var ContentTree $contentTree */
         $contentTree = $this->contentTree;
-        if ($this->children) {
+        $children = array_filter($this->children, function ($child) {
+            return !$child['link_id'];
+        });
+        if ($children) {
             $sqlArray = array_map(function ($child) {
                 return "('" . $child['table_name'] . "' , " . $child['record_id'] . ")";
-            }, $this->children);
+            }, $children);
             $sqlString = implode(' , ', $sqlArray);
             Yii::$app->db->createCommand("UPDATE " . FileManagerItem::tableName() . " SET 
                 path = REPLACE(path, SUBSTRING_INDEX(path, '/', :depth) , :alias_path_with_language )
