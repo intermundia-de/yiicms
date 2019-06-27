@@ -122,6 +122,10 @@ class CopyTranslation
             ->asArray()
             ->all();
 
+        if (!$searches) {
+            return;
+        }
+
         $searchData = [];
         foreach ($searches as $search) {
             unset($search['id']);
@@ -168,6 +172,10 @@ class CopyTranslation
             }
         }
 
+        if (!$baseTranslation) {
+            return;
+        }
+
         \Yii::$app->db->createCommand()->insert($this->getTranslateClassName()::tableName(), $baseTranslation)->execute();
     }
 
@@ -183,6 +191,10 @@ class CopyTranslation
         unset($contentTreeTranslation['id']);
         $contentTreeTranslation['language'] = $this->to;
         $contentTreeTranslation['alias_path'] = $this->getAliasPath();
+        if (!$contentTreeTranslation) {
+            return;
+        }
+
         \Yii::$app->db->createCommand()->insert(ContentTreeTranslation::tableName(), $contentTreeTranslation)->execute();
     }
 
