@@ -12,6 +12,7 @@ namespace intermundia\yiicms\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\helpers\VarDumper;
 
 /**
@@ -249,6 +250,22 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
             return '<div class="xmlblock ' . $classes . '" ' . $contentTreeItem->getEditableAttributes($fieldName, 'rich-text') . '>
                     ' . $this->activeTranslation->{$fieldName} . '
                 </div>';
+        }
+        return '';
+    }
+
+    /**
+     * Treat the attribute as an image and render <img> tag from the first element of the attribute array
+     *
+     * @param $attributeName
+     * @param array $options
+     * @return string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function renderImage($attributeName, $options = [])
+    {
+        if (isset($this->activeTranslation->$attributeName)){
+            return Html::img($this->activeTranslation->$attributeName[0]->geturl(), $options);
         }
         return '';
     }
