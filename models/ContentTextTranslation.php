@@ -58,6 +58,7 @@ class ContentTextTranslation extends BaseTranslateModel
     public function rules()
     {
         return [
+            ['name', 'required'],
             [['content_text_id'], 'integer'],
             [['multi_line', 'multi_line2'], 'string'],
             [['image_deleted'], 'safe'],
