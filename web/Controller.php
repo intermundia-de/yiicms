@@ -47,7 +47,7 @@ class Controller extends \yii\web\Controller
         }
 
         $aliasPaths = ArrayHelper::map(
-            ContentTree::find()->byId($matches[1])->with('activeTranslation')->all(),
+            ContentTree::find()->byId($matches[1])->with(['currentTranslation', 'defaultTranslation'])->all(),
             'id',
             function ($model) {
                 /** @var $model ContentTree */

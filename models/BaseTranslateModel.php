@@ -96,8 +96,9 @@ abstract class BaseTranslateModel extends ActiveRecord
         /** @var BaseModel $class */
         $class = $this->getModelClass();
         $foreignKeyName = $this->getForeignKeyNameOnModel();
-        return $this->hasOne(ContentTree::class,
-            ['record_id' => $foreignKeyName])->andWhere([ContentTree::tableName() . '.table_name' => $class::getFormattedTableName()])->with('activeTranslation');
+        return $this->hasOne(ContentTree::class, ['record_id' => $foreignKeyName])
+            ->andWhere([ContentTree::tableName() . '.table_name' => $class::getFormattedTableName()])
+            ->with(['currentTranslation', 'defaultTranslation']);
     }
 
     /**
