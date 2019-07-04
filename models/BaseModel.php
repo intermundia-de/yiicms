@@ -264,8 +264,9 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
      */
     public function renderImage($attributeName, $options = [])
     {
-        if (isset($this->activeTranslation->$attributeName)){
-            return Html::img($this->activeTranslation->$attributeName[0]->geturl(), $options);
+        $images = ArrayHelper::getValue($this->activeTranslation, $attributeName, []);
+        if ($images){
+            return Html::img($images[0]->geturl(), $options);
         }
         return '';
     }
