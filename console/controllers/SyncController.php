@@ -60,8 +60,17 @@ class SyncController extends Controller
      * @throws \yii\db\Exception
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function actionSearch()
+    public function actionSearch($websiteKey = null)
     {
+        if (!$websiteKey) {
+            $websiteKey = readline("Please Enter Website Key: ");
+        }
+        Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->byTableName('website')->one();
+
+        if (!Yii::$app->websiteContentTree) {
+            $this->log("Website key: '$websiteKey' not found. Please enter valid website key");
+            return;
+        }
         $insert = 0;
         $update = 0;
         $delete = 0;
