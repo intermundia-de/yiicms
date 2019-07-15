@@ -64,8 +64,7 @@ class SyncController extends Controller
     public function actionSearch($websiteKey = null)
     {
         if (!$websiteKey) {
-            $answer = readline("Do you want to sync for all website key? (Y/N): ");
-            if (strtoupper($answer) != 'Y') {
+            if (!Console::confirm("Do you want to sync for all website key?")) {
                 return;
             }
             $websiteKeys = ArrayHelper::getColumn(
@@ -427,9 +426,7 @@ class SyncController extends Controller
                 if (count($notFoundItemIds)) {
                     $this->log("File storage item not found for file manager item ids: [" . implode(' , ',
                             $failedItemIds) . "]");
-
-                    $answer = readline("Delete these file manager items? (Y/N): ");
-                    if ($answer == 'Y') {
+                    if (Console::confirm("Delete these file manager items?")) {
                         $transaction = Yii::$app->db->beginTransaction();
                         try {
                             FileManagerItem::deleteAll(['id' => $notFoundItemIds]);
