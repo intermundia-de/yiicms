@@ -142,8 +142,7 @@ class SyncController extends Controller
                                 $delete++;
                                 Search::deleteAll([
                                     'attribute' => $deletedAttributes,
-                                    'table_name' => $tableName,
-                                    'language' => $language
+                                    'table_name' => $tableName
                                 ]);
                             }
 
