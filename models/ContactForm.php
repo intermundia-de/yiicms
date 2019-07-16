@@ -61,7 +61,7 @@ class ContactForm extends Model
      * @param string $contactView the view of email body
      * @return boolean whether the model passes validation
      */
-    public function contact($email, $ccEmail = null, $bccEmail = null, $contactView = null)
+    public function contact($email, $contactView = null, $ccEmail = null, $bccEmail = null)
     {
         if (!$contactView) {
             $pathToContact = 'mail/contact';
