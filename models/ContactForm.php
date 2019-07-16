@@ -61,27 +61,31 @@ class ContactForm extends Model
      */
     public function contact($email, $contactView = null)
     {
+        $emails = explode(',', $email);
+
         if (!$contactView) {
             $pathToContact = 'mail/contact';
             $contactView = file_exists(Yii::getAlias("@frontend/$pathToContact.php")) ? "@frontend/$pathToContact" : "@cmsCore/$pathToContact";
         }
 
         $websiteContentTree = Yii::$app->websiteContentTree->getModel();
+        //Make sure .env configuration dor ccEmail and bccEmail are correct
         $ccEmail = $websiteContentTree->activeTranslation->cc_email ?: Yii::$app->params['ccEmail'];
         $bccEmail = $websiteContentTree->activeTranslation->bcc_email ?: Yii::$app->params['bccEmail'];
+        $ccEmails = $ccEmail != '' ? explode(',', $ccEmail) : [];
+        $bccEmails = $bccEmail != '' ? explode(',', $bccEmail) : [];
 
         if ($this->validate()) {
             $message = Yii::$app->mailer->compose($contactView, ['model' => $this])
-                ->setTo($email)
+                ->setTo($emails)
                 ->setFrom(Yii::$app->params['robotEmail']);
 
-            if ($ccEmail) {
-                $message->setCc($ccEmail);
+            if (count($ccEmails) > 0) {
+                $message->setCc($ccEmails);
             }
-            if ($bccEmail) {
-                $message->setBcc($bccEmail);
+            if (count($bccEmails) > 0) {
+                $message->setBcc($bccEmails);
             }
-
             return $message->setReplyTo($this->email)
                 ->setSubject(Yii::t('frontend',
                     'Contact request from website: "' . Yii::$app->websiteContentTree->getName() . '"'))
