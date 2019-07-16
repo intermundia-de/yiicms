@@ -55,36 +55,27 @@ class ContactForm extends Model
 
     /**
      * Sends an email to the specified email address using the information collected by this model.
-     * @param string $email the target email address
+     * @param string|array $email the target email address
+     * @param string|array $ccEmail the target cc email address
+     * @param string|array $bccEmail the target bcc email address
      * @param string $contactView the view of email body
      * @return boolean whether the model passes validation
      */
-    public function contact($email, $contactView = null)
+    public function contact($email, $ccEmail = null, $bccEmail = null, $contactView = null)
     {
-        $emails = explode(',', $email);
-
         if (!$contactView) {
             $pathToContact = 'mail/contact';
             $contactView = file_exists(Yii::getAlias("@frontend/$pathToContact.php")) ? "@frontend/$pathToContact" : "@cmsCore/$pathToContact";
         }
-
         $websiteContentTree = Yii::$app->websiteContentTree->getModel();
-        //Make sure .env configuration dor ccEmail and bccEmail are correct
-        $ccEmail = $websiteContentTree->activeTranslation->cc_email ?: Yii::$app->params['ccEmail'];
-        $bccEmail = $websiteContentTree->activeTranslation->bcc_email ?: Yii::$app->params['bccEmail'];
-        $ccEmails = $ccEmail != '' ? explode(',', $ccEmail) : [];
-        $bccEmails = $bccEmail != '' ? explode(',', $bccEmail) : [];
-
         if ($this->validate()) {
             $message = Yii::$app->mailer->compose($contactView, ['model' => $this])
-                ->setTo($emails)
-                ->setFrom(Yii::$app->params['robotEmail']);
-
-            if (count($ccEmails) > 0) {
-                $message->setCc($ccEmails);
+                ->setTo($email);
+            if ($ccEmail) {
+                $message->setCc($ccEmail);
             }
-            if (count($bccEmails) > 0) {
-                $message->setBcc($bccEmails);
+            if ($bccEmail) {
+                $message->setBcc($bccEmail);
             }
             return $message->setReplyTo($this->email)
                 ->setSubject(Yii::t('frontend',
