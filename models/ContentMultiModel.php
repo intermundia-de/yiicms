@@ -22,8 +22,8 @@ class ContentMultiModel extends MultiModel
      * @param bool $runValidation
      * @return bool|void
      * @throws \Exception
-     * @var $baseModel BaseModel
      * @var $baseTranslationModel BaseTranslateModel
+     * @var $baseModel BaseModel
      */
     public function save($runValidation = true)
     {
@@ -32,7 +32,7 @@ class ContentMultiModel extends MultiModel
         $baseModel = $this->getBaseModel();
         $baseModelisNewRecord = $baseModel->isNewRecord;
         if (!$baseModel->save()){
-            throw new \Exception('Error Saving baseModel: ' . VarDumper::dumpAsString($baseModel->errors));
+            return false;
         }
 
         /** Set forenignKey_id to baseTranslationModel*/
@@ -42,7 +42,7 @@ class ContentMultiModel extends MultiModel
         $this->saveContentTree();
 
         if (!$baseTranslationModel->save()){
-            throw new \Exception('Error Saving baseTranslationModel: ' . VarDumper::dumpAsString($baseTranslationModel->errors));
+            return false;
         }
 
         return true;
