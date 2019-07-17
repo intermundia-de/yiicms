@@ -169,11 +169,11 @@ $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['m
         ]); ?>
         <?php if ($contentTreeItem->id != 1): ?>
             <?php
-            echo Html::button('Choose From Existing', ['style' => 'margin-left:10px;margin-right:10px; ', 'class' => 'btn btn-default', 'data-toggle' => 'modal', 'data-target' => '#linked', 'data-key' => $contentTreeItem->getTreeId()]);
+            echo Html::button('Choose From Existing', ['style' => 'margin-left:10px;margin-right:10px; ', 'class' => 'btn btn-default', 'data-toggle' => 'modal', 'data-target' => '#linked', 'data-key' => $contentTreeItem->id]);
             Modal::begin([
                 'id' => 'linked',
                 'header' => '<h2>Choose From Existing Trees</h2>',
-                'bodyOptions' => ['class' => 'modal-body', 'id' => 'tree-modal-body', 'data-key' => $contentTreeItem->getTreeId()],
+                'bodyOptions' => ['class' => 'modal-body', 'id' => 'tree-modal-body', 'data-key' => $contentTreeItem->id],
                 'size' => 'modal-lg',
                 'footer' => Html::button('Link', ['class' => 'btn btn-primary', 'id' => 'linked-button']),
             ]);
@@ -190,13 +190,13 @@ $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['m
 
             <?php
             Modal::end();
-            echo Html::button('Move To', ['style' => 'margin-left:10px;margin-right:10px; ', 'class' => 'btn btn-default', 'data-toggle' => 'modal', 'data-target' => '#move-modal', 'data-key' => $contentTreeItem->getTreeId()]); ?>
+            echo Html::button('Move To', ['style' => 'margin-left:10px;margin-right:10px; ', 'class' => 'btn btn-default', 'data-toggle' => 'modal', 'data-target' => '#move-modal', 'data-key' => $contentTreeItem->id]); ?>
         <?php endif; ?>
         <?php
         Modal::begin([
             'id' => 'move-modal',
             'header' => '<h2>Move From Tree To Tree</h2>',
-            'bodyOptions' => ['class' => 'modal-body', 'id' => 'move-modal-body', 'data-key' => $contentTreeItem->getTreeId()],
+            'bodyOptions' => ['class' => 'modal-body', 'id' => 'move-modal-body', 'data-key' => $contentTreeItem->id],
             'size' => 'modal-lg',
             'footer' => Html::button('Move', ['class' => 'btn btn-primary', 'id' => 'move-button']),
         ]);
