@@ -8,6 +8,7 @@
 namespace intermundia\yiicms\console\controllers;
 
 
+use console\controllers\AppController;
 use intermundia\yiicms\models\BaseModel;
 use intermundia\yiicms\models\BaseTranslateModel;
 use intermundia\yiicms\models\ContentTree;
@@ -618,12 +619,84 @@ class UtilsController extends Controller
     }
 
 
+    private function removeRemainingDirectories($directoryList)
+    {
+        foreach ($directoryList as $directoryPath) {
+            try {
+                if ($directoryPath && file_exists($directoryPath)) {
+                    \yii\helpers\FileHelper::removeDirectory($directoryPath);
+                }
+            } catch (\Exception $e) {
+                throw new \yii\base\Exception('Failed to remove directory: ' . $directoryPath);
+            }
+        }
+    }
+
+    public function actionFixAliasPath($websiteKey)
+    {
+        $connection = Yii::$app->db;
+        $transaction = Yii::$app->db->beginTransaction();
+        Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
+        $contentTreeItems = ContentTree::find()
+            ->orderBy(['lft' => SORT_ASC])
+            ->joinWith('translations')
+            ->notDeleted()->notHidden()
+            ->offset(1)
+            ->limit(2)->all();
+
+        $toBeRemovedDirectories = [];
+        /*$parentChanged = false;
+        $prevItemDepth = 0;*/
+        $isLikedItem = false;
+
+
+        foreach ($contentTreeItems as $contentTreeItem) {
+            //$parentChanged = $contentTreeItem->depth <= $prevItemDepth;
+            /*if ($parentChanged) {
+                if ($toBeRemoved) {
+                    var_dump($toBeRemoved);
+                    try {
+                        $directoryParh = array_pop($toBeRemovedDirectories);
+                        if($directoryParh && file_exists($oldDirectoryPath)) {
+                            \yii\helpers\FileHelper::removeDirectory($directoryParh);
+                        }
+                    }catch (\Exception $e) {
+                        throw new \yii\base\Exception('Failed to remove directory: ' . $directoryParh);
+                }
+            }*/
+            foreach ($contentTreeItem->translations as $contentTreeTranslation) {
+                var_dump($contentTreeTranslation->name . '/' . $contentTreeTranslation->language);
+                Console::output("ID = $contentTreeTranslation->id:: old_alias ");
+                $contentTreeTranslation->selfUpdate = true;
+                $toBeRemoved[] = $contentTreeTranslation->getFileManagerDirectoryPath($contentTreeTranslation->getOldAliasPath());
+                if ($contentTreeTranslation->save()) {
+                    $contentTreeTranslation->renameFolder();
+                    $contentTreeTranslation->updateOwnFileManagerItems();
+                };
+                //var_dump($contentTreeTranslation->id);
+                //var_dump($contentTreeTranslation->alias_path);
+            }
+            //var_dump($contentTreeItem->id);
+        }
+
+        $transaction->commit();
+
+        $this->removeRemainingDirectories($toBeRemoved);
+
+        //$website = ContentTree::findClean()->byKey($websiteKey)->byTableName('website')->one();
+        /*if (!$website) {
+            Console::output('Please insert website first');
+            return;
+        }*/
+
+    }
+
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $str
      * @return int
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     private function executePdo($str)
     {

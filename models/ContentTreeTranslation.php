@@ -21,6 +21,8 @@ use yii\helpers\ArrayHelper;
  * @property string $short_description
  * @property array $_oldContentTreeAttributes
  *
+ * @property boolean $selfUpdate
+ *
  * @property ContentTree $contentTree
  */
 class ContentTreeTranslation extends \yii\db\ActiveRecord
@@ -36,6 +38,8 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     public $children;
     public $move = 0;
     private $_oldContentTreeAttributes;
+
+    public $selfUpdate;
 
     const CHANGE_ALIAS_PATH = 'changeAliasPath';
     const CHANGE_CHILDREN_PATH = 'changeChildrenPath';
@@ -80,7 +84,7 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
                 'attribute' => 'name',
                 'immutable' => false,
                 'ensureUnique' => false,
-                'forceUpdate' => false,
+                'forceUpdate' => true,
                 'replaceWords' => [
                     'ä' => 'ae',
                     'Ä' => 'ae',
@@ -165,22 +169,23 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        $aliasChanged = $this->_oldContentTreeAttributes && $this->_oldContentTreeAttributes['alias_path'] != $this->oldAttributes['alias_path'];
-        if ($insert || $aliasChanged) {
-            $this->setChildren();
+        if (!$this->selfUpdate) {
+            $aliasChanged = $this->_oldContentTreeAttributes && $this->_oldContentTreeAttributes['alias_path'] != $this->oldAttributes['alias_path'];
+            if ($insert || $aliasChanged) {
+                $this->setChildren();
+            }
+
+            /* If alias has changed trigger CHANGE_ALIAS_PATH event.
+            *  This event update own and children's alias_path,file_manager_item's path,
+            *  rename file folder name oldAlias to newAlias
+            */
+            $aliasChanged && !$this->contentTree->link_id && $this->trigger(self::CHANGE_ALIAS_PATH);
+
+            /* If translation creates and it has children trigger CHANGE_CHILDREN_PATH event.
+            *  This event updates children's alias_path,file_manager_item's path,
+            */
+            $insert && $this->children && !$this->contentTree->link_id && $this->trigger(self::CHANGE_CHILDREN_PATH);
         }
-
-        /* If alias has changed trigger CHANGE_ALIAS_PATH event.
-        *  This event update own and children's alias_path,file_manager_item's path,
-        *  rename file folder name oldAlias to newAlias
-        */
-        $aliasChanged && !$this->contentTree->link_id && $this->trigger(self::CHANGE_ALIAS_PATH);
-
-        /* If translation creates and it has children trigger CHANGE_CHILDREN_PATH event.
-        *  This event updates children's alias_path,file_manager_item's path,
-        */
-        $insert && $this->children && !$this->contentTree->link_id && $this->trigger(self::CHANGE_CHILDREN_PATH);
-
         parent::afterSave($insert, $changedAttributes);
     }
 
@@ -238,6 +243,7 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     {
         $contentTree = $this->contentTree;
         $oldAliasPath = $this->getCorrectFileManagerPath();
+        var_dump($oldAliasPath);
         if (!$oldAliasPath) {
             return;
         }
@@ -326,7 +332,9 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
             if ($oldDirectoryPath != $newDirectoryPath) {
                 try {
                     \yii\helpers\FileHelper::copyDirectory($oldDirectoryPath, $newDirectoryPath);
-                    \yii\helpers\FileHelper::removeDirectory($oldDirectoryPath);
+                    if(!$this->selfUpdate) {
+                        \yii\helpers\FileHelper::removeDirectory($oldDirectoryPath);
+                    }
                 } catch (\Exception $e) {
                     throw new Exception('Could Not Rename File While updating contentTreeTranslation language:' . $this->language);
                 }
