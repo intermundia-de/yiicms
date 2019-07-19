@@ -619,76 +619,211 @@ class UtilsController extends Controller
     }
 
 
-    private function removeRemainingDirectories($directoryList)
+    private static function removeEmptyDirectories($dir)
     {
-        foreach ($directoryList as $directoryPath) {
-            try {
-                if ($directoryPath && file_exists($directoryPath)) {
-                    \yii\helpers\FileHelper::removeDirectory($directoryPath);
+        $filesLeft = false;
+        if (!is_dir($dir)) {
+            return;
+        }
+        if (!is_link($dir)) {
+            if (!($handle = opendir($dir))) {
+                return;
+            }
+            while (($file = readdir($handle)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
                 }
-            } catch (\Exception $e) {
-                throw new \yii\base\Exception('Failed to remove directory: ' . $directoryPath);
+                $path = $dir . DIRECTORY_SEPARATOR . $file;
+                if (is_dir($path)) {
+                    static::removeEmptyDirectories($path);
+                }
+                $filesLeft = true;
+            }
+            closedir($handle);
+        }
+        if(!$filesLeft) {
+            if (is_link($dir)) {
+                static::unlink($dir);
+            } else {
+                rmdir($dir);
             }
         }
     }
 
-    public function actionFixAliasPath($websiteKey)
+    private function updateDirectory($contentTreeTranslation)
+    {
+        $oldAliasPath = $contentTreeTranslation->getCorrectFileManagerPath();
+        if (!$oldAliasPath) {
+            return;
+        }
+        $oldDirectoryPath = $contentTreeTranslation->getFileManagerDirectoryPath($oldAliasPath);
+
+        //Create new folder if needed, keep old directory
+        if ($oldDirectoryPath && file_exists($oldDirectoryPath)) {
+            $newDirectoryPath = $this->getFileManagerDirectoryPath();
+            \yii\helpers\FileHelper::createDirectory($newDirectoryPath, 0775, true);
+            if ($oldDirectoryPath != $newDirectoryPath) {
+                try {
+                    \yii\helpers\FileHelper::copyDirectory($oldDirectoryPath, $newDirectoryPath);
+                } catch (\Exception $e) {
+                    throw new Exception('Could Not Rename File While updating contentTreeTranslation language:' . $this->language);
+                }
+            }
+        }
+    }
+
+    public function actionFixAliasAndFileManagerItems($websiteKey)
     {
         $connection = Yii::$app->db;
-        $transaction = Yii::$app->db->beginTransaction();
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
         $contentTreeItems = ContentTree::find()
             ->orderBy(['lft' => SORT_ASC])
             ->joinWith('translations')
-            ->notDeleted()->notHidden()
-            ->offset(1)
-            ->limit(2)->all();
+            ->notDeleted()
+            ->all();
 
-        $toBeRemovedDirectories = [];
-        /*$parentChanged = false;
-        $prevItemDepth = 0;*/
-        $isLikedItem = false;
-
+        $failedFmiItemIds = [];
+        $notFoundFmiItemIds = [];
 
         foreach ($contentTreeItems as $contentTreeItem) {
-            //$parentChanged = $contentTreeItem->depth <= $prevItemDepth;
-            /*if ($parentChanged) {
-                if ($toBeRemoved) {
-                    var_dump($toBeRemoved);
-                    try {
-                        $directoryParh = array_pop($toBeRemovedDirectories);
-                        if($directoryParh && file_exists($oldDirectoryPath)) {
-                            \yii\helpers\FileHelper::removeDirectory($directoryParh);
-                        }
-                    }catch (\Exception $e) {
-                        throw new \yii\base\Exception('Failed to remove directory: ' . $directoryParh);
-                }
-            }*/
             foreach ($contentTreeItem->translations as $contentTreeTranslation) {
-                var_dump($contentTreeTranslation->name . '/' . $contentTreeTranslation->language);
-                Console::output("ID = $contentTreeTranslation->id:: old_alias ");
-                $contentTreeTranslation->selfUpdate = true;
-                $toBeRemoved[] = $contentTreeTranslation->getFileManagerDirectoryPath($contentTreeTranslation->getOldAliasPath());
+
+                /*
+                 * Set selfUpdate Only tot true, to update alias and alias path using SluggableBehavior
+                 * Children items won't be updated.
+                 */
+                $contentTreeTranslation->selfUpdateOnly = true;
+
+                $beforeUpdateAlias = $contentTreeTranslation->alias;
+                $beforeUpdateAliasPath = $contentTreeTranslation->alias_path;
+
+
+                $transaction = Yii::$app->db->beginTransaction();
                 if ($contentTreeTranslation->save()) {
-                    $contentTreeTranslation->renameFolder();
-                    $contentTreeTranslation->updateOwnFileManagerItems();
-                };
-                //var_dump($contentTreeTranslation->id);
-                //var_dump($contentTreeTranslation->alias_path);
+                    $aliasChanged = (($contentTreeTranslation->alias != $beforeUpdateAlias)
+                        || ($contentTreeTranslation->alias_path != $beforeUpdateAliasPath));
+
+                    if ($aliasChanged) {
+                        Console::output("-------------------------------------------------------------------");
+                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) updated:");
+                        Console::output("alias: {$beforeUpdateAlias} => {$contentTreeTranslation->alias}");
+                        Console::output("alias_path: {$beforeUpdateAliasPath} => {$contentTreeTranslation->alias_path}");
+                    }
+
+                    if ($contentTreeItem->link_id) {
+                        $transaction->commit();
+                        continue;
+                    }
+
+                    $needUpdateFmiCount = 0;
+                    $updatedFmiCount = 0;
+
+
+                    //Update each individual file manager item
+                    $fileManagerItems = FileManagerItem::find()
+                        ->byTable($contentTreeItem->table_name)
+                        ->byRecordId($contentTreeItem->record_id)
+                        ->byLanguage($contentTreeTranslation->language)
+                        ->all();
+
+                    $aliasPath = $contentTreeTranslation->alias_path;
+
+                    if ($aliasChanged && $fileManagerItems) {
+                        Console::output("Updating file_manager_item table for language: {$contentTreeTranslation->language}, ContentTree id = {$contentTreeItem->id}");
+                    }
+
+                    foreach ($fileManagerItems as $fileManagerItem) {
+                        $fmiPath = null;
+
+                        $fileName = substr($fileManagerItem->path, strrpos($fileManagerItem->path, '/') + 1);
+
+                        $correctPath = $contentTreeTranslation->language . '/' . $aliasPath . '/' . $fileName;
+                        if ($correctPath != $fileManagerItem->path) {
+                            $needUpdateFmiCount++;
+
+                            $fileManagerItem->oldPath = $fileManagerItem->path;
+                            $fileManagerItem->path = $correctPath;
+
+                            $fmiTransaction = Yii::$app->db->beginTransaction();
+
+                            if ($fileManagerItem->save()) {
+                                try {
+                                    if (!file_exists($correctPath)) {
+                                        //Copy file storage item instead of renaming, since other file manager item might have the same path
+                                        $fileManagerItem->copyFileStorageItem();
+                                    }
+                                    $fmiTransaction->commit();
+                                    $updatedFmiCount++;
+                                } catch (\Exception $exception) {
+                                    $fmiTransaction->rollBack();
+                                    if ($exception->getCode() == 404) {
+                                        array_push($failedFmiItemIds, $fileManagerItem->id);
+                                        array_push($notFoundFmiItemIds, $fileManagerItem->id);
+                                    }
+                                    Console::output('Failed to updating file manager item (id=' . $fileManagerItem->id . '). ContentTree id=' . $contentTreeItem->id);
+                                    Console::output('language: ' . $contentTreeTranslation->language);
+                                    Console::output('alias_path: ' . $aliasPath);
+                                    Console::output('Old file: ' . $fileManagerItem->oldPath);
+                                    Console::output('New File: ' . $fileManagerItem->path);
+                                    Console::error($exception->getMessage());
+                                    Console::output('----------------------------------');
+                                }
+                            } else {
+                                $fmiTransaction->rollBack();
+                                Console::output($fileManagerItem->id);
+                                array_push($failedFmiItemIds, $fileManagerItem->id);
+
+                                Console::output('Failed to updating file manager item (id=' . $fileManagerItem->id . '). ContentTree id=' . $contentTreeItem->id);
+                                $errors = $fileManagerItem->getErrorSummary(true);
+                                foreach ($errors as $error) {
+                                    Console::error("{$error}");
+                                }
+                                Console::output('----------------------------------');
+                            }
+                        }
+                    }
+                    if ($aliasChanged && $fileManagerItems) {
+                        Console::output("Updated ${updatedFmiCount} from ${needUpdateFmiCount} rows in file_manager_item table");
+                    }
+
+                    $transaction->commit();
+
+                } else {
+                    $transaction->rollBack();
+                    Console::output("Failed to update ContentTreeTranslation ( id = {$contentTreeTranslation->id} )");
+                    $errors = $contentTreeTranslation->getErrorSummary(true);
+                    foreach ($errors as $error) {
+                        Console::error("{$error}");
+                    }
+                    Console::output('----------------------------------');
+                }
+
+            };
+        }
+        if (count($failedFmiItemIds) > 0) {
+            Console::output("Failed to update following file manager item ids: [" . implode(',',
+                    $failedFmiItemIds) . "]");
+            if (count($notFoundFmiItemIds)) {
+                Console::output("File storage item not found for file manager item ids: [" . implode(',',
+                        $failedFmiItemIds) . "]");
+                if (Console::confirm("Delete these file manager items?")) {
+                    $transaction = Yii::$app->db->beginTransaction();
+                    try {
+                        FileManagerItem::deleteAll(['id' => $notFoundFmiItemIds]);
+                        $transaction->commit();
+                        Console::output("File manager items has been deleted.");
+                    } catch (yii\db\Exception $exception) {
+                        $transaction->rollBack();
+                        Console::error($exception->getMessage());
+                    }
+                }
             }
-            //var_dump($contentTreeItem->id);
         }
 
-        $transaction->commit();
-
-        $this->removeRemainingDirectories($toBeRemoved);
-
-        //$website = ContentTree::findClean()->byKey($websiteKey)->byTableName('website')->one();
-        /*if (!$website) {
-            Console::output('Please insert website first');
-            return;
-        }*/
-
+        $languageCodes = array_unique(array_values(\Yii::$app->multiSiteCore->websites[$websiteKey]['domains']));
+        foreach($languageCodes as $languageCode) {
+            $this->removeEmptyDirectories(Yii::getAlias(FileManagerItem::STORAGE_PATH . $languageCode));
+        };
     }
 
     /**

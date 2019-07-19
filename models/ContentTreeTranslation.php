@@ -21,7 +21,7 @@ use yii\helpers\ArrayHelper;
  * @property string $short_description
  * @property array $_oldContentTreeAttributes
  *
- * @property boolean $selfUpdate
+ * @property boolean $selfUpdateOnly
  *
  * @property ContentTree $contentTree
  */
@@ -39,7 +39,11 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     public $move = 0;
     private $_oldContentTreeAttributes;
 
-    public $selfUpdate;
+
+    /*
+     * When true, updates alias and alias_path,
+     * Doesn't update children items */
+    public $selfUpdateOnly = false;
 
     const CHANGE_ALIAS_PATH = 'changeAliasPath';
     const CHANGE_CHILDREN_PATH = 'changeChildrenPath';
@@ -84,7 +88,9 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
                 'attribute' => 'name',
                 'immutable' => false,
                 'ensureUnique' => false,
-                'forceUpdate' => true,
+                'forceUpdate' => function () {
+                    return $this->selfUpdateOnly;
+                },
                 'replaceWords' => [
                     'ä' => 'ae',
                     'Ä' => 'ae',
@@ -169,7 +175,7 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        if (!$this->selfUpdate) {
+        if (!$this->selfUpdateOnly) {
             $aliasChanged = $this->_oldContentTreeAttributes && $this->_oldContentTreeAttributes['alias_path'] != $this->oldAttributes['alias_path'];
             if ($insert || $aliasChanged) {
                 $this->setChildren();
@@ -243,7 +249,6 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     {
         $contentTree = $this->contentTree;
         $oldAliasPath = $this->getCorrectFileManagerPath();
-        var_dump($oldAliasPath);
         if (!$oldAliasPath) {
             return;
         }
@@ -332,9 +337,7 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
             if ($oldDirectoryPath != $newDirectoryPath) {
                 try {
                     \yii\helpers\FileHelper::copyDirectory($oldDirectoryPath, $newDirectoryPath);
-                    if(!$this->selfUpdate) {
-                        \yii\helpers\FileHelper::removeDirectory($oldDirectoryPath);
-                    }
+                    \yii\helpers\FileHelper::removeDirectory($oldDirectoryPath);
                 } catch (\Exception $e) {
                     throw new Exception('Could Not Rename File While updating contentTreeTranslation language:' . $this->language);
                 }
