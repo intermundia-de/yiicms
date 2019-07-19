@@ -6,6 +6,7 @@ use intermundia\yiicms\components\ContentTree;
 use intermundia\yiicms\models\ContentTreeTranslation;
 use yii\db\BaseActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
 
 /**
  * Class SluggableBehavior
@@ -81,7 +82,8 @@ class SluggableBehavior extends \yii\behaviors\SluggableBehavior
     protected function generateSlug($slugParts)
     {
         $slugParts = $this->modifySlugAttribute($slugParts);
-        return parent::generateSlug($slugParts);
+        $slug = Inflector::slug(implode('-', $slugParts));
+        return preg_replace('/-+/', '-', $slug);
     }
 
     /**
