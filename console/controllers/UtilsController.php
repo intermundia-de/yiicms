@@ -676,6 +676,7 @@ class UtilsController extends Controller
     {
         $connection = Yii::$app->db;
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
+        Yii::$app->websiteMasterLanguage = \Yii::$app->multiSiteCore->websites[$websiteKey]['masterLanguage'];
         $contentTreeItems = ContentTree::find()
             ->orderBy(['lft' => SORT_ASC])
             ->joinWith('translations')
