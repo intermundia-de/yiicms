@@ -641,7 +641,7 @@ class UtilsController extends Controller
             }
             closedir($handle);
         }
-        if(!$filesLeft) {
+        if (!$filesLeft) {
             if (is_link($dir)) {
                 static::unlink($dir);
             } else {
@@ -676,11 +676,16 @@ class UtilsController extends Controller
     {
         $connection = Yii::$app->db;
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
+        if(!Yii::$app->websiteContentTree) {
+            Console::error("Website content tree was not found for {$websiteKey}");
+            return;
+        }
         Yii::$app->websiteMasterLanguage = \Yii::$app->multiSiteCore->websites[$websiteKey]['masterLanguage'];
         $contentTreeItems = ContentTree::find()
             ->orderBy(['lft' => SORT_ASC])
             ->joinWith('translations')
             ->notDeleted()
+            ->andWhere(['<>', 'table_name', 'website'])
             ->all();
 
         $failedFmiItemIds = [];
@@ -707,7 +712,8 @@ class UtilsController extends Controller
                     if ($aliasChanged) {
                         Console::output("-------------------------------------------------------------------");
                         $linkText = $contentTreeItem->link_id ? "(LINK)" : "";
-                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) {$linkText} updated:");
+                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) .
+                                 {$linkText} . [{$contentTreeTranslation->language}] updated:");
                         Console::output("alias: {$beforeUpdateAlias} => {$contentTreeTranslation->alias}");
                         Console::output("alias_path: {$beforeUpdateAliasPath} => {$contentTreeTranslation->alias_path}");
                     }
@@ -823,7 +829,7 @@ class UtilsController extends Controller
         }
 
         $languageCodes = array_unique(array_values(\Yii::$app->multiSiteCore->websites[$websiteKey]['domains']));
-        foreach($languageCodes as $languageCode) {
+        foreach ($languageCodes as $languageCode) {
             $this->removeEmptyDirectories(Yii::getAlias(FileManagerItem::STORAGE_PATH . $languageCode));
         };
     }
