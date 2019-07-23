@@ -200,15 +200,18 @@ class SluggableBehavior extends \yii\behaviors\SluggableBehavior
             return $aliasPath;
         }
 
+
+        $usedAliasPaths = ContentTreeTranslation::find()->select('alias_path')
+            ->startWith($aliasPath)
+            ->byLanguage($this->owner->language)
+            ->except($this->owner->id)
+            ->asArray()->all();
+
         $numericAliasPath = array_map(function ($contentTreeTranslation) {
             $explode = explode('-', $contentTreeTranslation['alias_path']);
             $lastElement = end($explode);
             return is_numeric($lastElement) ? intval($lastElement) : 0;
-        } , ContentTreeTranslation::find()->select('alias_path')
-            ->startWith($aliasPath)
-            ->byLanguage($this->owner->language)
-            ->except($this->owner->id)
-            ->asArray()->all());
+        } , $usedAliasPaths);
 
         $numericAliasPath = array_unique($numericAliasPath);
         asort($numericAliasPath);

@@ -712,8 +712,8 @@ class UtilsController extends Controller
                     if ($aliasChanged) {
                         Console::output("-------------------------------------------------------------------");
                         $linkText = $contentTreeItem->link_id ? "(LINK)" : "";
-                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) .
-                                 {$linkText} . [{$contentTreeTranslation->language}] updated:");
+                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) ".
+                                "{$linkText} [{$contentTreeTranslation->language}] updated:");
                         Console::output("alias: {$beforeUpdateAlias} => {$contentTreeTranslation->alias}");
                         Console::output("alias_path: {$beforeUpdateAliasPath} => {$contentTreeTranslation->alias_path}");
                     }
