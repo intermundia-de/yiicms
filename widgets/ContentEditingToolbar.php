@@ -27,6 +27,12 @@ class ContentEditingToolbar extends Widget
 {
     public $showLogin = false;
 
+    public function init()
+    {
+        parent::init();
+        $this->showLogin = Yii::$app->contentTree->contentEditingLoginForm;
+    }
+
     public function run()
     {
         return $this->render('editing_toolbar.php', [
