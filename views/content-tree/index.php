@@ -145,7 +145,7 @@ $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['m
             echo Html::a('Live Content Editing', Url::to([
                 '/base/user-login',
                 'id' => Yii::$app->user->id,
-                'url' => $nearestPage->getNodes()
+                'contentTreeId' => $nearestPage->id
             ]),
                 ['class' => 'btn btn-info margin-5', 'target' => '_blank']);
         } ?>

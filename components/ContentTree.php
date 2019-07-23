@@ -34,6 +34,7 @@ class ContentTree extends Component
     public $menuOptions = [];
     public $customViews = [];
     public $customContentTreeClass = [];
+    public $contentEditingLoginForm = false;
 
     public function init()
     {
