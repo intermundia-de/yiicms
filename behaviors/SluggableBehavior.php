@@ -212,9 +212,8 @@ class SluggableBehavior extends \yii\behaviors\SluggableBehavior
 
         $numericAliasPath = array_unique($numericAliasPath);
         asort($numericAliasPath);
-        $numeric = end($numericAliasPath) + 1;
 
-        for($i = 1; $i < end($numericAliasPath); $i++) {
+        for($i = 1; $i <= end($numericAliasPath) + 1; $i++) {
             if(!in_array($i, $numericAliasPath, true)) {
                 $numeric = $i;
                 break;
