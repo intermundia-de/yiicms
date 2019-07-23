@@ -26,7 +26,7 @@ class ContentEditingToolbar extends Widget
         if (\Yii::$app->user->canEditContent()) {
 
             /** @var ContentTree $contentTreeObject */
-            $contentTreeObject = $this->getView()->contentTreeObject;
+            $contentTreeObject = Yii::$app->pageContentTree;
             return Alert::widget([
                 'closeButton' => false,
                 'options' => [
