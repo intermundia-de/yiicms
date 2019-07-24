@@ -112,3 +112,12 @@ ______________________
     ```php 
     php console/yii utils/add-language $websiteKey $from $to
     ```                  
+______________________
+To update alias, alias-path for and corresponding file manager items
+run
+   ```php 
+      php console/yii utils/fix-alias-and-file-manager-items $websiteKey
+   ```
+`SluggableBehavior` will update `alias` and `alias_path` attributes for each record in `content_tree_translation` table
+that belongs to provided `$websiteKey`.
+Corresponding `file_manager_item` records are also updated. 
