@@ -6,6 +6,7 @@ use intermundia\yiicms\components\ContentTree;
 use intermundia\yiicms\models\ContentTreeTranslation;
 use yii\db\BaseActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
 
 /**
  * Class SluggableBehavior
@@ -81,7 +82,8 @@ class SluggableBehavior extends \yii\behaviors\SluggableBehavior
     protected function generateSlug($slugParts)
     {
         $slugParts = $this->modifySlugAttribute($slugParts);
-        return parent::generateSlug($slugParts);
+        $slug = Inflector::slug(implode('-', $slugParts));
+        return preg_replace('/-+/', '-', $slug);
     }
 
     /**
@@ -178,7 +180,7 @@ class SluggableBehavior extends \yii\behaviors\SluggableBehavior
     /**
      * Ensure unique alias_path and language combination.
      * If it's not unique add "-$numeric" end of alias and alias path
-     * $numeric = maximum(numeric value end of alias_path after last '-') + 1
+     * $numeric = first integer, where ($aliasPath-$numeric) conbination is unique
      *
      * @param $aliasPath
      * @return string
@@ -193,18 +195,35 @@ class SluggableBehavior extends \yii\behaviors\SluggableBehavior
             ->andWhere([\intermundia\yiicms\models\ContentTree::tableName() . '.deleted_at' => null])
             ->count();
 
-        if ($ct == 0) {
+
+        if($ct == 0) {
             return $aliasPath;
         }
+
+
+        $usedAliasPaths = ContentTreeTranslation::find()->select('alias_path')
+            ->startWith($aliasPath)
+            ->byLanguage($this->owner->language)
+            ->except($this->owner->id)
+            ->asArray()->all();
 
         $numericAliasPath = array_map(function ($contentTreeTranslation) {
             $explode = explode('-', $contentTreeTranslation['alias_path']);
             $lastElement = end($explode);
             return is_numeric($lastElement) ? intval($lastElement) : 0;
-        }, ContentTreeTranslation::find()->select('alias_path')->startWith($aliasPath)->asArray()->all());
-        $numeric = max($numericAliasPath) + 1;
-        $this->owner->alias = $this->owner->alias . '-' . $numeric;
+        } , $usedAliasPaths);
 
+        $numericAliasPath = array_unique($numericAliasPath);
+        asort($numericAliasPath);
+
+        for($i = 1; $i <= end($numericAliasPath) + 1; $i++) {
+            if(!in_array($i, $numericAliasPath, true)) {
+                $numeric = $i;
+                break;
+            }
+        }
+
+        $this->owner->alias = $this->owner->alias . '-' . $numeric;
         return $aliasPath . '-' . $numeric;
     }
 
