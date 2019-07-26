@@ -13,6 +13,7 @@ use yii\helpers\Json;
  * This is the model class for table "timeline_event".
  *
  * @property integer $id
+ * @property string $website_key
  * @property string $application
  * @property string $group
  * @property string $category
@@ -55,9 +56,18 @@ class TimelineEvent extends ActiveRecord
     /**
      * @return TimelineEventQuery
      */
-    public static function find()
+    public static function findClean()
     {
         return new TimelineEventQuery(get_called_class());
+    }
+
+    /**
+     * @return TimelineEventQuery
+     */
+    public static function find()
+    {
+        return (new TimelineEventQuery(get_called_class()))
+            ->forWebsite(\Yii::$app->websiteKey);
     }
 
     /**
@@ -84,6 +94,7 @@ class TimelineEvent extends ActiveRecord
             [['data'], 'safe'],
             [['created_by', 'record_id'], 'integer'],
             [['application', 'group', 'record_name', 'category', 'event'], 'string', 'max' => 64],
+            ['webs-te_key', 'string', 'max' => 1024],
             [
                 ['created_by'],
                 'exist',

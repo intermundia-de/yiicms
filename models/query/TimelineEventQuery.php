@@ -41,4 +41,13 @@ class TimelineEventQuery extends ActiveQuery
     {
         return parent::one($db);
     }
+
+    /**
+     * @param string $websiteKey
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function forWebsite($websiteKey)
+    {
+        return $this->andWhere(['website_key' => $websiteKey]);
+    }
 }
