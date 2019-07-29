@@ -94,7 +94,7 @@ class TimelineEvent extends ActiveRecord
             [['data'], 'safe'],
             [['created_by', 'record_id'], 'integer'],
             [['application', 'group', 'record_name', 'category', 'event'], 'string', 'max' => 64],
-            ['webs-te_key', 'string', 'max' => 1024],
+            ['website_key', 'string', 'max' => 1024],
             [
                 ['created_by'],
                 'exist',

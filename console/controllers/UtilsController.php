@@ -22,6 +22,7 @@ use intermundia\yiicms\models\query\BaseQuery;
 use intermundia\yiicms\models\query\BaseTranslationQuery;
 use intermundia\yiicms\models\query\ContentTreeTranslationQuery;
 use intermundia\yiicms\models\Search;
+use intermundia\yiicms\models\TimelineEvent;
 use intermundia\yiicms\models\User;
 use intermundia\yiicms\models\UserProfile;
 use intermundia\yiicms\models\WidgetText;
@@ -844,5 +845,90 @@ class UtilsController extends Controller
     private function executePdo($str)
     {
         return Yii::$app->db->masterPdo->exec($str);
+    }
+
+    public function actionFixTimelineEvents()
+    {
+        $websiteMap = [];
+        foreach(Yii::$app->multiSiteCore->websites as $websiteKey => $website){
+            foreach(array_unique(array_values($website['domains'])) as $domain) {
+                $websiteMap[$domain] = $websiteKey;
+            }
+        }
+
+        $timelineEvents = TimelineEvent::findClean()
+            ->andWhere(['website_key' => null])
+            ->andWhere(['not', ['record_id' => null]])
+            ->all();
+
+        $notFoundItemsIds = [];
+        $updatedCount = 0;
+        $needUpdateCount = count($timelineEvents);
+
+        foreach($timelineEvents as $timelineEvent) {
+            /** @var $timelineEvent TimelineEvent
+             */
+            $ctQuery = ContentTree::findClean()
+                ->with('translations')
+                ->linkedIdIsNull();
+
+            if($timelineEvent->category == "content_tree") {
+                $ctQuery->andWhere(['id' => $timelineEvent->record_id]);
+            }
+            else {
+                $ctQuery->byRecordIdTableName($timelineEvent->record_id, $timelineEvent->category);
+            }
+
+            $ct = $ctQuery->one();
+
+            if($ct && $ct->translations) {
+                $language = $ct->translations[0]->language;
+                $timelineEvent->website_key = $websiteMap[$language];
+
+                /*Only validate $website_key, ignore other attributes,
+                  Note: TimelineEvent::afterFind() modifies $data attribute using Json::decode()*/
+                if(!$timelineEvent->save(true, ['website_key'])) {
+                    Console::output("Failed to update Timeline Event, id = {$timelineEvent->id}");
+                    $errors = $timelineEvent->getFirstErrors();
+                    foreach($errors as $error) {
+                        Console::error("{$error}");
+                    }
+                }
+                else {
+                    $updatedCount++;
+                }
+            }
+            else {
+                $notFoundItemsIds[] = $timelineEvent->id;
+                $needUpdateCount--;
+            }
+        }
+
+        $updateAction = $needUpdateCount ? true : false;
+        $deleteAction = $notFoundItemsIds ? true : false;
+
+        //Remove Timeline event records, where correcponding ContentTree items were not found
+        if($notFoundItemsIds) {
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                TimelineEvent::deleteAll(['id' => $notFoundItemsIds]);
+                $transaction->commit();
+            } catch (yii\db\Exception $exception) {
+                $transaction->rollBack();
+                Console::error($exception->getMessage());
+            }
+        }
+
+        Console::output("Task completed successfully");
+        if($updateAction) {
+            Console::output("Updated ${updatedCount} from ${needUpdateCount} rows in timeline_event table");
+        }
+        if($deleteAction) {
+            $notFoundItemsIdsCount = count($notFoundItemsIds);
+            Console::output("Deleted ${notFoundItemsIdsCount} rows in timeline_event table");
+        }
+        if(!$updateAction && !$deleteAction) {
+            Console::output("No changes were made in timeline_event table");
+        }
     }
 }

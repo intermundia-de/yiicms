@@ -13,8 +13,8 @@ use yii\db\ActiveQuery;
 class TimelineEventQuery extends ActiveQuery
 {
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return self
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function today()
     {
@@ -23,9 +23,9 @@ class TimelineEventQuery extends ActiveQuery
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param null $db
      * @return array|\yii\db\ActiveRecord[]
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function all($db = null)
     {
@@ -33,9 +33,9 @@ class TimelineEventQuery extends ActiveQuery
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param null $db
      * @return array|null|\yii\db\ActiveRecord
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function one($db = null)
     {
@@ -48,6 +48,7 @@ class TimelineEventQuery extends ActiveQuery
      */
     public function forWebsite($websiteKey)
     {
-        return $this->andWhere(['website_key' => $websiteKey]);
+        return $this->orWhere(['website_key' => $websiteKey])
+               ->orWhere(['website_key' => null]);
     }
 }
