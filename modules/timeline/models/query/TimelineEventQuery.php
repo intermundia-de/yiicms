@@ -1,12 +1,12 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: zein
- * Date: 8/5/14
- * Time: 10:46 AM
+ * User: miriani
+ * Date: 29/11/19
+ * Time: 5:44 PM
  */
 
-namespace intermundia\yiicms\models\query;
+namespace intermundia\yiicms\modules\timeline\models\query;
 
 use yii\db\ActiveQuery;
 

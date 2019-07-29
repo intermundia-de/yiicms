@@ -10,7 +10,7 @@ namespace intermundia\yiicms\behaviors;
 
 use intermundia\yiicms\commands\AddToTimelineCommand;
 use intermundia\yiicms\models\BaseTranslateModel;
-use intermundia\yiicms\models\TimelineEvent;
+use intermundia\yiicms\modules\timeline\models\TimelineEvent;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
