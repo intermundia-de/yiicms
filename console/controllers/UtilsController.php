@@ -927,7 +927,7 @@ class UtilsController extends Controller
             if($language) {
                 array_push($updateList, ['id' => $timelineEvent['id'], 'language' => $websiteMap[$language]]);
             }
-            if(!$language) {
+            else {
                 $notFoundItemsIds[] = $timelineEvent['id'];
                 $needUpdateCount--;
             }
