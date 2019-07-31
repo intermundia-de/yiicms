@@ -7,9 +7,6 @@
 
 namespace intermundia\yiicms\web;
 
-
-use backend\models\LoginForm;
-use common\models\User;
 use Yii;
 use DateTime;
 
@@ -21,5 +18,5 @@ use DateTime;
  */
 class BackendController extends Controller
 {
-    
+
 }
