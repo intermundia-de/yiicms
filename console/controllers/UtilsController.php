@@ -891,7 +891,7 @@ class UtilsController extends Controller
             ->all();
 
         $notFoundItemsIds = [];
-        $updatedCount = 0;
+        $deletedCount = $updatedCount =  0;
         $needUpdateCount = count($timelineEvents);
 
         if($needUpdateCount > 0) {
@@ -950,15 +950,20 @@ class UtilsController extends Controller
         $updateAction = $needUpdateCount ? true : false;
         $deleteAction = $notFoundItemsIds ? true : false;
 
-        //delete timeline_event records where corresponding content_tree record was not found
-        if($notFoundItemsIds) {
-            $transaction = Yii::$app->db->beginTransaction();
-            try {
-                TimelineEvent::deleteAll(['id' => $notFoundItemsIds]);
-                $transaction->commit();
-            } catch (yii\db\Exception $exception) {
-                $transaction->rollBack();
-                Console::error($exception->getMessage());
+
+        if ($notFoundItemsIds) {
+            Console::output("Content Tree item not found for timeline_event ids: [" . implode(',',
+                    $notFoundItemsIds) . "]");
+            if (Console::confirm("Delete these timeline_event records?")) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    TimelineEvent::deleteAll(['id' => $notFoundItemsIds]);
+                    $transaction->commit();
+                    $deletedCount = count($notFoundItemsIds);
+                } catch (yii\db\Exception $exception) {
+                    $transaction->rollBack();
+                    Console::error($exception->getMessage());
+                }
             }
         }
 
@@ -967,8 +972,7 @@ class UtilsController extends Controller
             Console::output("Updated ${updatedCount} from ${needUpdateCount} rows in timeline_event table");
         }
         if($deleteAction) {
-            $notFoundItemsIdsCount = count($notFoundItemsIds);
-            Console::output("Deleted ${notFoundItemsIdsCount} rows in timeline_event table");
+            Console::output("Deleted ${deletedCount} rows in timeline_event table");
         }
         if(!$updateAction && !$deleteAction) {
             Console::output("No changes were made in timeline_event table");
