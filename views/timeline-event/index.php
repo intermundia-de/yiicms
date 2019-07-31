@@ -1,7 +1,7 @@
 <?php
 /**
  * @var $this \yii\web\View
- * @var $model \intermundia\yiicms\modules\timeline\models\TimelineEvent
+ * @var $model \intermundia\yiicms\models\TimelineEvent
  * @var $dataProvider \yii\data\ActiveDataProvider
  */
 $this->title = Yii::t('backend', 'Application timeline');

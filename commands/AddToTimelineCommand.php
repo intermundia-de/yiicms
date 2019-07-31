@@ -2,7 +2,7 @@
 
 namespace intermundia\yiicms\commands;
 
-use intermundia\yiicms\modules\timeline\models\TimelineEvent;
+use intermundia\yiicms\models\TimelineEvent;
 use trntv\bus\interfaces\SelfHandlingCommand;
 use Yii;
 use yii\base\BaseObject;

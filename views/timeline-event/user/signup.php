@@ -1,6 +1,6 @@
 <?php
 /**
- * @var $model \intermundia\yiicms\modules\timeline\models\TimelineEvent
+ * @var $model \intermundia\yiicms\models\TimelineEvent
  */
 ?>
 <div class="timeline-badge bg-success"><i class="fa fa-user"></i></div>

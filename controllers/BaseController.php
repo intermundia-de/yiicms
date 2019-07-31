@@ -10,7 +10,7 @@ use intermundia\yiicms\models\ContentTreeMenu;
 use intermundia\yiicms\models\ContentTreeTranslation;
 use intermundia\yiicms\models\ContentMultiModel;
 use intermundia\yiicms\models\FileManagerItem;
-use intermundia\yiicms\modules\timeline\models\TimelineEvent;
+use intermundia\yiicms\models\TimelineEvent;
 use intermundia\yiicms\web\ContentController;
 use intermundia\yiicms\models\User;
 use intermundia\yiicms\models\UserToken;

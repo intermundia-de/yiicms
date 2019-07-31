@@ -1,8 +1,8 @@
 <?php
 
-namespace intermundia\yiicms\modules\timeline\models\search;
+namespace intermundia\yiicms\models\search;
 
-use intermundia\yiicms\modules\timeline\models\TimelineEvent;
+use intermundia\yiicms\models\TimelineEvent;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 

@@ -6,7 +6,7 @@
  * Time: 5:44 PM
  */
 
-namespace intermundia\yiicms\modules\timeline\models\query;
+namespace intermundia\yiicms\models\query;
 
 use yii\db\ActiveQuery;
 

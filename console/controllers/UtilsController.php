@@ -22,7 +22,7 @@ use intermundia\yiicms\models\query\BaseQuery;
 use intermundia\yiicms\models\query\BaseTranslationQuery;
 use intermundia\yiicms\models\query\ContentTreeTranslationQuery;
 use intermundia\yiicms\models\Search;
-use intermundia\yiicms\modules\timeline\models\TimelineEvent;
+use intermundia\yiicms\models\TimelineEvent;
 use intermundia\yiicms\models\User;
 use intermundia\yiicms\models\UserProfile;
 use intermundia\yiicms\models\WidgetText;

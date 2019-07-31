@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
 /* @var $this \yii\web\View */
-/* @var $model \intermundia\yiicms\modules\timeline\models\search\TimelineEventSearch */
+/* @var $model \intermundia\yiicms\models\search\TimelineEventSearch */
 /* @var $form \yii\bootstrap\ActiveForm */
 ?>
 

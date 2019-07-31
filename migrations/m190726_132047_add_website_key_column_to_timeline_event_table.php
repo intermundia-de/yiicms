@@ -12,7 +12,7 @@ class m190726_132047_add_website_key_column_to_timeline_event_table extends Migr
      */
     public function safeUp()
     {
-        $this->addColumn(\intermundia\yiicms\modules\timeline\models\TimelineEvent::tableName(),
+        $this->addColumn(\intermundia\yiicms\models\TimelineEvent::tableName(),
             'website_key', $this->string(1024)->null()->after('id'));
     }
 
@@ -21,7 +21,7 @@ class m190726_132047_add_website_key_column_to_timeline_event_table extends Migr
      */
     public function safeDown()
     {
-        $this->dropColumn(\intermundia\yiicms\modules\timeline\models\TimelineEvent::tableName(),
+        $this->dropColumn(\intermundia\yiicms\models\TimelineEvent::tableName(),
             'website_key');
     }
 }

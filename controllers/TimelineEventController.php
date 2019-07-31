@@ -6,10 +6,10 @@
  * Time: 4:55 PM
  */
 
-namespace intermundia\yiicms\modules\timeline\controllers;
+namespace intermundia\yiicms\controllers;
 
 use intermundia\yiicms\web\BackendController;
-use intermundia\yiicms\modules\timeline\models\search\TimelineEventSearch;
+use intermundia\yiicms\models\search\TimelineEventSearch;
 use Yii;
 
 /**

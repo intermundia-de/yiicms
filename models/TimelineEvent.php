@@ -1,8 +1,8 @@
 <?php
 
-namespace intermundia\yiicms\modules\timeline\models;
+namespace intermundia\yiicms\models;
 
-use intermundia\yiicms\modules\timeline\models\query\TimelineEventQuery;
+use intermundia\yiicms\models\query\TimelineEventQuery;
 use intermundia\yiicms\models\User;
 use intermundia\yiicms\models\ContentTree;
 use yii\behaviors\TimestampBehavior;
@@ -182,7 +182,8 @@ class TimelineEvent extends ActiveRecord
             }
 
 //            return $object->getFullUrl();
-            return $object->getBackendFullUrl();
+            $url = $object->getFullUrl();
+            return str_replace('/core/', '/', $url);
         }
         return '';
     }
