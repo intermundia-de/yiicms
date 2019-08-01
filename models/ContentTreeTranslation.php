@@ -21,6 +21,8 @@ use yii\helpers\ArrayHelper;
  * @property string $short_description
  * @property array $_oldContentTreeAttributes
  *
+ * @property boolean $selfUpdateOnly
+ *
  * @property ContentTree $contentTree
  */
 class ContentTreeTranslation extends \yii\db\ActiveRecord
@@ -36,6 +38,12 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     public $children;
     public $move = 0;
     private $_oldContentTreeAttributes;
+
+
+    /*
+     * When true, updates alias and alias_path,
+     * Doesn't update children items */
+    public $selfUpdateOnly = false;
 
     const CHANGE_ALIAS_PATH = 'changeAliasPath';
     const CHANGE_CHILDREN_PATH = 'changeChildrenPath';
@@ -80,7 +88,9 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
                 'attribute' => 'name',
                 'immutable' => false,
                 'ensureUnique' => false,
-                'forceUpdate' => false,
+                'forceUpdate' => function () {
+                    return $this->selfUpdateOnly;
+                },
                 'replaceWords' => [
                     'ä' => 'ae',
                     'Ä' => 'ae',
@@ -165,22 +175,23 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
 
     public function afterSave($insert, $changedAttributes)
     {
-        $aliasChanged = $this->_oldContentTreeAttributes && $this->_oldContentTreeAttributes['alias_path'] != $this->oldAttributes['alias_path'];
-        if ($insert || $aliasChanged) {
-            $this->setChildren();
+        if (!$this->selfUpdateOnly) {
+            $aliasChanged = $this->_oldContentTreeAttributes && $this->_oldContentTreeAttributes['alias_path'] != $this->oldAttributes['alias_path'];
+            if ($insert || $aliasChanged) {
+                $this->setChildren();
+            }
+
+            /* If alias has changed trigger CHANGE_ALIAS_PATH event.
+            *  This event update own and children's alias_path,file_manager_item's path,
+            *  rename file folder name oldAlias to newAlias
+            */
+            $aliasChanged && !$this->contentTree->link_id && $this->trigger(self::CHANGE_ALIAS_PATH);
+
+            /* If translation creates and it has children trigger CHANGE_CHILDREN_PATH event.
+            *  This event updates children's alias_path,file_manager_item's path,
+            */
+            $insert && $this->children && !$this->contentTree->link_id && $this->trigger(self::CHANGE_CHILDREN_PATH);
         }
-
-        /* If alias has changed trigger CHANGE_ALIAS_PATH event.
-        *  This event update own and children's alias_path,file_manager_item's path,
-        *  rename file folder name oldAlias to newAlias
-        */
-        $aliasChanged && !$this->contentTree->link_id && $this->trigger(self::CHANGE_ALIAS_PATH);
-
-        /* If translation creates and it has children trigger CHANGE_CHILDREN_PATH event.
-        *  This event updates children's alias_path,file_manager_item's path,
-        */
-        $insert && $this->children && !$this->contentTree->link_id && $this->trigger(self::CHANGE_CHILDREN_PATH);
-
         parent::afterSave($insert, $changedAttributes);
     }
 
@@ -191,7 +202,7 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     {
         $contentTree = $this->contentTree;
         $this->children = $contentTree->children()
-            ->select(['table_name', 'record_id', ContentTree::tableName() . '.id as content_tree_id', "SUBSTRING_INDEX(alias_path, '/', $contentTree->depth ) as parent_old_path"])
+            ->select(['link_id', 'table_name', 'record_id', ContentTree::tableName() . '.id as content_tree_id', "SUBSTRING_INDEX(alias_path, '/', $contentTree->depth ) as parent_old_path"])
             ->leftJoin(ContentTreeTranslation::tableName() . ' t',
                 't' . '.content_tree_id = ' . ContentTree::tableName() . ".id AND t.language = :language", [
                     'language' => $this->language
@@ -285,10 +296,13 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     {
         /** @var ContentTree $contentTree */
         $contentTree = $this->contentTree;
-        if ($this->children) {
+        $children = array_filter($this->children, function ($child) {
+            return !$child['link_id'];
+        });
+        if ($children) {
             $sqlArray = array_map(function ($child) {
                 return "('" . $child['table_name'] . "' , " . $child['record_id'] . ")";
-            }, $this->children);
+            }, $children);
             $sqlString = implode(' , ', $sqlArray);
             Yii::$app->db->createCommand("UPDATE " . FileManagerItem::tableName() . " SET 
                 path = REPLACE(path, SUBSTRING_INDEX(path, '/', :depth) , :alias_path_with_language )

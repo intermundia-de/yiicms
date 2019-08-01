@@ -34,6 +34,7 @@ class ContentTree extends Component
     public $menuOptions = [];
     public $customViews = [];
     public $customContentTreeClass = [];
+    public $contentEditingLoginForm = false;
 
     public function init()
     {
@@ -51,27 +52,32 @@ class ContentTree extends Component
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_VIDEO_SECTION => [
                 'class' => \intermundia\yiicms\models\VideoSection::class,
-                'searchableAttributes' => ['title', 'content_top', 'content_bottom'],
+//                'searchableAttributes' => ['title', 'content_top', 'content_bottom'],
+                'searchableAttributes' => [],
                 'displayName' => Yii::t('intermundiacms', 'Video Section')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_CONTENT_TEXT => [
                 'class' => \intermundia\yiicms\models\ContentText::class,
-                'searchableAttributes' => ['name', 'single_line', 'multi_line'],
+//                'searchableAttributes' => ['name', 'single_line', 'multi_line'],
+                'searchableAttributes' => ['multi_line'],
                 'displayName' => Yii::t('intermundiacms', 'Content Text')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_SECTION => [
                 'class' => \intermundia\yiicms\models\Section::class,
-                'searchableAttributes' => ['title', 'description'],
+//                'searchableAttributes' => ['title', 'description'],
+                'searchableAttributes' => [],
                 'displayName' => Yii::t('intermundiacms', 'Section')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_CAROUSEL => [
                 'class' => \intermundia\yiicms\models\Carousel::class,
 //                    'searchableAttributes' => ['legal_text_for_patients'],
+                'searchableAttributes' => [],
                 'displayName' => Yii::t('intermundiacms', 'Carousel')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_CAROUSEL_ITEM => [
                 'class' => \intermundia\yiicms\models\CarouselItem::class,
-                'searchableAttributes' => ['caption'],
+//                'searchableAttributes' => ['caption'],
+                'searchableAttributes' => [],
                 'displayName' => Yii::t('intermundiacms', 'Carousel Item')
             ]
         ], $this->editableContent);

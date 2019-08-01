@@ -506,14 +506,13 @@ class BaseController extends ContentController
 
     /**
      * @param $id
+     * @param $contentTreeId
      * @return \yii\web\Response
      * @throws \yii\base\Exception
-     * @throws NotFoundHttpException
+     * @throws \yii\web\NotFoundHttpException
      */
-    public function actionUserLogin($id)
+    public function actionUserLogin($id, $contentTreeId)
     {
-        $url = Yii::$app->request->get('url', '');
-        $id = Yii::$app->request->get('id', '');
         $model = $this->findUserModel($id);
         $tokenModel = UserToken::create(
             $model->getId(),
@@ -525,7 +524,7 @@ class BaseController extends ContentController
             Yii::$app->urlManagerFrontend->createAbsoluteUrl([
                 'user/sign-in/login-by-pass',
                 'token' => $tokenModel->token,
-                'url' => $url
+                'contentTreeId' => $contentTreeId
             ])
         );
     }
