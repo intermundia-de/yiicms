@@ -121,3 +121,14 @@ run
 `SluggableBehavior` will update `alias` and `alias_path` attributes for each record in `content_tree_translation` table
 that belongs to provided `$websiteKey`.
 Corresponding `file_manager_item` records are also updated. 
+______________________
+To sort existing timeline events based on website key
+1. Run migrations
+    ```php 
+    ./migrate
+    ```                  
+     
+ 1. Run
+    ```php 
+    php console/yii utils/fix-timeline-events
+    ```                  

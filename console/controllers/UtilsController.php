@@ -921,7 +921,7 @@ class UtilsController extends Controller
                     ['record_id', 'table_name'],
                     $recordIdTableNames
                 ]
-            ]);
+            ])->all();
 
             $ctsMapped = ArrayHelper::map($cts, 'record_id', function ($ctItem) {
                 return $ctItem->translations ? $ctItem->translations[0]->language : null;
