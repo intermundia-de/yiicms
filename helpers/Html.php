@@ -83,4 +83,35 @@ class Html extends \yii\helpers\Html
         }
         return $navData;
     }
+    /**
+     * Replace contentTreeid array data in given content
+     *
+     * @param $content string
+     * @return array
+     */
+    public static function replaceContentTreeIdsInContent($content){
+
+        preg_match_all('/(?<=\{{contentTreeId:)(.*?)(?=\}})/', $content, $matches);
+
+        if (!isset($matches[1])) {
+            return $content;
+        }
+
+        $aliasPaths = ArrayHelper::map(
+            ContentTree::find()->byId($matches[1])->with('activeTranslation')->all(),
+            'id',
+            function ($model) {
+                /** @var $model ContentTree */
+                return [
+                    'replace' => '/{{contentTreeId:' . $model->id . '}}/',
+                    'alias_path' => '/' . $model->activeTranslation->alias_path
+                ];
+            });
+
+        return preg_replace(
+            ArrayHelper::getColumn($aliasPaths, 'replace'),
+            ArrayHelper::getColumn($aliasPaths, 'alias_path'),
+            $content
+        );
+    }
 }
