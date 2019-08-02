@@ -241,11 +241,11 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function activate()
     {
-        $this->status = Self::STATUS_ACTIVE;
+        $this->status = self::STATUS_ACTIVE;
         $this->login_attempt = 0;
         $this->suspended_till = 0;
         if (!$this->save()) {
-            Yii::error("Could not update user status .user id: $this->id", Self::class);
+            Yii::error("Could not update user status .user id: $this->id", self::class);
             return false;
         }
         return true;
@@ -258,17 +258,17 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function suspend()
     {
-        $this->status = Self::STATUS_SUSPENDED;
+        $this->status = self::STATUS_SUSPENDED;
         $this->suspended_till = time() + Yii::$app->user->suspendTime;
         if (!$this->save()) {
-            Yii::error("Could not update user status .user id: $this->id", Self::class);
+            Yii::error("Could not update user status .user id: $this->id", self::class);
             return false;
         }
         return true;
     }
 
     /**
-     * Increase User login attemts
+     * Increase User login attempts
      *
      * @return boolean
      */
@@ -276,7 +276,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->login_attempt++;
         if (!$this->save()) {
-            Yii::error("Could not upadte user login Attempts .user id: $this->id", Self::class);
+            Yii::error("Could not upadte user login Attempts .user id: $this->id", self::class);
             return false;
         }
         return true;
@@ -284,7 +284,8 @@ class User extends ActiveRecord implements IdentityInterface
 
 
     /**
-     * @return formated user suspend time
+     * @return User|string
+     * @throws \Exception
      */
 
     public function getSuspendTime()

@@ -11,13 +11,17 @@ namespace intermundia\yiicms\web;
  * Class User
  *
  * @property integer $suspendTime
- * @property integer $loginATtemptCount
+ * @property integer $loginAttemptCount
  * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\web
  */
 class User extends \yii\web\User
 {
-//    Suspend time in seconds
+    /**
+     * Account suspend time in seconds
+     *
+     * @var $suspendTime
+     */
     public $suspendTime;
     public $loginAttemptCount;
 
