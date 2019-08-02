@@ -118,7 +118,7 @@ class BaseApplication extends \yii\web\Application
 
                     \Yii::setAlias('@frontendUrl', $matches[1] . $frontendHost);
                     \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
-                    $this->setHomeUrl($matches[1] . $frontendHost);
+                    $this->setHomeUrl($matches[1] . $domain);
                     $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
                     \Yii::setAlias('@storageUrl', $storageUrl);
                     break;
