@@ -17,8 +17,9 @@ namespace intermundia\yiicms\web;
  */
 class User extends \yii\web\User
 {
-    public $suspendTime = 60 * 60 * 24;
-    public  $loginATtemptCount = 3;
+//    Suspend time in seconds
+    public $suspendTime;
+    public  $loginAttemptCount;
 
     public function canEditContent()
     {
