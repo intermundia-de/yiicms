@@ -84,7 +84,7 @@ foreach ($rootItems as &$rootItem) {
                         <li><a href="<?php echo Url::to(['/sign-in/account']) ?>"><span
                                         class="fa fa-key"></span> &nbsp;&nbsp;Account</a>
                         </li>
-                        <li><a href="<?php echo Url::to(['/timeline-event/index']) ?>"><i class="fa fa-code-fork"></i>
+                        <li><a href="<?php echo Url::to(['/core/timeline-event/index']) ?>"><i class="fa fa-code-fork"></i>
                                 &nbsp;&nbsp;Timeline</a></li>
                         <!--                        <li><a href="#lobimail"><span class="glyphicon glyphicon-envelope"></span> &nbsp;&nbsp;Messages</a></li>-->
                         <li class="divider"></li>
@@ -135,7 +135,7 @@ foreach ($rootItems as &$rootItem) {
                             <?php endforeach; ?>
                         </ul>
                         <div class="notifications-footer border-top-1 bg-white text-center">
-                            <?php echo Html::a(Yii::t('backend', 'View all'), ['/timeline-event/index']) ?>
+                            <?php echo Html::a(Yii::t('backend', 'View all'), ['/core/timeline-event/index']) ?>
                         </div>
                     </div>
                 </li>
@@ -218,7 +218,7 @@ foreach ($rootItems as &$rootItem) {
                     [
                         'label' => Yii::t('backend', 'Timeline'),
                         'icon' => 'fa fa-bar-chart-o',
-                        'url' => ['/timeline-event/index'],
+                        'url' => ['/core/timeline-event/index'],
                         'badge' => TimelineEvent::find()->today()->count(),
                         'badgeBgClass' => 'label-success',
                     ],
