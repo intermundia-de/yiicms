@@ -122,6 +122,17 @@ run
 that belongs to provided `$websiteKey`.
 Corresponding `file_manager_item` records are also updated. 
 ______________________
+To sort existing timeline events based on website key
+1. Run migrations
+    ```php 
+    ./migrate
+    ```                  
+     
+ 1. Run
+    ```php 
+    php console/yii utils/fix-timeline-events
+    ```                  
+
 ### Changing to core backend login
 
 ### Important!!! 
@@ -134,3 +145,4 @@ ______________________
 
 ##### note: You can  skip step 4 by redirecting `sign-in` controller actions to `core/sign-in` controller actions or by not deleting `SignInController`.
 ______________________
+

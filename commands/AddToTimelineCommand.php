@@ -52,6 +52,7 @@ class AddToTimelineCommand extends BaseObject implements SelfHandlingCommand
     public function handle($command)
     {
         $model = new TimelineEvent();
+        $model->website_key = Yii::$app->websiteKey;
         $model->application = Yii::$app->id;
         $model->group = $this->group;
         $model->category = $command->category;

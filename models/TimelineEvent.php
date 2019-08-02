@@ -3,6 +3,8 @@
 namespace intermundia\yiicms\models;
 
 use intermundia\yiicms\models\query\TimelineEventQuery;
+use intermundia\yiicms\models\User;
+use intermundia\yiicms\models\ContentTree;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
@@ -13,6 +15,7 @@ use yii\helpers\Json;
  * This is the model class for table "timeline_event".
  *
  * @property integer $id
+ * @property string $website_key
  * @property string $application
  * @property string $group
  * @property string $category
@@ -55,9 +58,18 @@ class TimelineEvent extends ActiveRecord
     /**
      * @return TimelineEventQuery
      */
-    public static function find()
+    public static function findClean()
     {
         return new TimelineEventQuery(get_called_class());
+    }
+
+    /**
+     * @return TimelineEventQuery
+     */
+    public static function find()
+    {
+        return (new TimelineEventQuery(get_called_class()))
+            ->forWebsite(\Yii::$app->websiteKey);
     }
 
     /**
@@ -84,6 +96,7 @@ class TimelineEvent extends ActiveRecord
             [['data'], 'safe'],
             [['created_by', 'record_id'], 'integer'],
             [['application', 'group', 'record_name', 'category', 'event'], 'string', 'max' => 64],
+            ['website_key', 'string', 'max' => 1024],
             [
                 ['created_by'],
                 'exist',
@@ -168,7 +181,9 @@ class TimelineEvent extends ActiveRecord
                 return '';
             }
 
-            return $object->getFullUrl();
+//            return $object->getFullUrl();
+            $url = $object->getFullUrl();
+            return str_replace('/core/', '/', $url);
         }
         return '';
     }
