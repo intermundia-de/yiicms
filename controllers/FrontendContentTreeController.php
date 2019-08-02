@@ -7,6 +7,7 @@
 
 namespace intermundia\yiicms\controllers;
 
+use intermundia\yiicms\formatters\SitemapXmlResponseFormatter;
 use intermundia\yiicms\models\BaseModel;
 use common\models\ContentTree;
 use Yii;
@@ -255,5 +256,35 @@ class FrontendContentTreeController extends Controller
         }
         $this->getView()->contentTreeObject = $contentTree;
         return $contentTree;
+    }
+
+
+    public function actionSitemapXml() {
+//        Yii::$app->response->format = Response::FORMAT_XML;
+        $siteMapXmlFormatter = new SitemapXmlResponseFormatter();
+
+        Yii::$app->response->format = 'sitemap_xml';
+        Yii::$app->response->formatters['sitemap_xml'] = $siteMapXmlFormatter;
+
+        $items = ContentTree::find()
+            ->notHidden()
+            ->notDeleted()
+            ->inSitemap()
+            ->andWhere('table_name = :page')
+            ->params([
+                'page' => ContentTree::TABLE_NAME_PAGE,
+            ])
+            ->orderBy('lft')
+            ->all();
+
+        $sitemapItems = [];
+        foreach ($items as $item) {
+            $sitemapItems[] = [
+                'loc' => $item->getFullUrl(false, true),
+                'changefreq' => 'daily',
+                'priority' => 1 - ($item->depth - 1) / 10
+            ];
+        }
+        return $sitemapItems;
     }
 }
