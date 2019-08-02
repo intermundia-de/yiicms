@@ -27,6 +27,8 @@ use yii\web\IdentityInterface;
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $logged_at
+ * @property integer $suspended_till
+ * @property integer $login_attempt
  * @property string $password write-only password
  *
  * @property \intermundia\yiicms\models\UserProfile $userProfile
@@ -36,6 +38,7 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_NOT_ACTIVE = 1;
     const STATUS_ACTIVE = 2;
     const STATUS_DELETED = 3;
+    const STATUS_SUSPENDED = 4;
 
     const ROLE_USER = 'user';
     const ROLE_MANAGER = 'manager';
@@ -95,6 +98,12 @@ class User extends ActiveRecord implements IdentityInterface
             ->active()
             ->andWhere(['username' => $username])
             ->one();
+    }
+
+    public static function isSuspended($username)
+    {
+        $user = self::find()->andWhere(['username' => $username])->notDeleted()->one();
+        return $user->status == self::STATUS_SUSPENDED;
     }
 
     /**
@@ -160,6 +169,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['username', 'email'], 'unique'],
+            [['login_attempt', 'suspended_till'], 'integer'],
             ['status', 'default', 'value' => self::STATUS_NOT_ACTIVE],
             ['status', 'in', 'range' => array_keys(self::statuses())],
             [['username'], 'filter', 'filter' => '\yii\helpers\Html::encode']
@@ -175,7 +185,8 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             self::STATUS_NOT_ACTIVE => Yii::t('common', 'Not Active'),
             self::STATUS_ACTIVE => Yii::t('common', 'Active'),
-            self::STATUS_DELETED => Yii::t('common', 'Deleted')
+            self::STATUS_DELETED => Yii::t('common', 'Deleted'),
+            self::STATUS_SUSPENDED => Yii::t('common', 'Suspended'),
         ];
     }
 
@@ -192,6 +203,8 @@ class User extends ActiveRecord implements IdentityInterface
             'created_at' => Yii::t('common', 'Created at'),
             'updated_at' => Yii::t('common', 'Updated at'),
             'logged_at' => Yii::t('common', 'Last login'),
+            'login_attempt' => Yii::t('common', 'Login attempts'),
+            'suspended_till' => Yii::t('common', 'Suspended Till'),
         ];
     }
 
