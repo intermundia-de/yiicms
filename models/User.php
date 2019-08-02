@@ -2,6 +2,7 @@
 
 namespace intermundia\yiicms\models;
 
+use DateTime;
 use intermundia\yiicms\commands\AddToTimelineCommand;
 use intermundia\yiicms\models\query\UserQuery;
 use Yii;
@@ -47,6 +48,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     const EVENT_AFTER_SIGNUP = 'afterSignup';
     const EVENT_AFTER_LOGIN = 'afterLogin';
+    
 
     /**
      * @inheritdoc
@@ -230,6 +232,68 @@ class User extends ActiveRecord implements IdentityInterface
     public function getAuthKey()
     {
         return $this->auth_key;
+    }
+
+    /**
+     * Activate User
+     *
+     * @return boolean
+     */
+    public function activate()
+    {
+        $this->status = self::STATUS_ACTIVE;
+        $this->login_attempt = 0;
+        $this->suspended_till = 0;
+        if (!$this->save()) {
+            Yii::error("Could not update user status .user id: $this->id", self::class);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Suspend User for x Time
+     *
+     * @return boolean
+     */
+    public function suspend()
+    {
+        $this->status = self::STATUS_SUSPENDED;
+        $this->suspended_till = time() + Yii::$app->user->suspendTime;
+        if (!$this->save()) {
+            Yii::error("Could not update user status .user id: $this->id", self::class);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Increase User login attempts
+     *
+     * @return boolean
+     */
+    public function increaseLoginAttempt()
+    {
+        $this->login_attempt++;
+        if (!$this->save()) {
+            Yii::error("Could not upadte user login Attempts .user id: $this->id", self::class);
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * @return User|string
+     * @throws \Exception
+     */
+
+    public function getSuspendTime()
+    {
+        $currentTime = new DateTime('@' . (string)time());
+        $suspendedTill = new DateTime('@' . (string)$this->suspended_till);
+        $interval = $currentTime->diff($suspendedTill);
+        return $interval->format('%Hh %Im %Ss');
     }
 
     /**
