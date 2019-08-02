@@ -19,7 +19,7 @@ class User extends \yii\web\User
 {
 //    Suspend time in seconds
     public $suspendTime;
-    public  $loginAttemptCount;
+    public $loginAttemptCount;
 
     public function canEditContent()
     {

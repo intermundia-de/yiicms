@@ -110,7 +110,7 @@ class SignInController extends BackendController
                                 'model' => $model
                             ]);
                         }
-                        if ($user->login_attempt === Yii::$app->user->loginATtemptCount) {
+                        if ($user->login_attempt === Yii::$app->user->loginAttemptCount) {
                             if (!$user->suspend()) {
                                 return $this->render('login', [
                                     'model' => $model
@@ -120,7 +120,7 @@ class SignInController extends BackendController
                             }
                             return $this->goHome();
                         }
-                        if ($user->login_attempt < Yii::$app->user->loginATtemptCount) {
+                        if ($user->login_attempt < Yii::$app->user->loginAttemptCount) {
                             return $this->render('login', [
                                 'model' => $model
                             ]);
