@@ -71,7 +71,6 @@ class SignInController extends BackendController
     public function actionLogin()
     {
         $this->layout = 'base';
-        $this->getView()->params['body-style'] = "background-image: url('/img/login-bg.jpg')";
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
@@ -82,7 +81,7 @@ class SignInController extends BackendController
         if ($model->load(Yii::$app->request->post())) {
             $user = $model->getUser();
             if (!$user) {
-                $model->addError('password', 'Such user does not exist!');
+                $model->addError('username', 'Such user does not exist!');
                 return $this->render('login', [
                     'model' => $model
                 ]);
@@ -120,7 +119,7 @@ class SignInController extends BackendController
                         if ($user->login_attempt === self::LOGIN_ATTEMPT) {
                             $user->status = User::STATUS_SUSPENDED;
 //                            TODO ADD SUSPEND TIME CONST
-                            $user->suspended_till = time() + self::LOGIN_ATTEMPT;
+                            $user->suspended_till = time() + self::SUSPEND_TIME;
                             $currentTime = new DateTime('@' . (string)time());
                             $suspendedTill = new DateTime('@' . (string)$user->suspended_till);
                             $interval = $currentTime->diff($suspendedTill);

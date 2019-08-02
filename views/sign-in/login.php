@@ -6,8 +6,14 @@ use yii\bootstrap\ActiveForm;
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $model \backend\models\LoginForm */
 
-$this->registerCssFile('/css/login.css');
-
+$bundle = \intermundia\yiicms\bundle\BackendLoginAsset::register($this);
+$bgImage = $bundle->baseUrl . '/bg.jpg';
+$this->registerCss("
+body{
+    background: url('$bgImage') no-repeat center;
+    background-size: cover;
+}
+");
 $this->title = Yii::t('backend', 'Sign In');
 $this->params['breadcrumbs'][] = $this->title;
 $this->params['body-class'] = 'login-page';
@@ -20,15 +26,25 @@ $this->params['body-class'] = 'login-page';
         'options' => [
             'class' => 'lobi-form login-form visible'
         ],
-        'fieldConfig' => [
-            'template' => '{input}{error}',
-            'options' => [
-                'tag' => false
-            ]
-        ]
+        'fieldConfig' => function ($model, $attribute) {
+            $icon = ' <span class="input-icon input-icon-prepend fa fa-user"></span>';
+            $tooltip = '<span class="tooltip tooltip-top-left"><i class="fa fa-user text-cyan-dark"></i> '
+                . Yii::t('cmsCore', 'Please enter the username')
+                . '</span>';
+            if ($attribute === 'password') {
+                $icon = '<span class="input-icon input-icon-prepend fa fa-key"></span>';
+                $tooltip = '<span class="tooltip tooltip-top-left"><i class="fa fa-key text-cyan-dark"></i> '
+                    . Yii::t('cmsCore', 'Please enter your password')
+                    . '</span>';
+            }
+
+            return [
+                'template' => "{label}<label class=\"input\">$icon{input}$tooltip</label>{error}"
+            ];
+        }
     ]); ?>
     <div class="login-header">
-        Login to your account
+        <?php echo Yii::t('cmsCore', 'Login to your account') ?>
     </div>
     <div class="login-body no-padding">
         <?php if (Yii::$app->session->hasFlash('error')): ?>
@@ -38,27 +54,14 @@ $this->params['body-class'] = 'login-page';
             </div>
         <?php endif; ?>
         <fieldset>
-            <div class="form-group">
-                <label>Username</label>
-                <label class="input">
-                    <span class="input-icon input-icon-prepend fa fa-user"></span>
-                    <?php echo $form->field($model, 'username') ?>
-                    <span class="tooltip tooltip-top-left"><i class="fa fa-user text-cyan-dark"></i> Please enter the username</span>
-                </label>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <label class="input">
-                    <span class="input-icon input-icon-prepend fa fa-key"></span>
-                    <?php echo $form->field($model, 'password')->passwordInput() ?>
-                    <span class="tooltip tooltip-top-left"><i class="fa fa-key text-cyan-dark"></i> Please enter your password</span>
-                </label>
-            </div>
-
+            <?php echo $form->field($model, 'username') ?>
+            <?php echo $form->field($model, 'password')->passwordInput() ?>
             <div class="row">
                 <div class="col-xs-8">
                     <label class="checkbox lobicheck lobicheck-info lobicheck-inversed lobicheck-lg">
-                        <?php echo $form->field($model, 'rememberMe')->checkbox(['class' => 'simple']) ?>
+                        <input type="checkbox" id="loginform-rememberme" class="simple" name="LoginForm[rememberMe]"
+                               value="1">
+                        <?php echo $model->attributeLabels()['rememberMe'] ?>
                         <i></i>
                     </label>
                 </div>
