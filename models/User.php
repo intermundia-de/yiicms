@@ -30,8 +30,6 @@ use yii\web\IdentityInterface;
  * @property integer $logged_at
  * @property integer $suspended_till
  * @property integer $login_attempt
- * @property integer $LOGIN_ATTEMPT_COUNT
- * @property integer $SUSPEND_TIME
  * @property string $password write-only password
  *
  * @property \intermundia\yiicms\models\UserProfile $userProfile
@@ -50,9 +48,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     const EVENT_AFTER_SIGNUP = 'afterSignup';
     const EVENT_AFTER_LOGIN = 'afterLogin';
-
-    const SUSPEND_TIME = 60 * 60 * 24;
-    const LOGIN_ATTEMPT_COUNT = 3;
+    
 
     /**
      * @inheritdoc
@@ -262,8 +258,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function suspend()
     {
-        $this->status = User::STATUS_SUSPENDED;
-        $this->suspended_till = time() + User::SUSPEND_TIME;
+        $this->status = Self::STATUS_SUSPENDED;
+        $this->suspended_till = time() + Yii::$app->user->suspendTime;
         if (!$this->save()) {
             Yii::error("Could not update user status .user id: $this->id", Self::class);
             return false;
@@ -280,7 +276,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->login_attempt++;
         if (!$this->save()) {
-            Yii::error("Could not update user status .user id: $this->id", Self::class);
+            Yii::error("Could not upadte user login Attempts .user id: $this->id", Self::class);
             return false;
         }
         return true;

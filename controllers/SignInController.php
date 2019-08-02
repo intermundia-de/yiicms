@@ -110,16 +110,17 @@ class SignInController extends BackendController
                                 'model' => $model
                             ]);
                         }
-                        if ($user->login_attempt === User::LOGIN_ATTEMPT_COUNT) {
+                        if ($user->login_attempt === Yii::$app->user->loginATtemptCount) {
                             if (!$user->suspend()) {
                                 return $this->render('login', [
                                     'model' => $model
                                 ]);
+                            }else{
+                                Yii::$app->session->setFlash('error', "Your User is suspended for: {$user->getSuspendTime()}");
                             }
-                            Yii::$app->session->setFlash('error', "Your User is suspended for: {$user->getSuspendTime()}");
                             return $this->goHome();
                         }
-                        if ($user->login_attempt < User::LOGIN_ATTEMPT_COUNT) {
+                        if ($user->login_attempt < Yii::$app->user->loginATtemptCount) {
                             return $this->render('login', [
                                 'model' => $model
                             ]);
