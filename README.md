@@ -115,9 +115,24 @@ ______________________
 ______________________
 To update alias, alias-path for and corresponding file manager items
 run
-   ```php 
-      php console/yii utils/fix-alias-and-file-manager-items $websiteKey
-   ```
+```php 
+php console/yii utils/fix-alias-and-file-manager-items $websiteKey
+```
 `SluggableBehavior` will update `alias` and `alias_path` attributes for each record in `content_tree_translation` table
 that belongs to provided `$websiteKey`.
 Corresponding `file_manager_item` records are also updated. 
+______________________
+To optimize images in terms of size,
+
+1: `optipng` and `jpegoptim` must be installed on system
+``` 
+apt-get install -y optipng jpegoptim
+```
+2: run
+```php 
+php console/yii utils/image-optimization $path $quality
+```
+`$path` is relative path to `Yii::getAlias('@storage/web/source')`.
+To apply image optimization for entire `source` folder, either pass `/` or `""` as `$path` parameter.
+
+`$quality` is output image quality `[0-100]`. Use lower values for better size reduction. Default value is `80`.
