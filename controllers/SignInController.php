@@ -24,9 +24,8 @@ class SignInController extends BackendController
 {
 
     public $defaultAction = 'unlock';
+
     //Time in seconds
-    const SUSPEND_TIME = 60 * 60 * 24;
-    const LOGIN_ATTEMPT = 3;
 
     public function behaviors()
     {
@@ -74,10 +73,7 @@ class SignInController extends BackendController
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
-
         $model = new LoginForm();
-
-
         if ($model->load(Yii::$app->request->post())) {
             $user = $model->getUser();
             if (!$user) {
@@ -88,47 +84,42 @@ class SignInController extends BackendController
             } else {
                 if ($model->isSuspended()) {
                     if ($user->suspended_till <= time()) {
-                        $user->status = User::STATUS_ACTIVE;
-                        $user->login_attempt = 0;
-                        $user->suspended_till = 0;
-                        if (!$user->save()) {
-                            Yii::$app->session->setFlash('error', "Something went wrong;1111");
+                        if (!$user->activate()) {
+                            return $this->render('login', [
+                                'model' => $model
+                            ]);
                         }
                         if ($model->login()) {
                             return $this->goBack();
                         }
                     } else {
-                        $currentTime = new DateTime('@' . (string)time());
-                        $suspendedTill = new DateTime('@' . (string)$user->suspended_till);
-                        $interval = $currentTime->diff($suspendedTill);
-                        Yii::$app->session->setFlash('error', "Your User is suspended for: {$interval->format('%Hh %Im %Ss')}");
+                        Yii::$app->session->setFlash('error', "Your User is suspended for: {$user->getSuspendTime()}");
                         return $this->goHome();
                     }
                 } else if (!$model->isSuspended()) {
                     if ($model->login()) {
-                        $user->status = User::STATUS_ACTIVE;
-                        $user->login_attempt = 0;
-                        $user->suspended_till = 0;
-                        if (!$user->save()) {
-                            Yii::$app->session->setFlash('error', "Something went wrong;1111");
+                        if (!$user->activate()) {
+                            return $this->render('login', [
+                                'model' => $model
+                            ]);
                         }
                         return $this->goBack();
                     } else {
-                        $user->login_attempt++;
-//                        TODO ADD LOGIN ATTEMPT CONST
-                        if ($user->login_attempt === self::LOGIN_ATTEMPT) {
-                            $user->status = User::STATUS_SUSPENDED;
-//                            TODO ADD SUSPEND TIME CONST
-                            $user->suspended_till = time() + self::SUSPEND_TIME;
-                            $currentTime = new DateTime('@' . (string)time());
-                            $suspendedTill = new DateTime('@' . (string)$user->suspended_till);
-                            $interval = $currentTime->diff($suspendedTill);
-                            Yii::$app->session->setFlash('error', "Your User is suspended for: {$interval->format('%Hh %Im %Ss')}");
+                        if (!$user->increaseLoginAttempt()) {
+                            return $this->render('login', [
+                                'model' => $model
+                            ]);
                         }
-                        if (!$user->save()) {
-                            Yii::$app->session->setFlash('error', "Something went wrong; 2222");
+                        if ($user->login_attempt === User::LOGIN_ATTEMPT_COUNT) {
+                            if (!$user->suspend()) {
+                                return $this->render('login', [
+                                    'model' => $model
+                                ]);
+                            }
+                            Yii::$app->session->setFlash('error', "Your User is suspended for: {$user->getSuspendTime()}");
+                            return $this->goHome();
                         }
-                        if ($user->login_attempt < self::LOGIN_ATTEMPT) {
+                        if ($user->login_attempt < User::LOGIN_ATTEMPT_COUNT) {
                             return $this->render('login', [
                                 'model' => $model
                             ]);
@@ -142,7 +133,6 @@ class SignInController extends BackendController
         return $this->render('login', [
             'model' => $model
         ]);
-
     }
 
     public function actionLogout()

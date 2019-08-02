@@ -2,6 +2,7 @@
 
 namespace intermundia\yiicms\models;
 
+use DateTime;
 use intermundia\yiicms\commands\AddToTimelineCommand;
 use intermundia\yiicms\models\query\UserQuery;
 use Yii;
@@ -29,6 +30,8 @@ use yii\web\IdentityInterface;
  * @property integer $logged_at
  * @property integer $suspended_till
  * @property integer $login_attempt
+ * @property integer $LOGIN_ATTEMPT_COUNT
+ * @property integer $SUSPEND_TIME
  * @property string $password write-only password
  *
  * @property \intermundia\yiicms\models\UserProfile $userProfile
@@ -47,6 +50,9 @@ class User extends ActiveRecord implements IdentityInterface
 
     const EVENT_AFTER_SIGNUP = 'afterSignup';
     const EVENT_AFTER_LOGIN = 'afterLogin';
+
+    const SUSPEND_TIME = 60 * 60 * 24;
+    const LOGIN_ATTEMPT_COUNT = 3;
 
     /**
      * @inheritdoc
@@ -230,6 +236,67 @@ class User extends ActiveRecord implements IdentityInterface
     public function getAuthKey()
     {
         return $this->auth_key;
+    }
+
+    /**
+     * Activate User
+     *
+     * @return boolean
+     */
+    public function activate()
+    {
+        $this->status = Self::STATUS_ACTIVE;
+        $this->login_attempt = 0;
+        $this->suspended_till = 0;
+        if (!$this->save()) {
+            Yii::error("Could not update user status .user id: $this->id", Self::class);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Suspend User for x Time
+     *
+     * @return boolean
+     */
+    public function suspend()
+    {
+        $this->status = User::STATUS_SUSPENDED;
+        $this->suspended_till = time() + User::SUSPEND_TIME;
+        if (!$this->save()) {
+            Yii::error("Could not update user status .user id: $this->id", Self::class);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Increase User login attemts
+     *
+     * @return boolean
+     */
+    public function increaseLoginAttempt()
+    {
+        $this->login_attempt++;
+        if (!$this->save()) {
+            Yii::error("Could not update user status .user id: $this->id", Self::class);
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * @return formated user suspend time
+     */
+
+    public function getSuspendTime()
+    {
+        $currentTime = new DateTime('@' . (string)time());
+        $suspendedTill = new DateTime('@' . (string)$this->suspended_till);
+        $interval = $currentTime->diff($suspendedTill);
+        return $interval->format('%Hh %Im %Ss');
     }
 
     /**
