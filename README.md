@@ -121,3 +121,16 @@ run
 `SluggableBehavior` will update `alias` and `alias_path` attributes for each record in `content_tree_translation` table
 that belongs to provided `$websiteKey`.
 Corresponding `file_manager_item` records are also updated. 
+______________________
+### Changing to core backend login
+
+### Important!!! 
+1. Delete backend  `SignInController`   or clear and extend from yiicms ` SignInController` .
+##### note: You can ethier extend  models in list from core or Just delete it and change usage class.
+2. Clear backend model  `AccountForm`  and extend from yiicms model `AccountForm`  .
+3. Clear backend model  `LoginForm`  and extend from yiicms model `LoginForm`  .
+4. Update backend  web configuration :
+	Change user components login url to  `core/sign-in/unlock` and update globalAccess component aswell  `sign-in` to `core/sign-in` .
+
+##### note: You can  skip step 4 by redirecting `sign-in` controller actions to `core/sign-in` controller actions or by not deleting `SignInController`.
+______________________
