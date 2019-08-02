@@ -676,7 +676,7 @@ class UtilsController extends Controller
     {
         $connection = Yii::$app->db;
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
-        if(!Yii::$app->websiteContentTree) {
+        if (!Yii::$app->websiteContentTree) {
             Console::error("Website content tree was not found for {$websiteKey}");
             return;
         }
@@ -712,8 +712,8 @@ class UtilsController extends Controller
                     if ($aliasChanged) {
                         Console::output("-------------------------------------------------------------------");
                         $linkText = $contentTreeItem->link_id ? "(LINK)" : "";
-                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) ".
-                                "{$linkText} [{$contentTreeTranslation->language}] updated:");
+                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) " .
+                            "{$linkText} [{$contentTreeTranslation->language}] updated:");
                         Console::output("alias: {$beforeUpdateAlias} => {$contentTreeTranslation->alias}");
                         Console::output("alias_path: {$beforeUpdateAliasPath} => {$contentTreeTranslation->alias_path}");
                     }
@@ -844,5 +844,90 @@ class UtilsController extends Controller
     private function executePdo($str)
     {
         return Yii::$app->db->masterPdo->exec($str);
+    }
+
+    private function optimizeImages($dir, $quality, $jpegOptimizer, $pngOptimizer)
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+        if (!is_link($dir)) {
+            if (!($handle = opendir($dir))) {
+                return;
+            }
+            while (($file = readdir($handle)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+                $path = $dir . DIRECTORY_SEPARATOR . $file;
+                if (is_dir($path)) {
+                    static::optimizeImages($path, $quality, $jpegOptimizer, $pngOptimizer);
+                }
+                else {
+                    $mimeType = mime_content_type($path);
+                    if($mimeType == 'image/jpeg') {
+                        Console::output("Optimizing: {$path}");
+                        $jpegOptimizer->optimize($path);
+                    }
+                    else if($mimeType == 'image/png') {
+                        Console::output("Optimizing: {$path}");
+                        $pngOptimizer->optimize($path);
+                    }
+                }
+            }
+            closedir($handle);
+        }
+    }
+
+    /**
+     *
+     *
+     * @param $path string
+     * Relative path to Yii::getAlias('@storage/web/source/)
+     * @param $quality integer
+     * JPEG Image quality, [0-100], 0 for maximum compression;
+     * @return int
+     * @author Mirian Jintchvelashvili
+     */
+    public function actionImageOptimization($path = "", $quality = 80)
+    {
+        if(!intval($quality)) {
+            Console::output("Parameter 'quality' must be integer");
+            return;
+        }
+        $factory = new \ImageOptimizer\OptimizerFactory([
+            'ignore_errors' => false,
+            'jpegoptim_options' => [
+                '--strip-all', '--all-progressive', '-m ' . $quality
+            ],
+            'optipng_options' => [
+                '-o2', '-strip all'
+            ]]);
+
+        $jpegOptimizer = $factory->get('jpegoptim');
+        $pngOptimizer = $factory->get('optipng');
+
+        $storagePath = Yii::getAlias('@storage/web/source');
+
+        if(substr($path, -1) == DIRECTORY_SEPARATOR) {
+            $path = substr($path, 0, -1);
+        }
+        if(substr($path, 1) == DIRECTORY_SEPARATOR) {
+            $path = substr($path, 0, 1);
+        }
+
+        if(!$path) {
+            $dir = $storagePath;
+            $backupDir = Yii::getAlias('@storage/web/source.bak');
+        }
+        else {
+            $dir = $storagePath . DIRECTORY_SEPARATOR . $path;
+            $backupDir = $dir . '.bak';
+        }
+        Console::output("Creating backup: {$backupDir}");
+        $this->copyDirectory($dir, $backupDir);
+        Console::output("Backup created: {$backupDir}");
+        $this->optimizeImages($dir, $quality, $jpegOptimizer, $pngOptimizer);
+        Console::output("Image optimization completed successfully");
     }
 }
