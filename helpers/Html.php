@@ -89,7 +89,8 @@ class Html extends \yii\helpers\Html
      * @param $content string
      * @return array
      */
-    public static function replaceContentTreeIdsInContent($content){
+    public static function replaceContentTreeIdsInContent($content)
+    {
 
         preg_match_all('/(?<=\{{contentTreeId:)(.*?)(?=\}})/', $content, $matches);
 
@@ -102,10 +103,18 @@ class Html extends \yii\helpers\Html
             'id',
             function ($model) {
                 /** @var $model ContentTree */
-                return [
+                $urlData = [
                     'replace' => '/{{contentTreeId:' . $model->id . '}}/',
                     'alias_path' => '/' . $model->activeTranslation->alias_path
                 ];
+                if ($model->table_name != ContentTree::TABLE_NAME_PAGE) {
+                    $pageAlias = $model->getPageUrl();
+                    $urlData = [
+                        'replace' => '/{{contentTreeId:' . $model->id . '}}/',
+                        'alias_path' => $pageAlias . '#id_' . $model->record_id
+                    ];
+                }
+                return $urlData;
             });
 
         return preg_replace(
