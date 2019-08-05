@@ -259,7 +259,23 @@ class FrontendContentTreeController extends Controller
     }
 
 
-    public function actionSitemapXml() {
+    public function actionSitemapXml($language = '') {
+        $websiteLanguages = array_keys(Yii::$app->websiteLanguages);
+        if($language) {
+            $contentLanguages = array_map(function($lang) {
+                $separatorPos = strpos($lang, '-');
+                if($separatorPos > -1) {
+                    return substr($lang, 0, $separatorPos);
+                }
+                else {
+                    return $lang;
+                }
+            }, $websiteLanguages);
+
+            if(!in_array($language, $contentLanguages)) {
+                throw new NotFoundHttpException();
+            }
+        }
 //        Yii::$app->response->format = Response::FORMAT_XML;
         $siteMapXmlFormatter = new SitemapXmlResponseFormatter();
 
