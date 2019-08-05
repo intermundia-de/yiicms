@@ -59,9 +59,11 @@ class CKEditorInline extends CKEditor
             'height' => 200,
             'toolbarGroups' =>
             [
+                ['name' => 'document', 'groups' => ['mode', 'document', 'doctools']],
                 ['name' => 'undo'],
                 ['name' => 'basicstyles', 'groups' => ['basicstyles']],
             ],
+            'extraPlugins' => 'sourcedialog',
             'removeButtons' => 'Strike',
             'resize_enabled' => false
         ];
