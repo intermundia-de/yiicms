@@ -45,6 +45,11 @@ class BaseApplication extends \yii\web\Application
     public $hasLanguageInUrl = false;
 
     /**
+     * @var string website key based on multisiteCore websites config
+     */
+    public $websiteKey = null;
+
+    /**
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @var string ContentTree::$id of the default page
      */
@@ -96,6 +101,7 @@ class BaseApplication extends \yii\web\Application
                     if (!$this->websiteContentTree) {
                         throw new InvalidCallException("Current website does not exist");
                     }
+                    $this->websiteKey = $websiteKey;
                     $this->websiteMasterLanguage = $masterLanguage;
                     $this->defaultContentId = $websiteData['defaultContentId'];
                     $this->defaultContent = ContentTree::find()->byId($this->defaultContentId)->one();
@@ -118,7 +124,7 @@ class BaseApplication extends \yii\web\Application
 
                     \Yii::setAlias('@frontendUrl', $matches[1] . $frontendHost);
                     \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
-                    $this->setHomeUrl($matches[1] . $frontendHost);
+                    $this->setHomeUrl($matches[1] . $domain);
                     $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
                     \Yii::setAlias('@storageUrl', $storageUrl);
                     break;

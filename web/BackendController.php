@@ -7,6 +7,8 @@
 
 namespace intermundia\yiicms\web;
 
+use Yii;
+use DateTime;
 
 /**
  * Class BackendController
@@ -16,4 +18,5 @@ namespace intermundia\yiicms\web;
  */
 class BackendController extends Controller
 {
+
 }

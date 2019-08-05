@@ -115,12 +115,38 @@ ______________________
 ______________________
 To update alias, alias-path for and corresponding file manager items
 run
-```php 
-php console/yii utils/fix-alias-and-file-manager-items $websiteKey
-```
+   ```php 
+      php console/yii utils/fix-alias-and-file-manager-items $websiteKey
+   ```
 `SluggableBehavior` will update `alias` and `alias_path` attributes for each record in `content_tree_translation` table
 that belongs to provided `$websiteKey`.
 Corresponding `file_manager_item` records are also updated. 
+______________________
+To sort existing timeline events based on website key
+1. Run migrations
+    ```php 
+    ./migrate
+    ```                  
+     
+ 1. Run
+    ```php 
+    php console/yii utils/fix-timeline-events
+    ```                  
+
+### Changing to core backend login
+
+### Important!!! 
+1. Delete backend  `SignInController`   or clear and extend from yiicms ` SignInController` .
+##### note: You can ethier extend  models in list from core or Just delete it and change usage class.
+2. Clear backend model  `AccountForm`  and extend from yiicms model `AccountForm`  .
+3. Clear backend model  `LoginForm`  and extend from yiicms model `LoginForm`  .
+4. Update backend  web configuration :
+	Change user components login url to  `core/sign-in/unlock` and update globalAccess component aswell  `sign-in` to `core/sign-in` .
+
+##### note: You can  skip step 4 by redirecting `sign-in` controller actions to `core/sign-in` controller actions or by not deleting `SignInController`.
+______________________
+
+
 ______________________
 To optimize images in terms of size,
 
@@ -136,4 +162,4 @@ php console/yii utils/image-optimization $path $quality
 will be optimized. Backup of the folder is created with name: `$folderName.bak` before starting optimization.
 To apply image optimization for entire `source` folder, either pass `/` or `""` as `$path` parameter.
 
-`$quality` is output image quality `[0-100]`. Use lower values for better size reduction. Default value is `80`.
+`$quality` is output image quality `[0-100]`. Use lower values for better file size reduction. Default value is `80`.

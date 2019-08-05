@@ -22,6 +22,7 @@ use intermundia\yiicms\models\query\BaseQuery;
 use intermundia\yiicms\models\query\BaseTranslationQuery;
 use intermundia\yiicms\models\query\ContentTreeTranslationQuery;
 use intermundia\yiicms\models\Search;
+use intermundia\yiicms\models\TimelineEvent;
 use intermundia\yiicms\models\User;
 use intermundia\yiicms\models\UserProfile;
 use intermundia\yiicms\models\WidgetText;
@@ -31,7 +32,11 @@ use PDOException;
 use phpDocumentor\Reflection\Location;
 use Yii;
 use yii\console\Controller;
+use yii\db\ActiveQuery;
+use yii\db\conditions\AndCondition;
+use yii\db\conditions\OrCondition;
 use yii\db\Exception;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
@@ -39,7 +44,7 @@ use yii\helpers\FileHelper;
 /**
  * Class UtilsController
  *
- * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+ * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\console\controllers
  */
 class UtilsController extends Controller
@@ -73,7 +78,7 @@ class UtilsController extends Controller
                 $translateTableName = preg_replace('/^(\{\{%)|(}}$)/', '', $translateModelClass::tableName());
                 $sql = "UPDATE " . $translateTableName . " SET " . implode(", ", $updateAttributesText) . "
                         WHERE language = '$to';";
-                if (($count = $this->executePdo($sql))) {
+                if (( $count = $this->executePdo($sql) )) {
                     Console::output("Run command: \"$sql\"");
                     Console::output("Affected: \"$count\" rows");
                 }
@@ -137,6 +142,7 @@ class UtilsController extends Controller
         ], ['id' => $websiteContentTree->id])->execute();
         if (!$websiteContentTree) {
             Console::output('Please insert website first');
+
             return;
         }
         Yii::$app->db->createCommand('set foreign_key_checks=0')->execute();
@@ -317,7 +323,7 @@ class UtilsController extends Controller
                 $translateTableName = preg_replace('/^(\{\{%)|(}}$)/', '', $translateModelClass::tableName());
                 $sql = "UPDATE " . $translateTableName . " SET " . implode(", ",
                         $updateAttributesText) . " WHERE language = '$to' ;";
-                if (($count = $this->executePdo($sql))) {
+                if (( $count = $this->executePdo($sql) )) {
                     Console::output("Run command: \"$sql\"");
                     Console::output("Affected: \"$count\" rows");
                 }
@@ -354,6 +360,7 @@ class UtilsController extends Controller
         $website = ContentTree::findClean()->byKey($websiteKey)->byTableName('website')->one();
         if (!$website) {
             Console::output('Please insert website first');
+
             return;
         }
         Yii::$app->db->createCommand('set foreign_key_checks=0')->execute();
@@ -419,7 +426,7 @@ class UtilsController extends Controller
                 $translateTableName = preg_replace('/^(\{\{%)|(}}$)/', '', $translateModelClass::tableName());
                 $sql = "UPDATE " . $translateTableName . " SET " . implode(", ",
                         $updateAttributesText) . " WHERE language = '$to' ;";
-                if (($count = $this->executePdo($sql))) {
+                if (( $count = $this->executePdo($sql) )) {
                     Console::output("Run command: \"$sql\"");
                     Console::output("Affected: \"$count\" rows");
                 }
@@ -487,8 +494,8 @@ class UtilsController extends Controller
     {
         $dir = opendir($src);
         @mkdir($dst);
-        while (false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..')) {
+        while (false !== ( $file = readdir($dir) )) {
+            if (( $file != '.' ) && ( $file != '..' )) {
                 if (is_dir($src . '/' . $file)) {
                     $this->copyDirectory($src . '/' . $file, $dst . '/' . $file);
                 } else {
@@ -626,10 +633,10 @@ class UtilsController extends Controller
             return;
         }
         if (!is_link($dir)) {
-            if (!($handle = opendir($dir))) {
+            if (!( $handle = opendir($dir) )) {
                 return;
             }
-            while (($file = readdir($handle)) !== false) {
+            while (( $file = readdir($handle) ) !== false) {
                 if ($file === '.' || $file === '..') {
                     continue;
                 }
@@ -678,6 +685,7 @@ class UtilsController extends Controller
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
         if (!Yii::$app->websiteContentTree) {
             Console::error("Website content tree was not found for {$websiteKey}");
+
             return;
         }
         Yii::$app->websiteMasterLanguage = \Yii::$app->multiSiteCore->websites[$websiteKey]['masterLanguage'];
@@ -706,8 +714,8 @@ class UtilsController extends Controller
 
                 $transaction = Yii::$app->db->beginTransaction();
                 if ($contentTreeTranslation->save()) {
-                    $aliasChanged = (($contentTreeTranslation->alias != $beforeUpdateAlias)
-                        || ($contentTreeTranslation->alias_path != $beforeUpdateAliasPath));
+                    $aliasChanged = ( ( $contentTreeTranslation->alias != $beforeUpdateAlias )
+                        || ( $contentTreeTranslation->alias_path != $beforeUpdateAliasPath ) );
 
                     if ($aliasChanged) {
                         Console::output("-------------------------------------------------------------------");
@@ -844,6 +852,141 @@ class UtilsController extends Controller
     private function executePdo($str)
     {
         return Yii::$app->db->masterPdo->exec($str);
+    }
+
+    /**
+     *
+     * @param $contentTreesMap ContentTree records grouped by table_name
+     *                         and record_id mapped to first available language
+     * @param $tableName
+     * @param $recordId
+     * @return string | null
+     * @author Mirian Jinchvelashvili
+     */
+    private function getLanguageCodeForTimelineEvent($contentTreesMap, $tableName, $recordId)
+    {
+        if (ArrayHelper::getValue($contentTreesMap, $tableName)) {
+            return ArrayHelper::getValue($contentTreesMap[$tableName], $recordId);
+        } else return null;
+    }
+
+    /**
+     *
+     * Set website_key for website-specific timeline_event records,
+     * delete timeline_event records where corresponding content_tree record was not found
+     *
+     * @author Mirian Jinchvelashvili
+     */
+    public function actionFixTimelineEvents()
+    {
+        $websiteMap = [];
+        foreach (Yii::$app->multiSiteCore->websites as $websiteKey => $website) {
+            foreach (array_unique(array_values($website['domains'])) as $domain) {
+                $websiteMap[$domain] = $websiteKey;
+            }
+        }
+
+        $timelineEvents = TimelineEvent::findClean()
+            ->select(['id', 'category', 'record_id'])
+            ->andWhere(['website_key' => null])
+            ->andWhere(['not', ['record_id' => null]])
+            ->asArray()
+            ->all();
+
+        $notFoundItemsIds = [];
+        $deletedCount = $updatedCount = 0;
+        $needUpdateCount = count($timelineEvents);
+
+        if ($needUpdateCount > 0) {
+            $ctQuery = ContentTree::findClean()
+                ->with('translations')
+                ->linkedIdIsNull();
+
+            $contentTreeIds = [];
+            $recordIdTableNames = [];
+            foreach ($timelineEvents as $timelineEvent) {
+                /** @var $timelineEvent TimelineEvent
+                 */
+
+                if ($timelineEvent['category'] == "content_tree") {
+                    $contentTreeIds[] = $timelineEvent['record_id'];
+                } else {
+                    $recordIdTableNames[] = ['record_id' => $timelineEvent['record_id'], 'table_name' => $timelineEvent['category']];
+                }
+            }
+            $cts = $ctQuery->andWhere(['or',
+                ['id' => $contentTreeIds],
+                [
+                    'in',
+                    ['record_id', 'table_name'],
+                    $recordIdTableNames
+                ]
+            ])->all();
+
+            $ctsMapped = ArrayHelper::map($cts, 'record_id', function ($ctItem) {
+                return $ctItem->translations ? $ctItem->translations[0]->language : null;
+            }, 'table_name');
+
+            $ctsMapped['content_tree'] = ArrayHelper::map($cts, 'id', function ($ctItem) {
+                return $ctItem->translations ? $ctItem->translations[0]->language : null;
+            });
+        }
+
+        $updateList = [];
+        foreach ($timelineEvents as $timelineEvent) {
+            $language = $this->getLanguageCodeForTimelineEvent($ctsMapped, $timelineEvent['category'], $timelineEvent['record_id']);
+            if ($language) {
+                array_push($updateList, ['id' => $timelineEvent['id'], 'language' => $websiteMap[$language]]);
+            } else {
+                $notFoundItemsIds[] = $timelineEvent['id'];
+                $needUpdateCount--;
+            }
+        }
+
+        $updatListMap = ArrayHelper::map($updateList, 'id', 'id', 'language');
+
+        foreach ($updatListMap as $websiteKey => $ids) {
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                TimelineEvent::updateAll(['website_key' => $websiteKey], ['id' => array_keys($ids)]);
+                $transaction->commit();
+                $updatedCount += count($ids);
+            } catch (yii\db\Exception $exception) {
+                $transaction->rollBack();
+                Console::error($exception->getMessage());
+            }
+        }
+
+        $updateAction = $needUpdateCount ? true : false;
+        $deleteAction = $notFoundItemsIds ? true : false;
+
+
+        if ($notFoundItemsIds) {
+            Console::output("Content Tree item not found for timeline_event ids: [" . implode(',',
+                    $notFoundItemsIds) . "]");
+            if (Console::confirm("Delete these timeline_event records?")) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    TimelineEvent::deleteAll(['id' => $notFoundItemsIds]);
+                    $transaction->commit();
+                    $deletedCount = count($notFoundItemsIds);
+                } catch (yii\db\Exception $exception) {
+                    $transaction->rollBack();
+                    Console::error($exception->getMessage());
+                }
+            }
+        }
+
+        Console::output("Task completed successfully");
+        if ($updateAction) {
+            Console::output("Updated ${updatedCount} from ${needUpdateCount} rows in timeline_event table");
+        }
+        if ($deleteAction) {
+            Console::output("Deleted ${deletedCount} rows in timeline_event table");
+        }
+        if (!$updateAction && !$deleteAction) {
+            Console::output("No changes were made in timeline_event table");
+        }
     }
 
     private function optimizeImages($dir, $quality, $jpegOptimizer, $pngOptimizer)
