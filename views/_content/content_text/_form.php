@@ -18,7 +18,8 @@ use yii\helpers\Html;
 ]); ?>
 
 <?php echo $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
-<?php echo $form->field($model, 'single_line')->textInput(['maxlength' => true]) ?>
+<?php //echo $form->field($model, 'single_line')->textInput(['maxlength' => true]) ?>
+<?php echo $form->field($model, 'single_line')->widget(\intermundia\yiicms\widgets\CKEditorInline::class); ?>
 
 <?php echo $form->field($model, 'multi_line')->widget(\intermundia\yiicms\widgets\CKEditor::class, [
     'preset' => 'full'
