@@ -150,9 +150,6 @@ class UtilsController extends Controller
 //        Console::output("Copy the following SQL UPDATE statements and run in your database console");
 //        Console::output("=========================================================================");
         foreach (Yii::$app->contentTree->editableContent as $tableName => $item) {
-            if ($tableName == 'website') {
-                continue;
-            }
             $attributes = ArrayHelper::getValue($item, 'searchableAttributes');
             /** @var BaseModel $baseModelClass */
             $baseModelClass = $item['class'];
@@ -195,7 +192,12 @@ class UtilsController extends Controller
 
                 unset($translationData['id']);
                 $translationData[$translateModelClass::getForeignKeyNameOnModel()] = $baseModelId;
-                $translationData['language'] = $to;
+                if ($translationModelTableName === ContentTree::TABLE_NAME_WEBSITE) {
+                    unset($translationData['language']);
+                    unset($translationData['website_id']);
+                } else {
+                    $translationData['language'] = $to;
+                }
                 $translationData = $this->modifyBlameData($translationData);
 
                 $connection->createCommand()->insert($translationModelTableName, $translationData)->execute();
@@ -676,7 +678,7 @@ class UtilsController extends Controller
     {
         $connection = Yii::$app->db;
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
-        if(!Yii::$app->websiteContentTree) {
+        if (!Yii::$app->websiteContentTree) {
             Console::error("Website content tree was not found for {$websiteKey}");
             return;
         }
@@ -712,8 +714,8 @@ class UtilsController extends Controller
                     if ($aliasChanged) {
                         Console::output("-------------------------------------------------------------------");
                         $linkText = $contentTreeItem->link_id ? "(LINK)" : "";
-                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) ".
-                                "{$linkText} [{$contentTreeTranslation->language}] updated:");
+                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) " .
+                            "{$linkText} [{$contentTreeTranslation->language}] updated:");
                         Console::output("alias: {$beforeUpdateAlias} => {$contentTreeTranslation->alias}");
                         Console::output("alias_path: {$beforeUpdateAliasPath} => {$contentTreeTranslation->alias_path}");
                     }
