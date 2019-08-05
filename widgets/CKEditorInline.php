@@ -92,6 +92,12 @@ class CKEditorInline extends CKEditor
         }
         $js[] = "CKEDITOR.inline('$id', $options);";
 
+
+        $js[] = "CKEDITOR.config.autoParagraph = false;";
+        $js[] = "CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;";
+        $js[] = "CKEDITOR.config.shiftEnterMode = CKEDITOR.ENTER_P;";
+
+        
         if (isset($this->clientOptions['filebrowserUploadUrl'])) {
             $js[] = "dosamigos.ckEditorWidget.registerCsrfImageUploadHandler();";
         }
