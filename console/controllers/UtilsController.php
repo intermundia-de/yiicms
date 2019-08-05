@@ -189,13 +189,18 @@ class UtilsController extends Controller
                     ->bindValue(':baseId', $baseModel->id)
                     ->queryOne();
 
-
-                unset($translationData['id']);
                 $translationData[$translateModelClass::getForeignKeyNameOnModel()] = $baseModelId;
                 if ($translationModelTableName === ContentTree::TABLE_NAME_WEBSITE) {
+                    $websiteTranslation = $translateModelClass::find()->andWhere(['language' => $to])->one();
+                    if ($websiteTranslation) {
+                        $translationData['id'] = $websiteTranslation->id;
+                    } else {
+                        unset($translationData['id']);
+                    }
                     unset($translationData['language']);
                     unset($translationData['website_id']);
                 } else {
+                    unset($translationData['id']);
                     $translationData['language'] = $to;
                 }
                 $translationData = $this->modifyBlameData($translationData);
