@@ -16,7 +16,7 @@ use yii\helpers\Html;
     'model' => $model,
     'attributes' => [
         'activeTranslation.name',
-        'activeTranslation.single_line',
+        'activeTranslation.single_line:html',
         'activeTranslation.multi_line:html',
         'activeTranslation.multi_line2:html',
 //        [
