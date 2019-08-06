@@ -16,23 +16,15 @@ use yii\web\NotFoundHttpException;
  */
 class SiteController extends Controller
 {
-    public function actionSitemapXml($language = null) {
-        if($language) {
-            $websiteLanguages = array_keys(Yii::$app->websiteLanguages);
-            $contentLanguages = array_map(function($lang) {
-                $separatorPos = strpos($lang, '-');
-                if($separatorPos > -1) {
-                    return substr($lang, 0, $separatorPos);
-                }
-                else {
-                    return $lang;
-                }
-            }, $websiteLanguages);
-
-            if(!in_array($language, $contentLanguages)) {
-                throw new NotFoundHttpException();
-            }
-        }
+    /**
+     * Generates sitemap.xml
+     *
+     * @author Mirian Jintchvelashvili
+     * @return array
+     * @throws \yii\base\InvalidConfigException *
+     */
+    public function actionSitemapXml()
+    {
         $siteMapXmlFormatter = new SitemapXmlResponseFormatter();
 
         Yii::$app->response->format = 'sitemap_xml';
@@ -54,6 +46,7 @@ class SiteController extends Controller
             $sitemapItems[] = [
                 'loc' => $item->getFullUrl(false, true),
                 'changefreq' => 'daily',
+                'lastmod' => Yii::$app->formatter->asDate($item->updated_at, 'yyyy-MM-dd'),
                 'priority' => 1 - ($item->depth - 1) / 10
             ];
         }
