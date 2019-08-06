@@ -2,6 +2,7 @@
 
 namespace intermundia\yiicms\models;
 
+use DateTime;
 use intermundia\yiicms\commands\AddToTimelineCommand;
 use intermundia\yiicms\models\query\UserQuery;
 use Yii;
@@ -27,6 +28,8 @@ use yii\web\IdentityInterface;
  * @property integer $created_at
  * @property integer $updated_at
  * @property integer $logged_at
+ * @property integer $suspended_till
+ * @property integer $login_attempt
  * @property string $password write-only password
  *
  * @property \intermundia\yiicms\models\UserProfile $userProfile
@@ -36,6 +39,7 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_NOT_ACTIVE = 1;
     const STATUS_ACTIVE = 2;
     const STATUS_DELETED = 3;
+    const STATUS_SUSPENDED = 4;
 
     const ROLE_USER = 'user';
     const ROLE_MANAGER = 'manager';
@@ -44,6 +48,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     const EVENT_AFTER_SIGNUP = 'afterSignup';
     const EVENT_AFTER_LOGIN = 'afterLogin';
+    
 
     /**
      * @inheritdoc
@@ -95,6 +100,12 @@ class User extends ActiveRecord implements IdentityInterface
             ->active()
             ->andWhere(['username' => $username])
             ->one();
+    }
+
+    public static function isSuspended($username)
+    {
+        $user = self::find()->andWhere(['username' => $username])->notDeleted()->one();
+        return $user->status == self::STATUS_SUSPENDED;
     }
 
     /**
@@ -160,6 +171,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             [['username', 'email'], 'unique'],
+            [['login_attempt', 'suspended_till'], 'integer'],
             ['status', 'default', 'value' => self::STATUS_NOT_ACTIVE],
             ['status', 'in', 'range' => array_keys(self::statuses())],
             [['username'], 'filter', 'filter' => '\yii\helpers\Html::encode']
@@ -175,7 +187,8 @@ class User extends ActiveRecord implements IdentityInterface
         return [
             self::STATUS_NOT_ACTIVE => Yii::t('common', 'Not Active'),
             self::STATUS_ACTIVE => Yii::t('common', 'Active'),
-            self::STATUS_DELETED => Yii::t('common', 'Deleted')
+            self::STATUS_DELETED => Yii::t('common', 'Deleted'),
+            self::STATUS_SUSPENDED => Yii::t('common', 'Suspended'),
         ];
     }
 
@@ -192,6 +205,8 @@ class User extends ActiveRecord implements IdentityInterface
             'created_at' => Yii::t('common', 'Created at'),
             'updated_at' => Yii::t('common', 'Updated at'),
             'logged_at' => Yii::t('common', 'Last login'),
+            'login_attempt' => Yii::t('common', 'Login attempts'),
+            'suspended_till' => Yii::t('common', 'Suspended Till'),
         ];
     }
 
@@ -217,6 +232,68 @@ class User extends ActiveRecord implements IdentityInterface
     public function getAuthKey()
     {
         return $this->auth_key;
+    }
+
+    /**
+     * Activate User
+     *
+     * @return boolean
+     */
+    public function activate()
+    {
+        $this->status = self::STATUS_ACTIVE;
+        $this->login_attempt = 0;
+        $this->suspended_till = 0;
+        if (!$this->save()) {
+            Yii::error("Could not update user status .user id: $this->id", self::class);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Suspend User for x Time
+     *
+     * @return boolean
+     */
+    public function suspend()
+    {
+        $this->status = self::STATUS_SUSPENDED;
+        $this->suspended_till = time() + Yii::$app->user->suspendTime;
+        if (!$this->save()) {
+            Yii::error("Could not update user status .user id: $this->id", self::class);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Increase User login attempts
+     *
+     * @return boolean
+     */
+    public function increaseLoginAttempt()
+    {
+        $this->login_attempt++;
+        if (!$this->save()) {
+            Yii::error("Could not upadte user login Attempts .user id: $this->id", self::class);
+            return false;
+        }
+        return true;
+    }
+
+
+    /**
+     * @return User|string
+     * @throws \Exception
+     */
+
+    public function getSuspendTime()
+    {
+        $currentTime = new DateTime('@' . (string)time());
+        $suspendedTill = new DateTime('@' . (string)$this->suspended_till);
+        $interval = $currentTime->diff($suspendedTill);
+        return $interval->format('%Hh %Im %Ss');
     }
 
     /**
