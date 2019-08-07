@@ -72,6 +72,9 @@ class MultisiteLanguagePicker extends Nav
             } else {
 
                 $language = Language::find()->byCode($langCode)->one();
+                if(!$language) {
+                    throw new \yii\base\Exception("No record with code=\"{$langCode}\" found in \"language\" table.");
+                }
                 $this->languageDomains[$languageDomain] = $language;
                 if ($langCode == Yii::$app->language) {
                     $this->currentLanguage = $language;
