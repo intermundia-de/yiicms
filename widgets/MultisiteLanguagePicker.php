@@ -2,6 +2,7 @@
 namespace intermundia\yiicms\widgets;
 
 
+use intermundia\yiicms\helpers\LanguageHelper;
 use intermundia\yiicms\models\Language;
 use yii\base\InvalidConfigException;
 use yii\bootstrap\Nav;
@@ -63,11 +64,17 @@ class MultisiteLanguagePicker extends Nav
      */
     public $displayCurrentLanguage = false;
 
+    /**
+     * @var $excludeLanguages []
+     * Array of 2 character language codes to exclude from render list
+     */
+    public $excludeLanguages = ['en'];
+
     private function resolveLanguageDomains(){
         $this->languageDomains = array_unique(\Yii::$app->multiSiteCore->websites[Yii::$app->websiteContentTree->key]['domains']);
 
         foreach ($this->languageDomains as $languageDomain => $langCode) {
-            if (substr($langCode, 0, 2) == 'en') {
+            if (in_array(LanguageHelper::convertLongCodeIntoShort($langCode), $this->excludeLanguages)) {
                 unset($this->languageDomains[$languageDomain]);
             } else {
 
@@ -87,22 +94,29 @@ class MultisiteLanguagePicker extends Nav
         $protocol = Yii::$app->request->getIsSecureConnection() ? 'https' : 'http';
         $items = [];
         $item = [];
+        
         foreach ($this->languageDomains as $url => $language) {
             $item = [
                 'label' => $language->name,
                 'url' => $protocol . '://' . $url
             ];
 
-            if ($language->code == $this->currentLanguage->code){
-                if(!$this->displayCurrentLanguage) {
-                    continue;
-                }
-                else {
-                    $item['active'] = true;
+            if($this->currentLanguage)
+            {
+                if ($language->code == $this->currentLanguage->code){
+                    if(!$this->displayCurrentLanguage) {
+                        continue;
+                    }
+                    else {
+                        $item['active'] = true;
+                    }
                 }
             }
-
             $items[] = $item;
+        }
+
+        if(!$this->currentLanguage) {
+            return $items;
         }
 
         $parentItem = [
