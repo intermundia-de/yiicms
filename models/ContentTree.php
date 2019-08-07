@@ -33,6 +33,7 @@ use yii\helpers\Url;
  * @property string $key
  * @property array $custom_class
  * @property int $show_as_sibling
+ * @property int $in_sitemap
  *
  * @method makeRoot($runValidation = true, $attributes = null)
  * @method prependTo($node, $runValidation = true, $attributes = null)
@@ -129,7 +130,7 @@ class ContentTree extends \yii\db\ActiveRecord
             [['view'], 'string', 'max' => 64],
             [['table_name'], 'string', 'max' => 255],
             [['key'], 'string', 'max' => 1024],
-            [['show_as_sibling'], 'integer', 'max' => 1],
+            [['show_as_sibling', 'in_sitemap'], 'integer', 'max' => 1],
         ];
     }
 
@@ -166,6 +167,7 @@ class ContentTree extends \yii\db\ActiveRecord
             'hide' => Yii::t('common', 'Hide'),
             'custom_class' => Yii::t('common', 'Custom Css Class'),
             'show_as_sibling' => Yii::t('common', 'Display as Sibling'),
+            'in_sitemap' => Yii::t('common', 'In Sitemap'),
         ];
     }
 

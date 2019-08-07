@@ -413,6 +413,24 @@ class BaseController extends ContentController
         return false;
     }
 
+    public function actionUpdateSitemap()
+    {
+        $id = intval(Yii::$app->request->post('id'));
+        $inSitemap = intval(Yii::$app->request->post('value'));
+
+        $tree = ContentTree::find()->byId($id)->one();
+
+        if ($tree) {
+            $data = ['old' => ['include_in_sitemap' => $tree->in_sitemap ? $tree->in_sitemap : Yii::t('intermundiacms', 'Default')]];
+
+            $tree->in_sitemap = $inSitemap;
+
+            $data['new'] = ['include_in_sitemap' => $tree->in_sitemap ? $tree->in_sitemap : Yii::t('intermundiacms', 'Default')];
+            return $tree->save();
+        }
+        return false;
+    }
+
     public function actionMenu()
     {
         $this->enableCsrfValidation = false;

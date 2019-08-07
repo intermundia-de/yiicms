@@ -146,3 +146,15 @@ To sort existing timeline events based on website key
 ##### note: You can  skip step 4 by redirecting `sign-in` controller actions to `core/sign-in` controller actions or by not deleting `SignInController`.
 ______________________
 
+
+### Generate sitemap.xml
+To generate sitemap.xml, go to the   `$domain/sitemap.xml`, where `$domain` is host defined in multisite_websites `domains` configuration for each website.
+##### Note: Generated `sitemap.xml` is domain specific (language specific). Only frontend domains are applicable for `sitemap.xml` generation. 
+
+By default, only `Page` ContentTree items, which are not hidden and deleted, are included in `sitemap.xml`
+
+You can exclude some `Page` ContentTree items from `sitemap.xml` using admin panel.
+
+You can override default `sitemap.xml` generation logic by extending `intermundia\yiicms\controllers\SiteController` and
+overriding `actionSitemapXml()`
+______________________
