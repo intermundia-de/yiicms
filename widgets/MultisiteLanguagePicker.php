@@ -12,6 +12,9 @@ use Yii;
 /**
  * Class MultisiteLanguagePicker
  *
+ * Renders language picker
+ * according to multisite_websites "domains" configuration
+ *
  * @author Mirian Jintchvelashvili
  * @package intermundia\yiicms\widgets
  */
@@ -20,16 +23,44 @@ class MultisiteLanguagePicker extends Nav
     private $languageDomains;
     private $currentLanguage;
 
+    /**
+     * @var $dropDownParentUrl string
+     * URL for parent Dropdown 'a' tag
+     */
     public $dropDownParentUrl;
 
+    /**
+     * @var $dropDownParentOptions [] | null
+     * HTML options for parent 'li' tag
+     */
     public $dropDownParentOptions;
 
+    /**
+     * @var $dropDownOptions [] | null
+     * HTML options for children 'ul' tag
+     */
     public $dropDownOptions;
 
+    /**
+     * @var $dropDownParentLinkOptions [] | null
+     * HTML options for parent DropDown 'a' tag,
+     * except 'href' attribute.
+     * Use $dropDownParentUrl to change 'href' attribute
+     */
     public $dropDownParentLinkOptions;
 
+    /**
+     * @var $renderAsDropDown bool
+     * Render available language items whether dropdown or
+     * direct 'li' tags
+     */
     public $renderAsDropDown = true;
 
+    /**
+     * @var $displayCurrentLanguage bool
+     * Include currently active language in available language list.
+     * This option makes sense when $renderAsDropDown = false
+     */
     public $displayCurrentLanguage = false;
 
     private function resolveLanguageDomains(){
