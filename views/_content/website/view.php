@@ -19,6 +19,9 @@
         'activeTranslation.name',
         'activeTranslation.og_site_name',
         'activeTranslation.address_of_company',
+        'activeTranslation.contact_type',
+        'activeTranslation.telephone',
+        'activeTranslation.social_links',
         'activeTranslation.cookie_disclaimer_message',
         'activeTranslation.copyright',
 //        [

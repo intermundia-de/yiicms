@@ -10,9 +10,12 @@ namespace intermundia\yiicms\web;
 
 use intermundia\yiicms\models\ContentTree;
 use intermundia\yiicms\models\Page;
+use intermundia\yiicms\models\WebsiteTranslation;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
+use yii\helpers\Json;
+use yii\web\Response;
 
 /**
  * Class View
@@ -38,8 +41,8 @@ class View extends \yii\web\View
     /**
      * Get find the root element in content tree and return it. Assuming that root element must be Website
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return \intermundia\yiicms\models\Website|null
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function getWebsite()
     {
@@ -84,5 +87,87 @@ class View extends \yii\web\View
     public function getMetaTag($metaTagName)
     {
         return ArrayHelper::getValue($this->getMetaTags(), $metaTagName);
+    }
+
+    public function getCorporateData()
+    {
+        /**
+         * @var $website WebsiteTranslation
+         */
+        $website = Yii::$app->websiteContentTree->getModel()->activeTranslation;
+        $url = Yii::getAlias('@frontendUrl/');
+
+        $data = [
+            "@context" => "http://schema.org",
+            "@type" => "Organization",
+            '@id' => $url,
+            "url" => $url,
+            "name" => $website->og_site_name ? $website->og_site_name : $website->title ? $website->title : $website->name,
+        ];
+
+        if ($website->short_description) {
+            $data["description"] = $website->short_description;
+        }
+
+        if ($website->logo_image) {
+            $data["logo"] = $website->logo_image[0]->getUrl();
+        }
+
+        if ($website->address_of_company) {
+            $data["address"] = [
+                'type' => "PostalAddress",
+                'addressCountry' => $website->company_country,
+                'addressLocality' => $website->company_city,
+                'streetAddress' => $website->address_of_company,
+                'postalCode' => $website->company_postal_code
+            ];
+        }
+
+        if ($website->contact_type && $website->telephone) {
+            $data["contactPoint"] = [
+                "@type" => "ContactPoint",
+                "contactType" => $website->contact_type,
+                "telephone" => $website->telephone
+            ];
+        }
+
+        if ($website->company_business_hours) {
+            if (!array_key_exists("location", $data)) {
+                $data["location"] = [
+                    "@type" => "Place",
+                ];
+            }
+
+            $businessHours = Json::decode($website->company_business_hours);
+
+            array_walk($businessHours, function (&$shedule, $day) {
+                $shedule = ['dayOfWeek' => $day,
+                    'opens' => $shedule['startTime'], 'closes' => $shedule['endTime']];
+            });
+            $data["location"]["OpeningHoursSpecification"] = array_values($businessHours);
+        }
+
+        if ($website->location_latitude && $website->location_longitude) {
+            if (!array_key_exists("location", $data)) {
+                $data["location"] = [
+                    "@type" => "Place",
+                ];
+            }
+
+            $data["location"]["geo"] = [
+                "@type" => "GeoCoordinates",
+                "latitude" => $website->location_latitude,
+                "longitude" => $website->location_longitude,
+            ];
+        }
+        if (array_key_exists("address", $data)) {
+            $data["location"]["address"] = $data["address"];
+        }
+
+        if ($website->social_links) {
+            $data["sameAs"] = explode(',', $website->social_links);
+        }
+
+        return Json::encode($data);
     }
 }
