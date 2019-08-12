@@ -102,10 +102,9 @@ class User extends ActiveRecord implements IdentityInterface
             ->one();
     }
 
-    public static function isSuspended($username)
+    public function isSuspended()
     {
-        $user = self::find()->andWhere(['username' => $username])->notDeleted()->one();
-        return $user->status == self::STATUS_SUSPENDED;
+        return $this->status == self::STATUS_SUSPENDED;
     }
 
     /**

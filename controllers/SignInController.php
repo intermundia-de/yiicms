@@ -78,6 +78,7 @@ class SignInController extends BackendController
             $user = $model->getUser();
             if (!$user) {
                 $model->addError('username', 'Such user does not exist!');
+
                 return $this->render('login', [
                     'model' => $model
                 ]);
@@ -93,7 +94,9 @@ class SignInController extends BackendController
                             return $this->goBack();
                         }
                     } else {
-                        Yii::$app->session->setFlash('error', "Your User is suspended for: {$user->getSuspendTime()}");
+                        Yii::$app->session->setFlash('error', "Your account is suspended and you will be able to login: " .
+                            Yii::$app->formatter->asRelativeTime($user->suspended_till));
+
                         return $this->goHome();
                     }
                 } else if (!$model->isSuspended()) {
@@ -103,6 +106,7 @@ class SignInController extends BackendController
                                 'model' => $model
                             ]);
                         }
+
                         return $this->goBack();
                     } else {
                         if (!$user->increaseLoginAttempt()) {
@@ -115,9 +119,10 @@ class SignInController extends BackendController
                                 return $this->render('login', [
                                     'model' => $model
                                 ]);
-                            }else{
+                            } else {
                                 Yii::$app->session->setFlash('error', "Your User is suspended for: {$user->getSuspendTime()}");
                             }
+
                             return $this->goHome();
                         }
                         if ($user->login_attempt < Yii::$app->user->loginAttemptCount) {
@@ -125,12 +130,14 @@ class SignInController extends BackendController
                                 'model' => $model
                             ]);
                         }
+
                         return $this->goHome();
                     }
                 }
             }
 
         }
+
         return $this->render('login', [
             'model' => $model
         ]);
@@ -139,6 +146,7 @@ class SignInController extends BackendController
     public function actionLogout()
     {
         Yii::$app->user->logout();
+
         return $this->goHome();
     }
 
@@ -181,6 +189,7 @@ class SignInController extends BackendController
             'fullname' => $user->userProfile->getFullName(),
             'avatar' => $user->userProfile->getAvatar('/img/anonymous.jpg')
         ]);
+
         return $this->redirect(['unlock']);
     }
 
@@ -192,8 +201,10 @@ class SignInController extends BackendController
                 'options' => ['class' => 'alert-success'],
                 'body' => Yii::t('backend', 'Your profile has been successfully saved', [], $model->locale)
             ]);
+
             return $this->refresh();
         }
+
         return $this->render('profile', ['model' => $model]);
     }
 
@@ -221,8 +232,10 @@ class SignInController extends BackendController
                 'options' => ['class' => 'alert-success'],
                 'body' => Yii::t('backend', 'Your account has been successfully saved')
             ]);
+
             return $this->refresh();
         }
+
         return $this->render('account', ['model' => $model]);
     }
 }

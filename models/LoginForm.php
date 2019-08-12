@@ -105,7 +105,7 @@ class LoginForm extends Model
     public function isSuspended()
     {
         $user = $this->getUser();
-        if ($user && $user::isSuspended($user->username)) {
+        if ($user && $user->isSuspended()) {
             return true;
         }
         return false;
