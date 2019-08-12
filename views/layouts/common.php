@@ -6,7 +6,7 @@
 
 use backend\assets\BackendAsset;
 use intermundia\yiicms\modules\system\models\SystemLog;
-use backend\widgets\Menu;
+use intermundia\yiicms\widgets\Menu;
 use backend\models\ContentTree;
 use intermundia\yiicms\models\TimelineEvent;
 use yii\bootstrap\Alert;
@@ -80,21 +80,30 @@ foreach ($rootItems as &$rootItem) {
                         <span><?php echo Yii::$app->user->identity->username ?> <i class="caret"></i></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="<?php echo Url::to(['/sign-in/profile']) ?>"><span
-                                        class="glyphicon glyphicon-user"></span> &nbsp;&nbsp;Profile</a>
+                        <li>
+                            <a href="<?php echo Url::to(['/core/sign-in/profile']) ?>">
+                                <span class="glyphicon glyphicon-user"></span> &nbsp;&nbsp;Profile
+                            </a>
                         </li>
-                        <li><a href="<?php echo Url::to(['/sign-in/account']) ?>"><span
-                                        class="fa fa-key"></span> &nbsp;&nbsp;Account</a>
+                        <li><a href="<?php echo Url::to(['/core/sign-in/account']) ?>">
+                                <span class="fa fa-key"></span> &nbsp;&nbsp;Account
+                            </a>
                         </li>
-                        <li><a href="<?php echo Url::to(['/core/timeline-event/index']) ?>"><i
-                                        class="fa fa-code-fork"></i>
-                                &nbsp;&nbsp;Timeline</a></li>
+                        <li>
+                            <a href="<?php echo Url::to(['/core/timeline-event/index']) ?>">
+                                <i class="fa fa-code-fork"></i>
+                                &nbsp;&nbsp;Timeline
+                            </a>
+                        </li>
                         <!--                        <li><a href="#lobimail"><span class="glyphicon glyphicon-envelope"></span> &nbsp;&nbsp;Messages</a></li>-->
                         <li class="divider"></li>
-                        <li><a href="<?php echo Url::to(['/sign-in/lock']) ?>" data-method="post">
-                                <span class="glyphicon glyphicon-lock"></span> &nbsp;&nbsp;Lock screen</a></li>
                         <li>
-                            <a href="<?php echo Url::to(['/sign-in/logout']) ?>" data-method="post">
+                            <a href="<?php echo Url::to(['/core/sign-in/lock']) ?>" data-method="post">
+                                <span class="glyphicon glyphicon-lock"></span> &nbsp;&nbsp;Lock screen
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?php echo Url::to(['/core/sign-in/logout']) ?>" data-method="post">
                                 <span class="glyphicon glyphicon-off"></span>
                                 &nbsp;&nbsp;<?php echo Yii::t('backend', 'Log out') ?>
                             </a>

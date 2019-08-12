@@ -4,15 +4,15 @@ namespace intermundia\yiicms\modules\file\controllers;
 
 use intermundia\yiicms\modules\file\models\search\FileStorageItemSearch;
 use common\models\FileStorageItem;
+use intermundia\yiicms\web\BackendController;
 use trntv\filekit\actions\DeleteAction;
 use trntv\filekit\actions\UploadAction;
 use Yii;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
-use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
-class StorageController extends Controller
+class StorageController extends BackendController
 {
 
     /** @inheritdoc */

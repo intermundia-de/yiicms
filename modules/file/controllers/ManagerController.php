@@ -4,14 +4,11 @@ namespace intermundia\yiicms\modules\file\controllers;
 
 use alexantr\elfinder\CKEditorAction;
 use alexantr\elfinder\ConnectorAction;
+use intermundia\yiicms\web\BackendController;
 use Yii;
-use yii\web\Controller;
 
-class ManagerController extends Controller
+class ManagerController extends BackendController
 {
-    /** @var string */
-    public $layout = '//clear';
-
     /**
      * @return array
      */

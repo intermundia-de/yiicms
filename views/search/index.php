@@ -4,7 +4,7 @@
 
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-use backend\widgets\SearchView;
+use intermundia\yiicms\widgets\SearchView;
 
 $searchableWord = isset($_GET['Search']['content']) ? $_GET['Search']['content'] : '';
 
