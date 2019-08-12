@@ -22,8 +22,8 @@ class User extends \yii\web\User
      *
      * @var $suspendTime
      */
-    public $suspendTime;
-    public $loginAttemptCount;
+    public $suspendTime = 15 * 60;
+    public $loginAttemptCount = 3;
 
     public function canEditContent()
     {
