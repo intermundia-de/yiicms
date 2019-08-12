@@ -40,7 +40,7 @@ foreach ($rootItems as &$rootItem) {
 
 ?>
 
-<?php $this->beginContent('@backend/views/layouts/base.php'); ?>
+<?php $this->beginContent('@cmsCore/views/layouts/base.php'); ?>
 
 <div class="wrapper">
     <!-- header logo: style can be found in header.less -->
