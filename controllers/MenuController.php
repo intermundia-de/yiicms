@@ -3,7 +3,7 @@
 namespace intermundia\yiicms\controllers;
 
 use intermundia\yiicms\models\ContentTreeMenu;
-use intermundia\yiicms\web\ContentController;
+use intermundia\yiicms\web\BackendController;
 use Yii;
 use intermundia\yiicms\models\Menu;
 use yii\data\ActiveDataProvider;
@@ -15,7 +15,7 @@ use yii\web\Response;
 /**
  * MenuController implements the CRUD actions for Menu model.
  */
-class MenuController extends ContentController
+class MenuController extends BackendController
 {
 
     /** @inheritdoc */

@@ -11,23 +11,19 @@ use intermundia\yiicms\models\ContentTreeTranslation;
 use intermundia\yiicms\models\ContentMultiModel;
 use intermundia\yiicms\models\FileManagerItem;
 use intermundia\yiicms\models\TimelineEvent;
-use intermundia\yiicms\web\ContentController;
+use intermundia\yiicms\web\BackendController;
 use intermundia\yiicms\models\User;
 use intermundia\yiicms\models\UserToken;
 use intermundia\yiicms\traits\FormAjaxValidationTrait;
 use intermundia\yiicms\models\ContentTree;
 use common\base\MultiModel;
-use http\Exception\InvalidArgumentException;
-use trntv\filekit\File;
 use Yii;
-use yii\base\InvalidCallException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
-use yii\helpers\Html;
 use yii\web\NotFoundHttpException;
 
-class BaseController extends ContentController
+class BaseController extends BackendController
 {
     use FormAjaxValidationTrait;
 

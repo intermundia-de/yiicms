@@ -8,7 +8,7 @@
 namespace intermundia\yiicms\controllers;
 
 use intermundia\yiicms\models\ContentTreeTranslation;
-use intermundia\yiicms\web\ContentController;
+use intermundia\yiicms\web\BackendController;
 use intermundia\yiicms\models\ContentTree;
 use Yii;
 use yii\web\NotFoundHttpException;
@@ -20,7 +20,7 @@ use yii\web\NotFoundHttpException;
  * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\controllers
  */
-class ContentTreeController extends ContentController
+class ContentTreeController extends BackendController
 {
     /**
      *
