@@ -865,9 +865,7 @@ class UtilsController extends Controller
      */
     private function getLanguageCodeForTimelineEvent($contentTreesMap, $tableName, $recordId)
     {
-        if (ArrayHelper::getValue($contentTreesMap, $tableName)) {
-            return ArrayHelper::getValue($contentTreesMap[$tableName], $recordId);
-        } else return null;
+        return ArrayHelper::getValue($contentTreesMap, $tableName . '.' . $recordId);
     }
 
     /**
@@ -936,7 +934,11 @@ class UtilsController extends Controller
         foreach ($timelineEvents as $timelineEvent) {
             $language = $this->getLanguageCodeForTimelineEvent($ctsMapped, $timelineEvent['category'], $timelineEvent['record_id']);
             if ($language) {
-                array_push($updateList, ['id' => $timelineEvent['id'], 'language' => $websiteMap[$language]]);
+                if (isset($websiteMap[$language])) {
+                    array_push($updateList, ['id' => $timelineEvent['id'], 'language' => $websiteMap[$language]]);
+                } else {
+                    Console::error("No website exists for language: \"$language\"");
+                }
             } else {
                 $notFoundItemsIds[] = $timelineEvent['id'];
                 $needUpdateCount--;
@@ -962,7 +964,7 @@ class UtilsController extends Controller
 
 
         if ($notFoundItemsIds) {
-            Console::output("Content Tree item not found for timeline_event ids: [" . implode(',',
+            Console::output("The following ".count($notFoundItemsIds)." timeline event items does not exist any more: [" . implode(',',
                     $notFoundItemsIds) . "]");
             if (Console::confirm("Delete these timeline_event records?")) {
                 $transaction = Yii::$app->db->beginTransaction();
