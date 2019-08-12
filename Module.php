@@ -7,18 +7,4 @@ namespace intermundia\yiicms;
  */
 class Module extends \yii\base\Module
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $controllerNamespace = 'intermundia\yiicms\controllers';
-
-    /**
-     * {@inheritdoc}
-     */
-    public function init()
-    {
-        parent::init();
-
-        // custom initialization code goes here
-    }
 }

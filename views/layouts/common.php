@@ -5,7 +5,7 @@
  */
 
 use backend\assets\BackendAsset;
-use backend\modules\system\models\SystemLog;
+use intermundia\yiicms\modules\system\models\SystemLog;
 use backend\widgets\Menu;
 use backend\models\ContentTree;
 use intermundia\yiicms\models\TimelineEvent;
@@ -15,6 +15,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\log\Logger;
 use yii\widgets\Breadcrumbs;
+
 $bundle = BackendAsset::register($this);
 
 $rootItems = ContentTree::getItemsAsTree([
@@ -27,6 +28,7 @@ $rootItems = ContentTree::getItemsAsTree([
             $processedData = $parentItem->getProcessedData();
             $url = $processedData['url']['nodes'] . '/' . $url;
         }
+
         return ['/content-tree/index', 'nodes' => $url];
     },
     'icon' => function ($item) {
@@ -84,7 +86,8 @@ foreach ($rootItems as &$rootItem) {
                         <li><a href="<?php echo Url::to(['/sign-in/account']) ?>"><span
                                         class="fa fa-key"></span> &nbsp;&nbsp;Account</a>
                         </li>
-                        <li><a href="<?php echo Url::to(['/core/timeline-event/index']) ?>"><i class="fa fa-code-fork"></i>
+                        <li><a href="<?php echo Url::to(['/core/timeline-event/index']) ?>"><i
+                                        class="fa fa-code-fork"></i>
                                 &nbsp;&nbsp;Timeline</a></li>
                         <!--                        <li><a href="#lobimail"><span class="glyphicon glyphicon-envelope"></span> &nbsp;&nbsp;Messages</a></li>-->
                         <li class="divider"></li>
@@ -239,14 +242,14 @@ foreach ($rootItems as &$rootItem) {
                     ],
                     [
                         'label' => Yii::t('backend', 'Text Widgets'),
-                        'url' => ['/widget/text/index'],
+                        'url' => ['/core/widget/text/index'],
                         'icon' => 'fa fa-circle-o',
-                        'active' => (Yii::$app->controller->id == 'text'),
+                        'active' => ( Yii::$app->controller->id == 'text' ),
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_EDITOR),
                     ],
                     [
                         'label' => Yii::t('backend', 'Menu'),
-                        'url' => ['/menu'],
+                        'url' => ['/core/menu'],
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_EDITOR),
                         'icon' => 'fa fa-bars'
                     ],
@@ -257,26 +260,26 @@ foreach ($rootItems as &$rootItem) {
                     ],
                     [
                         'label' => Yii::t('backend', 'Languages'),
-                        'url' => ['/language/index'],
+                        'url' => ['/core/language/index'],
                         'icon' => 'fa fa-language',
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_EDITOR),
                     ],
                     [
                         'label' => Yii::t('backend', 'Translation'),
-                        'url' => ['/translation/default/index'],
+                        'url' => ['/core/translation'],
                         'icon' => 'fa fa-language',
-                        'active' => (Yii::$app->controller->module->id == 'translation'),
+                        'active' => ( Yii::$app->controller->module->id == 'translation' ),
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_EDITOR),
                     ],
                     [
                         'label' => Yii::t('backend', 'Country'),
-                        'url' => ['/country/index'],
+                        'url' => ['/core/country'],
                         'icon' => 'fa fa-map',
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_EDITOR),
                     ],
                     [
                         'label' => Yii::t('backend', 'Continent'),
-                        'url' => ['/continent/index'],
+                        'url' => ['/core/country/continent'],
                         'icon' => 'fa fa-map',
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_EDITOR),
                     ],
@@ -288,8 +291,8 @@ foreach ($rootItems as &$rootItem) {
                     [
                         'label' => Yii::t('backend', 'Users'),
                         'icon' => 'fa fa-users',
-                        'url' => ['/user/index'],
-                        'active' => (Yii::$app->controller->id == 'user'),
+                        'url' => ['/core/user'],
+                        'active' => ( Yii::$app->controller->id == 'user' ),
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_ADMINISTRATOR),
                     ],
                     [
@@ -303,22 +306,22 @@ foreach ($rootItems as &$rootItem) {
                         'items' => [
                             [
                                 'label' => Yii::t('backend', 'Auth Assignment'),
-                                'url' => ['/rbac/rbac-auth-assignment/index'],
+                                'url' => ['/core/rbac/rbac-auth-assignment/index'],
                                 'icon' => 'fa fa-circle-o',
                             ],
                             [
                                 'label' => Yii::t('backend', 'Auth Items'),
-                                'url' => ['/rbac/rbac-auth-item/index'],
+                                'url' => ['/core/rbac/rbac-auth-item/index'],
                                 'icon' => 'fa fa-circle-o',
                             ],
                             [
                                 'label' => Yii::t('backend', 'Auth Item Child'),
-                                'url' => ['/rbac/rbac-auth-item-child/index'],
+                                'url' => ['/core/rbac/rbac-auth-item-child/index'],
                                 'icon' => 'fa fa-circle-o',
                             ],
                             [
                                 'label' => Yii::t('backend', 'Auth Rules'),
-                                'url' => ['/rbac/rbac-auth-rule/index'],
+                                'url' => ['/core/rbac/rbac-auth-rule/index'],
                                 'icon' => 'fa fa-circle-o',
                             ],
                         ],
@@ -329,46 +332,46 @@ foreach ($rootItems as &$rootItem) {
                         'icon' => 'fa fa-th-large',
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_MANAGER),
                         'options' => ['class' => 'treeview'],
-                        'active' => (Yii::$app->controller->module->id == 'file'),
+                        'active' => ( Yii::$app->controller->module->id == 'file' ),
                         'items' => [
                             [
                                 'label' => Yii::t('backend', 'Storage'),
-                                'url' => ['/file/storage/index'],
+                                'url' => ['/core/file/storage/index'],
                                 'icon' => 'fa fa-database',
-                                'active' => (Yii::$app->controller->id == 'storage'),
+                                'active' => ( Yii::$app->controller->id == 'storage' ),
                             ],
                             [
                                 'label' => Yii::t('backend', 'Manager'),
-                                'url' => ['/file/manager/index'],
+                                'url' => ['/core/file/manager/index'],
                                 'icon' => 'fa fa-television',
-                                'active' => (Yii::$app->controller->id == 'manager'),
+                                'active' => ( Yii::$app->controller->id == 'manager' ),
                             ],
                         ],
                     ],
                     [
                         'label' => Yii::t('backend', 'Key-Value Storage'),
-                        'url' => ['/system/key-storage/index'],
+                        'url' => ['/core/system/key-storage/index'],
                         'icon' => 'fa fa-arrows-h',
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_MANAGER),
-                        'active' => (Yii::$app->controller->id == 'key-storage'),
+                        'active' => ( Yii::$app->controller->id == 'key-storage' ),
                     ],
                     [
                         'label' => Yii::t('backend', 'Cache'),
-                        'url' => ['/system/cache/index'],
+                        'url' => ['/core/system/cache/index'],
                         'icon' => 'fa fa-refresh',
 
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_ADMINISTRATOR),
                     ],
                     [
                         'label' => Yii::t('backend', 'System Information'),
-                        'url' => ['/system/information/index'],
+                        'url' => ['/core/system/information/index'],
                         'icon' => 'fa fa-dashboard',
 
                         'visible' => Yii::$app->user->can(\common\models\User::ROLE_ADMINISTRATOR),
                     ],
                     [
                         'label' => Yii::t('backend', 'Logs'),
-                        'url' => ['/system/log/index'],
+                        'url' => ['/core/system/log/index'],
                         'icon' => 'fa fa-warning',
                         'badge' => $count,
                         'badgeBgClass' => 'label-danger',
