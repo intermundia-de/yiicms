@@ -145,4 +145,12 @@ To sort existing timeline events based on website key
 
 ##### note: You can  skip step 4 by redirecting `sign-in` controller actions to `core/sign-in` controller actions or by not deleting `SignInController`.
 ______________________
+### Changing to core timeline events
+
+### Important!!! 
+1. Delete backend model  `TimelineEventSearch`
+2. Delete `backend/views/timeline-event/` with all containing views
+3. Update backend  web configuration :
+	change `defaultRoute' => 'timeline-event/index` to `defaultRoute' => '/core/timeline-event/index`
+
 
