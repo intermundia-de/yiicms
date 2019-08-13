@@ -12,7 +12,8 @@
     ],
     "require": {
         "yiisoft/yii2": "~2.0.0",
-        "kartik-v/yii2-widget-select2": "*"
+        "kartik-v/yii2-widget-select2": "*",
+        "apollo11/yii2-logger": "^v1.3.0"
     },
     "autoload": {
         "psr-4": {
