@@ -27,7 +27,8 @@ class m180619_131027_create_table_content_tree extends Migration
             'deleted_at' => $this->bigInteger(),
             'deleted_by' => $this->integer(),
             'hide' => $this->boolean()->defaultValue(false),
-            'view' => $this->string(64)
+            'view' => $this->string(64),
+            'key' => $this->string(1024),
         ]);
 
         $this->addForeignKey('{{%FK_content_tree_id_link_id}}',

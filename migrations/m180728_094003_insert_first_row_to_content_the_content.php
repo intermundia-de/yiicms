@@ -33,6 +33,7 @@ class m180728_094003_insert_first_row_to_content_the_content extends Migration
             'depth' => 0,
             'lft' => 1,
             'rgt' => 4,
+            'key' => '*.com',
             'created_at' => time(),
             'created_by' => 1,
             'updated_at' => time(),
