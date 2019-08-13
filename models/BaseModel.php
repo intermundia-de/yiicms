@@ -270,4 +270,16 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
         }
         return '';
     }
+
+    /**
+     * Return the content attribute of activeTranslation
+     *
+     * @param string $attribute
+     * @return mixed
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function renderAttribute($attribute)
+    {
+        return $this->activeTranslation->$attribute;
+    }
 }
