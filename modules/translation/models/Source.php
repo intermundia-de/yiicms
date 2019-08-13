@@ -45,9 +45,9 @@ class Source extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id'       => Yii::t('intermundia\yiicms', 'ID'),
-            'category' => Yii::t('intermundia\yiicms', 'Category'),
-            'message'  => Yii::t('intermundia\yiicms', 'Message'),
+            'id'       => Yii::t('intermundiacms', 'ID'),
+            'category' => Yii::t('intermundiacms', 'Category'),
+            'message'  => Yii::t('intermundiacms', 'Message'),
         ];
     }
 

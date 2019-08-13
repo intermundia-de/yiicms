@@ -1,7 +1,7 @@
 <?php
 
 use intermundia\yiicms\widgets\CKEditor;
-use backend\widgets\LanguageSelector;
+use intermundia\yiicms\widgets\LanguageSelector;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 

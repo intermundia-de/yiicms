@@ -53,9 +53,9 @@ class Translation extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('intermundia\yiicms', 'ID'),
-            'language' => Yii::t('intermundia\yiicms', 'Language'),
-            'translation' => Yii::t('intermundia\yiicms', 'Translation'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'language' => Yii::t('intermundiacms', 'Language'),
+            'translation' => Yii::t('intermundiacms', 'Translation'),
         ];
     }
 

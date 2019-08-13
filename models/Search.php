@@ -53,13 +53,13 @@ class Search extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'content_tree_id' => Yii::t('common', 'Content Tree ID'),
-            'table_name' => Yii::t('common', 'Table Name'),
-            'record_id' => Yii::t('common', 'Record ID'),
-            'language' => Yii::t('common', 'Language'),
-            'attribute' => Yii::t('common', 'Attribute'),
-            'content' => Yii::t('common', 'Content'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'content_tree_id' => Yii::t('intermundiacms', 'Content Tree ID'),
+            'table_name' => Yii::t('intermundiacms', 'Table Name'),
+            'record_id' => Yii::t('intermundiacms', 'Record ID'),
+            'language' => Yii::t('intermundiacms', 'Language'),
+            'attribute' => Yii::t('intermundiacms', 'Attribute'),
+            'content' => Yii::t('intermundiacms', 'Content'),
         ];
     }
 

@@ -107,7 +107,7 @@ class BaseController extends BackendController
         $breadCrumbs = $tree->getBreadCrumbs();
         return $this->render(
             'create', [
-            'mulitiModel' => $model,
+            'multiModel' => $model,
             'tableName' => $tableName,
             'breadCrumbs' => $breadCrumbs,
             'url' => $tree->getFullUrl()
@@ -161,7 +161,7 @@ class BaseController extends BackendController
         $breadCrumbs = $tree ? $tree->getBreadCrumbs() : [];
         return $this->render(
             'update', [
-            'mulitiModel' => $model,
+            'multiModel' => $model,
             'tableName' => $tableName,
             'breadCrumbs' => $breadCrumbs,
             'url' => $tree ? $tree->getFullUrl() : '/'

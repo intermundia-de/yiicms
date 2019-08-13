@@ -153,26 +153,26 @@ class WebsiteTranslation extends BaseTranslateModel
     {
         return [
 
-            'id' => Yii::t('common', 'ID'),
-            'logo_image_name' => Yii::t('common', 'Logo Image'),
-            'name' => Yii::t('common', 'Name'),
-            'additional_logo_image_name' => Yii::t('common', 'Additional Logo Image'),
-            'copyright' => Yii::t('common', 'Copyright'),
-            'google_tag_manager_code' => Yii::t('common', 'Google Tag Manager Code'),
-            'html_code_before_close_body' => Yii::t('common', 'Html Code Before Close Body'),
-            'website_id' => Yii::t('common', 'Website ID'),
-            'language' => Yii::t('common', 'Locale'),
-            'address_of_company' => Yii::t('common', 'Address Of Company'),
-            'cookie_disclaimer_message' => Yii::t('common', 'Cookie Disclaimer Message'),
-            'title' => Yii::t('common', 'Website Title'),
-            'short_description' => Yii::t('common', 'Short Description'),
-            'footer_name' => Yii::t('common', 'Footer Name'),
-            'footer_headline' => Yii::t('common', 'Footer Headline'),
-            'footer_plain_text' => Yii::t('common', 'Footer Plain Text'),
-            'footer_copyright' => Yii::t('common', 'Footer Copyright'),
-            'footer_logo' => Yii::t('common', 'Footer Logo'),
-            'og_site_name' => Yii::t('common', 'Og Site Name'),
-            'image' => Yii::t('common', 'Image')
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'logo_image_name' => Yii::t('intermundiacms', 'Logo Image'),
+            'name' => Yii::t('intermundiacms', 'Name'),
+            'additional_logo_image_name' => Yii::t('intermundiacms', 'Additional Logo Image'),
+            'copyright' => Yii::t('intermundiacms', 'Copyright'),
+            'google_tag_manager_code' => Yii::t('intermundiacms', 'Google Tag Manager Code'),
+            'html_code_before_close_body' => Yii::t('intermundiacms', 'Html Code Before Close Body'),
+            'website_id' => Yii::t('intermundiacms', 'Website ID'),
+            'language' => Yii::t('intermundiacms', 'Locale'),
+            'address_of_company' => Yii::t('intermundiacms', 'Address Of Company'),
+            'cookie_disclaimer_message' => Yii::t('intermundiacms', 'Cookie Disclaimer Message'),
+            'title' => Yii::t('intermundiacms', 'Website Title'),
+            'short_description' => Yii::t('intermundiacms', 'Short Description'),
+            'footer_name' => Yii::t('intermundiacms', 'Footer Name'),
+            'footer_headline' => Yii::t('intermundiacms', 'Footer Headline'),
+            'footer_plain_text' => Yii::t('intermundiacms', 'Footer Plain Text'),
+            'footer_copyright' => Yii::t('intermundiacms', 'Footer Copyright'),
+            'footer_logo' => Yii::t('intermundiacms', 'Footer Logo'),
+            'og_site_name' => Yii::t('intermundiacms', 'Og Site Name'),
+            'image' => Yii::t('intermundiacms', 'Image')
 
 
         ];

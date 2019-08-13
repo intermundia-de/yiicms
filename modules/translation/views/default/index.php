@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
  * @var $languages          array
  */
 
-$this->title = Yii::t('intermundia\yiicms', 'Translation');
+$this->title = Yii::t('intermundiacms', 'Translation');
 $this->params['breadcrumbs'][] = $this->title;
 
 ?>
@@ -22,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="panel-heading collapsed" role="tab" id="headingOne" data-toggle="collapse"
                  data-parent="#accordion" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                 <h4 class="panel-title">
-                    <?php echo Yii::t('intermundia\yiicms', 'Create {modelClass}', ['modelClass' => 'Source Message']) ?>
+                    <?php echo Yii::t('intermundiacms', 'Create {modelClass}', ['modelClass' => 'Source Message']) ?>
                     <i class="fa fa-plus-square icon-collapsed pull-right"></i>
                     <i class="fa fa-minus-square icon-expanded pull-right"></i>
                 </h4>

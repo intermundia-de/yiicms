@@ -184,10 +184,10 @@ class User extends ActiveRecord implements IdentityInterface
     public static function statuses()
     {
         return [
-            self::STATUS_NOT_ACTIVE => Yii::t('common', 'Not Active'),
-            self::STATUS_ACTIVE => Yii::t('common', 'Active'),
-            self::STATUS_DELETED => Yii::t('common', 'Deleted'),
-            self::STATUS_SUSPENDED => Yii::t('common', 'Suspended'),
+            self::STATUS_NOT_ACTIVE => Yii::t('intermundiacms', 'Not Active'),
+            self::STATUS_ACTIVE => Yii::t('intermundiacms', 'Active'),
+            self::STATUS_DELETED => Yii::t('intermundiacms', 'Deleted'),
+            self::STATUS_SUSPENDED => Yii::t('intermundiacms', 'Suspended'),
         ];
     }
 
@@ -197,15 +197,15 @@ class User extends ActiveRecord implements IdentityInterface
     public function attributeLabels()
     {
         return [
-            'username' => Yii::t('common', 'Username'),
-            'email' => Yii::t('common', 'E-mail'),
-            'status' => Yii::t('common', 'Status'),
-            'access_token' => Yii::t('common', 'API access token'),
-            'created_at' => Yii::t('common', 'Created at'),
-            'updated_at' => Yii::t('common', 'Updated at'),
-            'logged_at' => Yii::t('common', 'Last login'),
-            'login_attempt' => Yii::t('common', 'Login attempts'),
-            'suspended_till' => Yii::t('common', 'Suspended Till'),
+            'username' => Yii::t('intermundiacms', 'Username'),
+            'email' => Yii::t('intermundiacms', 'E-mail'),
+            'status' => Yii::t('intermundiacms', 'Status'),
+            'access_token' => Yii::t('intermundiacms', 'API access token'),
+            'created_at' => Yii::t('intermundiacms', 'Created at'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated at'),
+            'logged_at' => Yii::t('intermundiacms', 'Last login'),
+            'login_attempt' => Yii::t('intermundiacms', 'Login attempts'),
+            'suspended_till' => Yii::t('intermundiacms', 'Suspended Till'),
         ];
     }
 

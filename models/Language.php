@@ -55,14 +55,14 @@ class Language extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'code' => Yii::t('common', 'Code'),
-            'name' => Yii::t('common', 'Name'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'created_by' => Yii::t('common', 'Created By'),
-            'updated_at' => Yii::t('common', 'Updated At'),
-            'updated_by' => Yii::t('common', 'Updated By'),
-            'deleted_at' => Yii::t('common', 'Deleted At'),
-            'deleted_by' => Yii::t('common', 'Deleted By'),
+            'code' => Yii::t('intermundiacms', 'Code'),
+            'name' => Yii::t('intermundiacms', 'Name'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'created_by' => Yii::t('intermundiacms', 'Created By'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
+            'updated_by' => Yii::t('intermundiacms', 'Updated By'),
+            'deleted_at' => Yii::t('intermundiacms', 'Deleted At'),
+            'deleted_by' => Yii::t('intermundiacms', 'Deleted By'),
         ];
     }
 

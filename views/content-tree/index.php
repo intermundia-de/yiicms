@@ -69,12 +69,12 @@ $location = $this->render('location', [
 
 $items = [
     [
-        'label' => Yii::t('common', 'View'),
+        'label' => Yii::t('intermundiacms', 'View'),
         'content' => $view,
     ],
     [
         'label' =>
-            Yii::t('common', 'Location') .
+            Yii::t('intermundiacms', 'Location') .
             ' (' . $locationQuery->count() . ') ',
         'content' => $location,
     ]

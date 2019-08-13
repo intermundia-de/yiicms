@@ -1,6 +1,6 @@
 <?php
 
-use backend\widgets\LanguageSelector;
+use intermundia\yiicms\widgets\LanguageSelector;
 use intermundia\yiicms\widgets\CKEditor;
 use intermundia\yiicms\widgets\FileInput;
 use yii\helpers\Html;
@@ -14,7 +14,6 @@ use yii\helpers\Url;
 ?>
 
 <?php echo $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
-<?php echo $form->field($model, 'language')->widget(LanguageSelector::class, []) ?>
 <?php echo $form->field($model, 'short_description')->textarea() ?>
 <?php echo $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'og_site_name')->textInput(['maxlength' => true]) ?>

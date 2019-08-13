@@ -50,7 +50,7 @@ use yii\bootstrap\ActiveForm;
                     'label' => $name,
                     'content' => $content,
                     'headerOptions' => [
-                        'title' => $translationModel->hasErrors() ? Yii::t('common', 'You have validation errors') : "",
+                        'title' => $translationModel->hasErrors() ? Yii::t('intermundiacms', 'You have validation errors') : "",
                         'class' => $translationModel->hasErrors() ? 'has-error' : ''
                     ],
                     'options' => [

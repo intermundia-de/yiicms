@@ -6,7 +6,7 @@
  * Time: 7:19 PM
  */
 
-namespace backend\widgets;
+namespace intermundia\yiicms\widgets;
 
 
 use intermundia\yiicms\models\Language;

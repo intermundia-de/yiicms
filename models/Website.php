@@ -72,9 +72,9 @@ class Website extends BaseModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
         ];
     }
 

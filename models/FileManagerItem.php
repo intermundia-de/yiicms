@@ -73,20 +73,20 @@ class FileManagerItem extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'table_name' => Yii::t('common', 'Table Name'),
-            'column_name' => Yii::t('common', 'Column Name'),
-            'record_id' => Yii::t('common', 'Record ID'),
-            'base_url' => Yii::t('common', 'Base Url'),
-            'path' => Yii::t('common', 'Path'),
-            'type' => Yii::t('common', 'Type'),
-            'size' => Yii::t('common', 'Size'),
-            'language' => Yii::t('common', 'Language'),
-            'name' => Yii::t('common', 'Name'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At'),
-            'created_by' => Yii::t('common', 'Created By'),
-            'updated_by' => Yii::t('common', 'Updated By'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'table_name' => Yii::t('intermundiacms', 'Table Name'),
+            'column_name' => Yii::t('intermundiacms', 'Column Name'),
+            'record_id' => Yii::t('intermundiacms', 'Record ID'),
+            'base_url' => Yii::t('intermundiacms', 'Base Url'),
+            'path' => Yii::t('intermundiacms', 'Path'),
+            'type' => Yii::t('intermundiacms', 'Type'),
+            'size' => Yii::t('intermundiacms', 'Size'),
+            'language' => Yii::t('intermundiacms', 'Language'),
+            'name' => Yii::t('intermundiacms', 'Name'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
+            'created_by' => Yii::t('intermundiacms', 'Created By'),
+            'updated_by' => Yii::t('intermundiacms', 'Updated By'),
         ];
     }
 

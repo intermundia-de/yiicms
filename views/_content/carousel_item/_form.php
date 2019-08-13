@@ -1,7 +1,7 @@
 <?php
 
 use intermundia\yiicms\widgets\FileInput;
-use backend\widgets\LanguageSelector;
+use intermundia\yiicms\widgets\LanguageSelector;
 
 /**
  * @var $this  yii\web\View
@@ -10,19 +10,12 @@ use backend\widgets\LanguageSelector;
  */
 ?>
 
-
-<?php echo $form->field($model, 'language')->widget(LanguageSelector::class, []) ?>
-<?php echo $this->render('../content-tree/_model_fields', [
-    'contentTreeModel' => $contentTreeModel,
-    'form' => $form,
-]); ?>
 <?php echo $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
 <?php echo $form->field($model, 'caption')->widget(\intermundia\yiicms\widgets\CKEditor::class, [
     'preset' => 'full'
 ]) ?>
 
-<?php
-echo $form->field($model, 'image[]')->widget(FileInput::class, [
+<?php echo $form->field($model, 'image[]')->widget(FileInput::class, [
     'options' => ['accept' => 'image/*', 'multiple' => true],
 ]); ?>

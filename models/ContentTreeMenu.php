@@ -43,10 +43,10 @@ class ContentTreeMenu extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'content_tree_id' => Yii::t('common', 'Content Tree ID'),
-            'menu_id' => Yii::t('common', 'Menu ID'),
-            'position' => Yii::t('common', 'Position'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'content_tree_id' => Yii::t('intermundiacms', 'Content Tree ID'),
+            'menu_id' => Yii::t('intermundiacms', 'Menu ID'),
+            'position' => Yii::t('intermundiacms', 'Position'),
         ];
     }
 
