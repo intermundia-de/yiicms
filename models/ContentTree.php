@@ -186,14 +186,11 @@ class ContentTree extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return \intermundia\yiicms\models\ContentTreeTranslation
      */
     public function getActiveTranslation()
     {
-        if ($this->currentTranslation) {
-            return $this->getCurrentTranslation();
-        }
-        return $this->getDefaultTranslation();
+        return $this->currentTranslation ?: $this->defaultTranslation;
     }
 
     /**
@@ -538,7 +535,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function getNodes()
     {
-        return $this->getActualItemActiveTranslation()->alias_path;
+        return $this->activeTranslation->alias_path;
     }
 
     public function getFullUrl($asArray = false, $schema = false)
