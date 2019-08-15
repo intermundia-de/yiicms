@@ -249,4 +249,22 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
         $alias = $alias ?: ContentTree::tableName();
         return $this->andWhere([$alias . '.website' => $id]);
     }
+
+    /**
+     * Adds ->with(['currentTranslation', 'defaultTranslation'])
+     * If you pass $linkTranslations argument as true it will add also
+     * ->with(['link.currentTranslation', 'link.defaultTranslation']);
+     *
+     * @param bool $linkTranslations
+     * @return self
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function withTranslations($linkTranslations = false)
+    {
+        $this->with(['currentTranslation', 'defaultTranslation']);
+        if ($linkTranslations){
+            $this->with(['link.currentTranslation', 'link.defaultTranslation']);
+        }
+        return $this;
+    }
 }
