@@ -591,7 +591,7 @@ class ContentTree extends \yii\db\ActiveRecord
     {
         if ($this->hasCustomViews()) {
             return array_merge([null => Yii::t('backend', 'Default')],
-                Yii::$app->contentTree->getViewsForTable($this->table_name));
+                Yii::$app->contentTree->getViewsForTable($this->content_type));
         } else {
             return [];
         }
