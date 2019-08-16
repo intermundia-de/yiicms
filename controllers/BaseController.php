@@ -65,23 +65,28 @@ class BaseController extends BackendController
     }
 
     /**
-     * @param $tableName
+     * @param $contentType
      * @param $parentContentId
      * @param $language
      * @return string|\yii\web\Response
      * @throws \yii\db\Exception
      * @var  MultiModel $model
      */
-    public function actionCreate($tableName, $parentContentId, $language)
+    public function actionCreate($contentType, $parentContentId, $language)
     {
-        $baseModelClassName = Yii::$app->contentTree->getClassName($tableName);
+        /** @var BaseModel $baseModelClassName */
+        $baseModelClassName = Yii::$app->contentTree->getClassName($contentType);
+        $tableName = $baseModelClassName::getFormattedTableName();
         $baseTranslateModelClassName = $baseModelClassName::getTranslateModelClass();
+
+        $contentTree = new ContentTree();
+        $contentTree->content_type = $contentType;
 
         $model = new ContentMultiModel([
             'models' => [
                 ContentMultiModel::BASE_MODEL => new $baseModelClassName(),
                 ContentMultiModel::BASE_TRANSLATION_MODEL => new $baseTranslateModelClassName(),
-                ContentMultiModel::CONTENT_TREE_MODEL => new ContentTree(),
+                ContentMultiModel::CONTENT_TREE_MODEL => $contentTree
             ]
         ]);
 
@@ -109,23 +114,25 @@ class BaseController extends BackendController
             'create', [
             'multiModel' => $model,
             'tableName' => $tableName,
+            'contentType' => $contentType,
             'breadCrumbs' => $breadCrumbs,
             'url' => $tree->getFullUrl()
         ]);
     }
 
     /**
-     * @param $tableName
+     * @param $contentType
      * @param $parentContentId
      * @param $contentId
      * @param $language
      * @return string|\yii\web\Response
-     * @throws NotFoundHttpException
      * @throws \yii\db\Exception
+     * @throws \yii\web\NotFoundHttpException
      */
-    public function actionUpdate($tableName, $parentContentId, $contentId, $language)
+    public function actionUpdate($contentType, $parentContentId, $contentId, $language)
     {
-        $baseModelClassName = Yii::$app->contentTree->getClassName($tableName);
+        $baseModelClassName = Yii::$app->contentTree->getClassName($contentType);
+        $tableName = $baseModelClassName::getFormattedTableName();
         $baseTranslateModelClassName = $baseModelClassName::getTranslateModelClass();
         $translateModel = new $baseTranslateModelClassName();
         $baseTranslationModel = $this->findModel($baseModelClassName, $translateModel, $contentId, $language);
@@ -163,6 +170,7 @@ class BaseController extends BackendController
             'update', [
             'multiModel' => $model,
             'tableName' => $tableName,
+            'contentType' => $contentType,
             'breadCrumbs' => $breadCrumbs,
             'url' => $tree ? $tree->getFullUrl() : '/'
         ]);

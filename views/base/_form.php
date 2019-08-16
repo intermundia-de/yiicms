@@ -9,6 +9,7 @@ use yii\helpers\Html;
 /** @var $contentTreeModel \intermundia\yiicms\models\ContentTree */
 /** @var $url string */
 /** @var $tableName string */
+/** @var $contentType string */
 
 ?>
 <?php $form = ActiveForm::begin([
@@ -26,9 +27,10 @@ use yii\helpers\Html;
                 <h4 class="panel-title"><?php echo Yii::t('intermundiacms', 'Content Fields') ?></h4>
             </div>
             <div class="panel-body">
-                <?php echo $this->render('../_content/' . $tableName . '/_form', [
+                <?php echo $this->render('../_content/' . $contentType . '/_form', [
                     'model' => $model,
                     'tableName' => $tableName,
+                    'contentType' => $contentType,
                     'contentTreeModel' => $contentTreeModel,
                     'form' => $form
                 ]); ?>

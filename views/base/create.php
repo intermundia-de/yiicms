@@ -12,6 +12,7 @@ use yii\bootstrap\Modal;
 
 /**
  * @var $tableName
+ * @var $contentType
  * @var $breadCrumbs
  * @var $this                    yii\web\View
  * @var $dataProvider            yii\data\ActiveDataProvider
@@ -42,6 +43,7 @@ $this->params['breadcrumbs'] = $BreadCrumb;
     'model' => $model,
     'contentTreeModel' => $contentTreeModel,
     'tableName' => $tableName,
+    'contentType' => $contentType,
     'url' => ''
 ]) ?>
 

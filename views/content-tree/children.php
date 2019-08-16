@@ -80,7 +80,7 @@ echo \yii\grid\GridView::widget([
                 /** @var $model \intermundia\yiicms\models\ContentTree */
                 return '<i class="fa ' .
                     Yii::$app->contentTree->getIcon($model->table_name, $model->link_id) . '"></i> '
-                    . Yii::$app->contentTree->getDisplayName($model->table_name);
+                    . Yii::$app->contentTree->getDisplayName($model->content_type);
             },
             'contentOptions' => ['class' => 'not-draggable'],
         ],

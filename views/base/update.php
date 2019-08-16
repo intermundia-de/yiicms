@@ -2,6 +2,7 @@
 
 /**
  * @var $tableName
+ * @var $contentType
  * @var $breadCrumbs
  * @var $this                    yii\web\View
  * @var $model                   intermundia\yiicms\models\BaseTranslateModel
@@ -18,7 +19,7 @@ use yii\bootstrap\Modal;
 $this->registerAssetBundle(\intermundia\yiicms\bundle\JSTreeAsset::class);
 
 $this->title = Yii::t('intermundiacms', 'Update {modelClass}: ', [
-        'modelClass' => $model->getModelClassName(),
+        'modelClass' => $contentTreeModel->getContentType(),
     ]) . ' ' . $model->getTitle();
 
 $BreadCrumb = [];
@@ -37,6 +38,7 @@ $this->params['breadcrumbs'] = $BreadCrumb;
     'model' => $model,
     'contentTreeModel' => $contentTreeModel,
     'tableName' => $tableName,
+    'contentType' => $contentType,
     'url' => ''
 ]) ?>
 

@@ -9,6 +9,8 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\helpers\Inflector;
 use yii\helpers\Url;
 
 /**
@@ -17,6 +19,7 @@ use yii\helpers\Url;
  * @property int $id
  * @property int $record_id
  * @property string $table_name
+ * @property string $content_type
  * @property string $website
  * @property int $lft
  * @property int $rgt
@@ -127,7 +130,7 @@ class ContentTree extends \yii\db\ActiveRecord
             ],
             [['custom_class', 'show_as_sibling'], 'safe'],
             [['view'], 'string', 'max' => 64],
-            [['table_name'], 'string', 'max' => 255],
+            [['table_name', 'content_type'], 'string', 'max' => 255],
             [['key'], 'string', 'max' => 1024],
             [['show_as_sibling'], 'integer', 'max' => 1],
         ];
@@ -387,53 +390,6 @@ class ContentTree extends \yii\db\ActiveRecord
         return [$items];
     }
 
-//    /**
-//     *
-//     *
-//     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
-//     * @param array $fields
-//     * @param array $extraFields
-//     * @param array $appendParams
-//     * @return array
-//     * @throws \Exception
-//     */
-//    public static function getItemsAsTreeMenu(
-//        $menu_id,
-//        $fields = ['id', 'alias', 'name' => 'label', 'url', 'record_id'],
-//        $extraFields = [],
-//        $appendParams = []
-//    ) {
-//        $contentTreeItems = ContentTree::findBySql("SELECT
-//                          `content_tree`.`id`,
-//                          `content_tree`.`record_id`,
-//                          `content_tree`.`table_name`,
-//                          `lft`,
-//                          `rgt`,
-//                          `depth`,
-//                          `content_tree_translation`.alias,
-//                          IFNULL(`content_tree_translation`.`name`, content_tree.table_name) as name,
-//                          `content_tree_translation`.`short_description`
-//                        FROM `content_tree`
-//                          INNER JOIN `content_tree_menu`
-//                            ON `content_tree_menu`.content_tree_id = `content_tree`.id AND `content_tree_menu`.menu_id = :menuId
-//                          LEFT JOIN `content_tree_translation`
-//                            ON `content_tree_translation`.content_tree_id = `content_tree`.id AND `content_tree_translation`.language = :language",
-//            [
-//                'language' => \Yii::$app->language,
-//                'menuId' => $menu_id
-//            ])
-//            ->asArray()
-//            ->all();
-//
-//        $nestedSetModel = new NestedSetModel($contentTreeItems, $extraFields, $appendParams);
-//        $items = $nestedSetModel->getTree($fields);
-////        echo '<pre>';
-////        var_dump($appendParams, $items);
-////        exit;
-//
-//        return [$items];
-//    }
-
     /**
      * Return a BaseModel instance
      *
@@ -444,9 +400,6 @@ class ContentTree extends \yii\db\ActiveRecord
     {
         $baseModel = ArrayHelper::getValue(Yii::$app->baseModelObjects, $this->table_name . '.' . $this->record_id);
         if (!$baseModel) {
-//            echo '<pre>';
-//            var_dump("Base model was not found ", $this->table_name . '.' . $this->record_id);
-//            echo '</pre>';
             $className = Yii::$app->contentTree->getClassName($this->table_name);
             if ($className) {
                 return $className::find()->byId($this->record_id)->one();
@@ -868,5 +821,10 @@ class ContentTree extends \yii\db\ActiveRecord
             $class .= $objectModelClass . ' ';
         }
         return $class;
+    }
+
+    public function getContentType()
+    {
+        return Inflector::camel2words($this->content_type);
     }
 }
