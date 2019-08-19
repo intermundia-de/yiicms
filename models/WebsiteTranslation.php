@@ -50,6 +50,8 @@ class WebsiteTranslation extends BaseTranslateModel
      * @var []
      */
     public $businessHoursShedule;
+
+    public $socialLinkArray;
     /**
      * @var UploadedFile|FileManagerItem
      */
@@ -109,22 +111,42 @@ class WebsiteTranslation extends BaseTranslateModel
 
                 ],
                 'skipUpdateOnClean' => false,
-                'value' => function() {
-               foreach($this->businessHoursShedule as $day => $dayShedule) {
-                        if(!$dayShedule['startTime'] || !$dayShedule['endTime']) {
+                'value' => function () {
+                    foreach ($this->businessHoursShedule as $day => $dayShedule) {
+                        if (!$dayShedule['startTime'] || !$dayShedule['endTime']) {
                             unset($this->businessHoursShedule[$day]);
                         }
                     }
                     return Json::encode($this->businessHoursShedule);
-               }
+                }
             ],
             [
                 'class' => AttributeBehavior::class,
                 'attributes' => [
                     ActiveRecord::EVENT_AFTER_FIND => 'businessHoursShedule',
                 ],
-                'value' => function() {
+                'value' => function () {
                     return Json::decode($this->company_business_hours);
+                }
+            ],
+            [
+                'class' => AttributeBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_VALIDATE => 'social_links',
+
+                ],
+                'skipUpdateOnClean' => false,
+                'value' => function () {
+                    return Json::encode($this->social_links);
+                }
+            ],
+            [
+                'class' => AttributeBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_AFTER_FIND => 'social_links',
+                ],
+                'value' => function () {
+                    return Json::decode($this->social_links);
                 }
             ]
         ], parent::behaviors());
@@ -222,7 +244,7 @@ class WebsiteTranslation extends BaseTranslateModel
             'image' => Yii::t('common', 'Image'),
             'contact_type' => Yii::t('common', 'Contact Type'),
             'telephone' => Yii::t('common', 'Telephone'),
-            'social_links' => Yii::t('common', 'Social Links (separated by ",")'),
+            'social_links' => Yii::t('common', 'Social Links'),
             'company_country' => Yii::t('common', 'Country Of Company'),
             'company_city' => Yii::t('common', 'City Of Company'),
             'company_postal_code' => Yii::t('common', 'Postal Code Of Company'),

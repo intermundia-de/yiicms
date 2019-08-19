@@ -21,7 +21,20 @@
         'activeTranslation.address_of_company',
         'activeTranslation.contact_type',
         'activeTranslation.telephone',
-        'activeTranslation.social_links',
+        [
+            'attribute' => 'activeTranslation.social_links',
+            'value' => function($model) {
+                $social_links = '';
+                if($model->activeTranslation->social_links) {
+                    foreach($model->activeTranslation->social_links as $social_link) {
+                        $social_links .= "<p>${social_link}</p>";
+                    }
+                }
+
+                return $social_links;
+            },
+            'format' => 'html'
+        ],
         'activeTranslation.cookie_disclaimer_message',
         'activeTranslation.copyright',
 //        [

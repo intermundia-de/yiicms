@@ -165,7 +165,7 @@ class View extends \yii\web\View
         }
 
         if ($website->social_links) {
-            $data["sameAs"] = explode(',', $website->social_links);
+            $data["sameAs"] = $website->social_links;
         }
 
         return Json::encode($data);

@@ -5,6 +5,7 @@ use intermundia\yiicms\widgets\CKEditor;
 use intermundia\yiicms\widgets\FileInput;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use unclead\multipleinput\MultipleInput;
 
 /**
  * @var $this  yii\web\View
@@ -52,7 +53,10 @@ use yii\helpers\Url;
 
 <?php echo $form->field($model, 'contact_type')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'telephone')->textInput(['maxlength' => true]) ?>
-<?php echo $form->field($model, 'social_links')->textInput(['maxlength' => true]) ?>
+
+<?php echo $form->field($model, 'social_links')->widget(MultipleInput::className(), [
+    'addButtonPosition' => MultipleInput::POS_ROW,
+]); ?>
 
 <?php echo $form->field($model, 'og_image[]')->widget(FileInput::class, [
     'options' => ['accept' => 'image/*', 'multiple' => true],
