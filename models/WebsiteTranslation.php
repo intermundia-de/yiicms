@@ -106,7 +106,9 @@ class WebsiteTranslation extends BaseTranslateModel
                 'attributes' => [
                     ActiveRecord::EVENT_BEFORE_INSERT => 'company_business_hours',
                     ActiveRecord::EVENT_BEFORE_UPDATE => 'company_business_hours',
+
                 ],
+                'skipUpdateOnClean' => false,
                 'value' => function() {
                foreach($this->businessHoursShedule as $day => $dayShedule) {
                         if(!$dayShedule['startTime'] || !$dayShedule['endTime']) {
@@ -115,6 +117,15 @@ class WebsiteTranslation extends BaseTranslateModel
                     }
                     return Json::encode($this->businessHoursShedule);
                }
+            ],
+            [
+                'class' => AttributeBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_AFTER_FIND => 'businessHoursShedule',
+                ],
+                'value' => function() {
+                    return Json::decode($this->company_business_hours);
+                }
             ]
         ], parent::behaviors());
     }
@@ -198,7 +209,7 @@ class WebsiteTranslation extends BaseTranslateModel
             'html_code_before_close_body' => Yii::t('common', 'Html Code Before Close Body'),
             'website_id' => Yii::t('common', 'Website ID'),
             'language' => Yii::t('common', 'Locale'),
-            'address_of_company' => Yii::t('common', 'Streed Address Of Company'),
+            'address_of_company' => Yii::t('common', 'Street Address Of Company'),
             'cookie_disclaimer_message' => Yii::t('common', 'Cookie Disclaimer Message'),
             'title' => Yii::t('common', 'Website Title'),
             'short_description' => Yii::t('common', 'Short Description'),
@@ -274,7 +285,6 @@ class WebsiteTranslation extends BaseTranslateModel
             'Monday',
             'Tuesday',
             'Wednsday',
-            'Thursday',
             'Thursday',
             'Friday',
             'Saturday',
