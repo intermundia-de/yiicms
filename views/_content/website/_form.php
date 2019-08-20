@@ -27,29 +27,47 @@ use unclead\multipleinput\MultipleInput;
 <?php echo $form->field($model, 'company_postal_code')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'location_latitude')->textInput() ?>
 <?php echo $form->field($model, 'location_longitude')->textInput() ?>
-<h4>Business Hours</h4>
-<hr>
-<?php foreach($model->getWeekDays() as $day): ?>
-<div class="row">
-    <div class="col col-xs-2">
+
+
+<table id="workingHours" class="table table-bordered">
+  <thead>
+  <tr>
+    <td>
+      <h5>Day</h5>
+    </td>
+    <td>
+      <h5>Start Time</h5>
+    </td>
+    <td>
+      <h5>End Time</h5>
+    </td>
+  </tr>
+  </thead>
+  <tbody>
+  <?php foreach($model->getWeekDays() as $day): ?>
+    <tr>
+      <td>
         <p><?php echo $day ?></p>
-    </div>
-    <div class="col col-xs-5">
-        <?php echo $form->field($model, "businessHoursShedule[{$day}][startTime]")->widget(\kartik\time\TimePicker::class, [
-            'pluginOptions' => [
-                'showMeridian' => false,
-                'defaultTime' => false
-            ]])->label("$day Start Time") ?>
-    </div>
-    <div class="col col-xs-5">
-        <?php echo $form->field($model, "businessHoursShedule[{$day}][endTime]")->widget(\kartik\time\TimePicker::class, [
-            'pluginOptions' => [
-                'showMeridian' => false,
-                'defaultTime' => false
-            ]])->label("$day End Time") ?>
-    </div>
-</div>
-<?php endforeach; ?>
+      </td>
+      <td>
+          <?php echo $form->field($model, "businessHoursShedule[{$day}][startTime]")->widget(\kartik\time\TimePicker::class, [
+              'pluginOptions' => [
+                  'showMeridian' => false,
+                  'defaultTime' => false
+              ]])->label(false) ?>
+      </td>
+      <td>
+          <?php echo $form->field($model, "businessHoursShedule[{$day}][endTime]")->widget(\kartik\time\TimePicker::class, [
+              'pluginOptions' => [
+                  'showMeridian' => false,
+                  'defaultTime' => false
+              ]])->label(false) ?>
+      </td>
+    </tr>
+  <?php endforeach; ?>
+  </tbody>
+</table>
+
 
 <?php echo $form->field($model, 'contact_type')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'telephone')->textInput(['maxlength' => true]) ?>
