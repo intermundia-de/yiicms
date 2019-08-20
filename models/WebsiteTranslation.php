@@ -84,6 +84,7 @@ class WebsiteTranslation extends BaseTranslateModel
                     'claim_image' => 'claim_image',
                     'image' => 'image'
                 ],
+                'filePath' => '[[attribute_language]]/[[column]]_[[filename]].[[extension]]'
             ],
         ], parent::behaviors());
     }
@@ -94,6 +95,7 @@ class WebsiteTranslation extends BaseTranslateModel
     public function rules()
     {
         return [
+            [['title'], 'required'],
             [['website_id',], 'integer'],
             [['language'], 'string', 'max' => 15],
             [['name'], 'string', 'max' => 255],
