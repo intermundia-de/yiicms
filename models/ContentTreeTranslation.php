@@ -182,10 +182,10 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
             }
 
             /* If alias has changed trigger CHANGE_ALIAS_PATH event.
-            *  This event update own and children's alias_path,file_manager_item's path,
+            *  This event update own alias_path and own file_manager_items' path,
             *  rename file folder name oldAlias to newAlias
             */
-            $aliasChanged && !$this->contentTree->link_id && $this->contentTree->depth > 0 && $this->trigger(self::CHANGE_ALIAS_PATH);
+            $aliasChanged && !$this->contentTree->link_id && $this->trigger(self::CHANGE_ALIAS_PATH);
 
             /* If translation creates and it has children trigger CHANGE_CHILDREN_PATH event.
             *  This event updates children's alias_path,file_manager_item's path,
