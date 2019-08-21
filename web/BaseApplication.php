@@ -87,41 +87,59 @@ class BaseApplication extends \yii\web\Application
     {
         foreach (\Yii::$app->multiSiteCore->websites as $websiteKey => $websiteData) {
             $masterLanguage = $websiteData['masterLanguage'];
+
+            //Sort website domains based on key length descending order
+            uksort($websiteData['domains'], function ($a, $b) {
+                return strlen($b) - strlen($a);
+            });
             foreach ($websiteData['domains'] as $domain => $lang) {
-                if (preg_match("@(https?://)$domain@", $this->request->getAbsoluteUrl(), $matches)) {
-                    $this->websiteContentTree = ContentTree::findClean()
-                        ->byTableName(ContentTree::TABLE_NAME_WEBSITE)
-                        ->byKey($websiteKey)
-                        ->one();
-                    if (!$this->websiteContentTree) {
-                        throw new InvalidCallException("Current website does not exist");
+                //Compare domain host. '//$domain' prevents parse_url failure, since parse_url requires url with schema
+                $domainHost = parse_url("//$domain", PHP_URL_HOST);
+                if ($domainHost == parse_url($this->request->getAbsoluteUrl(), PHP_URL_HOST)) {
+                    $domainPath = parse_url("//$domain", PHP_URL_PATH);
+                    $requestUrlParsed = parse_url($this->request->getAbsoluteUrl());
+                    $requestPath = $requestUrlParsed['path'];
+                    if (!$domainPath) {
+                        $domainPath = '/';
                     }
-                    $this->websiteMasterLanguage = $masterLanguage;
-                    $this->defaultContentId = $websiteData['defaultContentId'];
-                    $this->defaultContent = ContentTree::find()->byId($this->defaultContentId)->one();
+                    /* If no matching path found, the last domain is choosen,
+                       since the last domain has no path (after uksort() ordering)
+                    */
+                    if (preg_match("@^$domainPath/@", $requestPath . '/') || $domainPath == '/') {
+                        $this->websiteContentTree = ContentTree::findClean()
+                            ->byTableName(ContentTree::TABLE_NAME_WEBSITE)
+                            ->byKey($websiteKey)
+                            ->one();
+                        if (!$this->websiteContentTree) {
+                            throw new InvalidCallException("Current website does not exist");
+                        }
+                        $this->websiteMasterLanguage = $masterLanguage;
+                        $this->defaultContentId = $websiteData['defaultContentId'];
+                        $this->defaultContent = ContentTree::find()->byId($this->defaultContentId)->one();
 
-                    if (!$this->defaultContent) {
-                        throw new InvalidCallException("Default Content for website \"$websiteKey\" does not exist");
-                    }
-                    $this->language = $lang;
-                    $this->websiteLanguages = $this->getWebsiteLanguages($websiteKey);
-                    $shortCode = LanguageHelper::convertLongCodeIntoShort($this->language);
-                    if (strpos($domain, '/') !== false
-                        && ( substr($domain, strpos($domain, '/') + 1) === $lang || $shortCode )) {
-                        $this->hasLanguageInUrl = true;
-                    }
-                    $frontendHost = ArrayHelper::getValue($websiteData, 'frontendHost');
-                    if (!$frontendHost) {
-                        \Yii::warning("\"frontendHost\" does not exist for website \"$domain\"");
-                        $frontendHost = $domain;
-                    }
+                        if (!$this->defaultContent) {
+                            throw new InvalidCallException("Default Content for website \"$websiteKey\" does not exist");
+                        }
+                        $this->language = $lang;
+                        $this->websiteLanguages = $this->getWebsiteLanguages($websiteKey);
+                        $shortCode = LanguageHelper::convertLongCodeIntoShort($this->language);
+                        if (strpos($domain, '/') !== false
+                            && (substr($domain, strpos($domain, '/') + 1) === $lang || $shortCode)) {
+                            $this->hasLanguageInUrl = true;
+                        }
+                        $frontendHost = ArrayHelper::getValue($websiteData, 'frontendHost');
+                        if (!$frontendHost) {
+                            \Yii::warning("\"frontendHost\" does not exist for website \"$domain\"");
+                            $frontendHost = $domain;
+                        }
 
-                    \Yii::setAlias('@frontendUrl', $matches[1] . $frontendHost);
-                    \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
-                    $this->setHomeUrl($matches[1] . $domain);
-                    $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
-                    \Yii::setAlias('@storageUrl', $storageUrl);
-                    break;
+                        \Yii::setAlias('@frontendUrl', $requestUrlParsed['scheme'] . $frontendHost);
+                        \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
+                        $this->setHomeUrl($requestUrlParsed['scheme'] . $domain);
+                        $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
+                        \Yii::setAlias('@storageUrl', $storageUrl);
+                        break;
+                    }
                 }
             }
             if ($this->websiteContentTree) {
