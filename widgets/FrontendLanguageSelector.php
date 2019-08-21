@@ -8,7 +8,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use Yii;
 /**
- * Class LanguageSelector
+ * Class FrontendLanguageSelector
  *
  * Renders language selector
  * according to multisite_websites "domains" configuration
@@ -16,7 +16,7 @@ use Yii;
  * @author Mirian Jintchvelashvili
  * @package intermundia\yiicms\widgets
  */
-class LanguageSelector extends Nav
+class FrontendLanguageSelector extends Nav
 {
     private $languageDomains;
     private $currentLanguage;
