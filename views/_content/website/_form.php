@@ -20,60 +20,7 @@ use unclead\multipleinput\MultipleInput;
 <?php echo $form->field($model, 'og_site_name')->textInput(['maxlength' => true]) ?>
 
 
-<?php echo $form->field($model, 'company_country')->textInput(['maxlength' => true]) ?>
-<?php echo $form->field($model, 'company_city')->textInput(['maxlength' => true]) ?>
-<?php echo $form->field($model, 'address_of_company')->textInput(['maxlength' => true]) ?>
-<?php echo $form->field($model, 'company_postal_code')->textInput(['maxlength' => true]) ?>
-<?php echo $form->field($model, 'location_latitude')->textInput() ?>
-<?php echo $form->field($model, 'location_longitude')->textInput() ?>
 
-
-<table id="workingHours" class="table table-bordered">
-  <thead>
-  <tr>
-    <td>
-      <h5>Day</h5>
-    </td>
-    <td>
-      <h5>Start Time</h5>
-    </td>
-    <td>
-      <h5>End Time</h5>
-    </td>
-  </tr>
-  </thead>
-  <tbody>
-  <?php foreach($model->getWeekDays() as $day): ?>
-    <tr>
-      <td>
-        <p><?php echo $day ?></p>
-      </td>
-      <td>
-          <?php echo $form->field($model, "businessHoursShedule[{$day}][startTime]")->widget(\kartik\time\TimePicker::class, [
-              'pluginOptions' => [
-                  'showMeridian' => false,
-                  'defaultTime' => false
-              ]])->label(false) ?>
-      </td>
-      <td>
-          <?php echo $form->field($model, "businessHoursShedule[{$day}][endTime]")->widget(\kartik\time\TimePicker::class, [
-              'pluginOptions' => [
-                  'showMeridian' => false,
-                  'defaultTime' => false
-              ]])->label(false) ?>
-      </td>
-    </tr>
-  <?php endforeach; ?>
-  </tbody>
-</table>
-
-
-<?php echo $form->field($model, 'contact_type')->textInput(['maxlength' => true]) ?>
-<?php echo $form->field($model, 'telephone')->textInput(['maxlength' => true]) ?>
-
-<?php echo $form->field($model, 'social_links')->widget(MultipleInput::className(), [
-    'addButtonPosition' => MultipleInput::POS_ROW,
-]); ?>
 
 <?php echo $form->field($model, 'og_image[]')->widget(FileInput::class, [
     'options' => ['accept' => 'image/*', 'multiple' => true],
@@ -104,3 +51,15 @@ use unclead\multipleinput\MultipleInput;
 echo $form->field($model, 'image[]')->widget(FileInput::class, [
     'options' => ['accept' => 'image/*', 'multiple' => true],
 ]); ?>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"> <?php echo Yii::t('intermundiacms', 'Corporate Data') ?></h3>
+    </div>
+    <div class="panel-body">
+        <?php echo $this->render('../_content/website/_corporate_data_fields', [
+            'model' => $model->baseModel,
+            'form' => $form
+        ]); ?>
+    </div>
+</div>

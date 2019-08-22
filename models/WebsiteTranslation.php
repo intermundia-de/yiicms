@@ -5,9 +5,6 @@ namespace intermundia\yiicms\models;
 use intermundia\yiicms\behaviors\FileManagerItemBehavior;
 use intermundia\yiicms\models\query\BaseTranslationQuery;
 use Yii;
-use yii\behaviors\AttributeBehavior;
-use yii\db\ActiveRecord;
-use yii\helpers\Json;
 use yii\helpers\StringHelper;
 use yii\web\UploadedFile;
 
@@ -31,27 +28,12 @@ use yii\web\UploadedFile;
  * @property string $meta_tags
  * @property string $og_site_name
  *
- * @property string $contact_type
- * @property string $telephone
- * @property string $social_links
- * @property string $company_country
- * @property string $company_city
- * @property string $company_postal_code
- * @property decimal $location_latitude
- * @property decimal $location_longitude
- * @property string $company_business_hours
- *
- *
  * @property Website $website
  */
 class WebsiteTranslation extends BaseTranslateModel
 {
-    /**
-     * @var []
-     */
-    public $businessHoursShedule;
 
-    public $socialLinkArray;
+
     /**
      * @var UploadedFile|FileManagerItem
      */
@@ -103,52 +85,6 @@ class WebsiteTranslation extends BaseTranslateModel
                     'image' => 'image'
                 ],
             ],
-            [
-                'class' => AttributeBehavior::class,
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => 'company_business_hours',
-                    ActiveRecord::EVENT_BEFORE_UPDATE => 'company_business_hours',
-
-                ],
-                'skipUpdateOnClean' => false,
-                'value' => function () {
-                    foreach ($this->businessHoursShedule as $day => $dayShedule) {
-                        if (!$dayShedule['startTime'] || !$dayShedule['endTime']) {
-                            unset($this->businessHoursShedule[$day]);
-                        }
-                    }
-                    return Json::encode($this->businessHoursShedule);
-                }
-            ],
-            [
-                'class' => AttributeBehavior::class,
-                'attributes' => [
-                    ActiveRecord::EVENT_AFTER_FIND => 'businessHoursShedule',
-                ],
-                'value' => function () {
-                    return Json::decode($this->company_business_hours);
-                }
-            ],
-            [
-                'class' => AttributeBehavior::class,
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_VALIDATE => 'social_links',
-
-                ],
-                'skipUpdateOnClean' => false,
-                'value' => function () {
-                    return Json::encode($this->social_links);
-                }
-            ],
-            [
-                'class' => AttributeBehavior::class,
-                'attributes' => [
-                    ActiveRecord::EVENT_AFTER_FIND => 'social_links',
-                ],
-                'value' => function () {
-                    return Json::decode($this->social_links);
-                }
-            ]
         ], parent::behaviors());
     }
 
@@ -160,14 +96,11 @@ class WebsiteTranslation extends BaseTranslateModel
         return [
             [['website_id',], 'integer'],
             [['language'], 'string', 'max' => 15],
-            [['name', 'contact_type', 'telephone', 'company_country', 'company_city', 'company_postal_code'], 'string', 'max' => 255],
-            ['location_latitude', 'number', 'numberPattern' => '/^\-?(90|[0-8]?[0-9])\.[0-9]{0,6}$/',
-                'message' => 'Value must be in WGS84 format'],
-            ['location_longitude', 'number', 'numberPattern' => '/^\-?(180|1[0-7][0-9]|[0-9]{0,2})\.[0-9]{0,6}$/',
-                'message' => 'Value must be in WGS84 format'],
+            [['name'], 'string', 'max' => 255],
+            [['title'], 'string', 'max' => 512],
             [['short_description'], 'string'],
             [['og_site_name'], 'string'],
-            [['og_image_deleted', 'image_deleted', 'logo_image_deleted', 'additional_logo_image_deleted', 'claim_image_deleted'], 'safe'],
+            [['og_image_deleted', 'image_deleted', 'logo_image_deleted','additional_logo_image_deleted', 'claim_image_deleted'], 'safe'],
             [
                 [
                     'footer_name',
@@ -179,10 +112,10 @@ class WebsiteTranslation extends BaseTranslateModel
                 'string'
             ],
             ['og_image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
-            ['image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
-            ['logo_image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
-            ['additional_logo_image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
-            ['claim_image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
+            ['image', 'file','maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
+            ['logo_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
+            ['additional_logo_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
+            ['claim_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
             [
                 [
                     'logo_image_name',
@@ -199,7 +132,6 @@ class WebsiteTranslation extends BaseTranslateModel
                     'address_of_company',
                     'cookie_disclaimer_message',
                     'title',
-                    'social_links'
                 ],
                 'string',
                 'max' => 512
@@ -211,7 +143,6 @@ class WebsiteTranslation extends BaseTranslateModel
                 'targetClass' => Website::className(),
                 'targetAttribute' => ['website_id' => 'id']
             ],
-            ['businessHoursShedule', 'safe']
         ];
     }
 
@@ -241,15 +172,7 @@ class WebsiteTranslation extends BaseTranslateModel
             'footer_copyright' => Yii::t('intermundiacms', 'Footer Copyright'),
             'footer_logo' => Yii::t('intermundiacms', 'Footer Logo'),
             'og_site_name' => Yii::t('intermundiacms', 'Og Site Name'),
-            'image' => Yii::t('intermundiacms', 'Image'),
-            'contact_type' => Yii::t('intermundiacms', 'Contact Type'),
-            'telephone' => Yii::t('intermundiacms', 'Telephone'),
-            'social_links' => Yii::t('intermundiacms', 'Social Links'),
-            'company_country' => Yii::t('intermundiacms', 'Country Of Company'),
-            'company_city' => Yii::t('intermundiacms', 'City Of Company'),
-            'company_postal_code' => Yii::t('intermundiacms', 'Postal Code Of Company'),
-            'location_latitude' => Yii::t('intermundiacms', 'Geolocation Latitude'),
-            'location_longitude' => Yii::t('intermundiacms', 'Geolocation Longitude')
+            'image' => Yii::t('intermundiacms', 'Image')
 
 
         ];
@@ -298,21 +221,5 @@ class WebsiteTranslation extends BaseTranslateModel
     public function getData()
     {
         return $this->toArray();
-    }
-
-    /**
-     * @return array
-     */
-    public function getWeekDays()
-    {
-        return [
-            'Monday',
-            'Tuesday',
-            'Wednsday',
-            'Thursday',
-            'Friday',
-            'Saturday',
-            'Sunday'
-        ];
     }
 }
