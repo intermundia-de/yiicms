@@ -10,7 +10,7 @@ namespace intermundia\yiicms\web;
 
 use intermundia\yiicms\models\ContentTree;
 use intermundia\yiicms\models\Page;
-use intermundia\yiicms\models\WebsiteTranslation;
+use intermundia\yiicms\models\Website;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
@@ -92,9 +92,9 @@ class View extends \yii\web\View
     public function getCorporateData()
     {
         /**
-         * @var $website WebsiteTranslation
+         * @var $website Website
          */
-        $website = Yii::$app->websiteContentTree->getModel()->activeTranslation;
+        $website = Yii::$app->websiteContentTree->getModel();
         $url = Yii::getAlias('@frontendUrl/');
 
         $data = [
@@ -102,32 +102,32 @@ class View extends \yii\web\View
             "@type" => "Organization",
             '@id' => $url,
             "url" => $url,
-            "name" => $website->og_site_name ? $website->og_site_name : $website->title ? $website->title : $website->name,
+            "name" => $website->getAttribute('og_site_name') ?: $website->getAttribute('name') ?: $website->getAttribute('title'),
         ];
 
-        if ($website->short_description) {
-            $data["description"] = $website->short_description;
+        if ($website->getAttribute('short_description')) {
+            $data["description"] = $website->getAttribute('short_description');
         }
 
-        if ($website->logo_image) {
-            $data["logo"] = $website->logo_image[0]->getUrl();
+        if ($website->getAttribute('logo_image')) {
+            $data["logo"] = $website->activeTranslation->logo_image[0]->getUrl();
         }
 
-        if ($website->address_of_company) {
+        if ($website->company_street_address) {
             $data["address"] = [
                 'type' => "PostalAddress",
                 'addressCountry' => $website->company_country,
                 'addressLocality' => $website->company_city,
-                'streetAddress' => $website->address_of_company,
+                'streetAddress' => $website->company_street_address,
                 'postalCode' => $website->company_postal_code
             ];
         }
 
-        if ($website->contact_type && $website->telephone) {
+        if ($website->company_contact_type && $website->company_telephone) {
             $data["contactPoint"] = [
                 "@type" => "ContactPoint",
-                "contactType" => $website->contact_type,
-                "telephone" => $website->telephone
+                "contactType" => $website->company_contact_type,
+                "telephone" => $website->company_telephone
             ];
         }
 
@@ -164,8 +164,8 @@ class View extends \yii\web\View
             $data["location"]["address"] = $data["address"];
         }
 
-        if ($website->social_links) {
-            $data["sameAs"] = $website->social_links;
+        if ($website->company_social_links) {
+            $data["sameAs"] = $website->company_social_links;
         }
 
         return Json::encode($data);

@@ -20,8 +20,6 @@ use unclead\multipleinput\MultipleInput;
 <?php echo $form->field($model, 'og_site_name')->textInput(['maxlength' => true]) ?>
 
 
-
-
 <?php echo $form->field($model, 'og_image[]')->widget(FileInput::class, [
     'options' => ['accept' => 'image/*', 'multiple' => true],
 ]); ?>
@@ -52,14 +50,8 @@ echo $form->field($model, 'image[]')->widget(FileInput::class, [
     'options' => ['accept' => 'image/*', 'multiple' => true],
 ]); ?>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title"> <?php echo Yii::t('intermundiacms', 'Corporate Data') ?></h3>
-    </div>
-    <div class="panel-body">
-        <?php echo $this->render('../_content/website/_corporate_data_fields', [
-            'model' => $model->baseModel,
-            'form' => $form
-        ]); ?>
-    </div>
-</div>
+<?php echo $this->render('../_content/website/_corporate_data_fields', [
+    'model' => $model->baseModel,
+    'form' => $form
+    ]);
+?>
