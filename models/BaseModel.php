@@ -139,7 +139,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         return [
             'base/update',
-            'tableName' => $this->getFormattedTableName(),
+            'contentType' => $this->getFormattedTableName(),
             'parentContentId' => $this->getParentId(),
             'contentId' => $this->id,
             'language' => $languageCode
