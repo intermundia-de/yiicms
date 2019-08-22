@@ -2,17 +2,17 @@
 
 namespace intermundia\yiicms\controllers;
 
+use intermundia\yiicms\web\BackendController;
 use Yii;
 use intermundia\yiicms\models\Language;
 use intermundia\yiicms\models\search\Language as LanguageSearch;
-use intermundia\yiicms\web\ContentController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * LanguageController implements the CRUD actions for Language model.
  */
-class LanguageController extends ContentController
+class LanguageController extends BackendController
 {
 
     /** @inheritdoc */

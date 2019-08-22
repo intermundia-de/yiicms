@@ -58,12 +58,12 @@ class SectionTranslation extends BaseTranslateModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'section_id' => Yii::t('common', 'Section ID'),
-            'language' => Yii::t('common', 'Language'),
-            'template' => Yii::t('common', 'Template'),
-            'title' => Yii::t('common', 'Title'),
-            'description' => Yii::t('common', 'Description'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'section_id' => Yii::t('intermundiacms', 'Section ID'),
+            'language' => Yii::t('intermundiacms', 'Language'),
+            'template' => Yii::t('intermundiacms', 'Template'),
+            'title' => Yii::t('intermundiacms', 'Title'),
+            'description' => Yii::t('intermundiacms', 'Description'),
         ];
     }
 

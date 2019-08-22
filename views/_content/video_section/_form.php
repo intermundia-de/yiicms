@@ -2,7 +2,7 @@
 
 use intermundia\yiicms\widgets\FileInput;
 use intermundia\yiicms\widgets\CKEditor;
-use backend\widgets\LanguageSelector;
+use intermundia\yiicms\widgets\LanguageSelector;
 
 /**
  * @var $this  yii\web\View
@@ -10,13 +10,6 @@ use backend\widgets\LanguageSelector;
  * @var $contentTreeModel \intermundia\yiicms\models\ContentTree
  */
 ?>
-
-<?php echo $form->field($model, 'language')->widget(LanguageSelector::class, []) ?>
-
-<?php echo $this->render('../content-tree/_model_fields', [
-    'contentTreeModel' => $contentTreeModel,
-    'form' => $form,
-]); ?>
 
 <?php echo $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 

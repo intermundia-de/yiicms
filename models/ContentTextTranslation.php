@@ -77,13 +77,13 @@ class ContentTextTranslation extends BaseTranslateModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'content_text_id' => Yii::t('common', 'Content Text ID'),
-            'language' => Yii::t('common', 'Language'),
-            'name' => Yii::t('common', 'Name'),
-            'single_line' => Yii::t('common', 'Single Line'),
-            'multi_line' => Yii::t('common', 'Multi Line'),
-            'multi_line2' => Yii::t('common', 'Multi Line 2'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'content_text_id' => Yii::t('intermundiacms', 'Content Text ID'),
+            'language' => Yii::t('intermundiacms', 'Language'),
+            'name' => Yii::t('intermundiacms', 'Name'),
+            'single_line' => Yii::t('intermundiacms', 'Single Line'),
+            'multi_line' => Yii::t('intermundiacms', 'Multi Line'),
+            'multi_line2' => Yii::t('intermundiacms', 'Multi Line 2'),
         ];
     }
 

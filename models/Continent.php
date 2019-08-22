@@ -65,14 +65,14 @@ class Continent extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'code' => Yii::t('common', 'Code'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At'),
-            'deleted_at' => Yii::t('common', 'Deleted At'),
-            'created_by' => Yii::t('common', 'Created By'),
-            'updated_by' => Yii::t('common', 'Updated By'),
-            'deleted_by' => Yii::t('common', 'Deleted By'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'code' => Yii::t('intermundiacms', 'Code'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
+            'deleted_at' => Yii::t('intermundiacms', 'Deleted At'),
+            'created_by' => Yii::t('intermundiacms', 'Created By'),
+            'updated_by' => Yii::t('intermundiacms', 'Updated By'),
+            'deleted_by' => Yii::t('intermundiacms', 'Deleted By'),
         ];
     }
 

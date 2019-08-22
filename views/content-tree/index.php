@@ -23,7 +23,7 @@ $menus = \intermundia\yiicms\models\Menu::find()->all();
 $locationQuery = $contentTreeItem->getLinkLocationParents();
 
 $this->title = Yii::t('intermundiacms', 'View {modelClass}: ', [
-        'modelClass' => $model->getTableNameUpperCase(),
+        'modelClass' => $contentTreeItem->getContentType(),
     ]) . ' ' . $model->getTitle();
 
 $BreadCrumb = [];
@@ -69,12 +69,12 @@ $location = $this->render('location', [
 
 $items = [
     [
-        'label' => Yii::t('common', 'View'),
+        'label' => Yii::t('intermundiacms', 'View'),
         'content' => $view,
     ],
     [
         'label' =>
-            Yii::t('common', 'Location') .
+            Yii::t('intermundiacms', 'Location') .
             ' (' . $locationQuery->count() . ') ',
         'content' => $location,
     ]
@@ -162,7 +162,7 @@ $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['m
                 'items' => array_map(function ($item) use ($contentTreeItem) {
                     return [
                         'label' => $item['displayName'],
-                        'url' => ['base/create', 'tableName' => $item['tableName'], 'parentContentId' => $contentTreeItem->id, 'language' => Yii::$app->language],
+                        'url' => ['base/create', 'contentType' => $item['contentType'], 'parentContentId' => $contentTreeItem->id, 'language' => Yii::$app->language],
                     ];
                 }, Yii::$app->contentTree->getEditableClasses())
             ],

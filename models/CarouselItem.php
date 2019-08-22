@@ -52,11 +52,11 @@ class CarouselItem extends BaseModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At'),
-            'created_by' => Yii::t('common', 'Created By'),
-            'updated_by' => Yii::t('common', 'Updated By'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
+            'created_by' => Yii::t('intermundiacms', 'Created By'),
+            'updated_by' => Yii::t('intermundiacms', 'Updated By'),
         ];
     }
 

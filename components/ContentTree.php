@@ -105,9 +105,9 @@ class ContentTree extends Component
     public function getEditableClasses()
     {
         $array = [];
-        foreach ($this->editableContent as $tableName => $config) {
+        foreach ($this->editableContent as $contentType => $config) {
             $array[] = [
-                'tableName' => $tableName,
+                'contentType' => $contentType,
                 'displayName' => $config['displayName']
             ];
         }
@@ -120,9 +120,9 @@ class ContentTree extends Component
     public function getEditableClassesKey()
     {
         $array = [];
-        foreach ($this->editableContent as $tableName => $config) {
-            $array[$tableName] = [
-                'tableName' => $tableName,
+        foreach ($this->editableContent as $contentType => $config) {
+            $array[$contentType] = [
+                'contentType' => $contentType,
                 'displayName' => $config['displayName']
             ];
         }

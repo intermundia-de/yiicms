@@ -125,7 +125,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         return [
             'base/update',
-            'tableName' => $this->getFormattedTableName(),
+            'contentType' => $this->contentTree->content_type,
             'parentContentId' => $this->getParentId(),
             'contentId' => $this->id,
             'language' => $this->getActiveTranslationLanguageCode() ?: Yii::$app->language
@@ -269,5 +269,17 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
             return Html::img($images[0]->geturl(), $options);
         }
         return '';
+    }
+
+    /**
+     * Return the content attribute of activeTranslation
+     *
+     * @param string $attribute
+     * @return mixed
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function renderAttribute($attribute)
+    {
+        return $this->activeTranslation->$attribute;
     }
 }

@@ -39,9 +39,9 @@ class Menu extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'name' => Yii::t('common', 'Name'),
-            'key' => Yii::t('common', 'Key'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'name' => Yii::t('intermundiacms', 'Name'),
+            'key' => Yii::t('intermundiacms', 'Key'),
         ];
     }
 

@@ -7,12 +7,7 @@
 
 namespace intermundia\yiicms\modules\frontend\controllers;
 
-use frontend\models\ContentTree;
-use Yii;
 use intermundia\yiicms\web\Controller;
-use yii\filters\ContentNegotiator;
-use yii\helpers\ArrayHelper;
-use yii\web\Response;
 
 
 /**

@@ -42,7 +42,7 @@ class Section extends BaseModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
+            'id' => Yii::t('intermundiacms', 'ID'),
         ];
     }
 

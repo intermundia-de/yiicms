@@ -21,7 +21,7 @@ use intermundia\yiicms\models\Menu;
 /**
  * Class NestedMenu
  *
- * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+ * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\widgets
  */
 class NestedMenu extends Nav
@@ -47,24 +47,18 @@ class NestedMenu extends Nav
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @throws \Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function init()
     {
         $this->items = self::getItemsForFrontMenu();
-//        for ($i = 0; $i < count($this->items); $i++) {
-//            if (!$this->itemOptions) {
-//                continue;
-//            } else {
-//                $this->items[$i]['options'] = $this->itemOptions;
-//            }
-//        }
         parent::init();
     }
 
     /**
      * Renders a widget's item.
+     *
      * @param string|array $item the item to render.
      * @return string the rendering result.
      * @throws InvalidConfigException
@@ -119,20 +113,20 @@ class NestedMenu extends Nav
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     * @param array $tableNames
      * @param array $fields
      * @param array $extraFields
      * @param array $appendParams
      * @return array
      * @throws \Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public static function getItemsForFrontMenu($fields = null, $extraFields = [], $appendParams = [])
+    public static function getItemsForFrontMenu($tableNames = [ContentTree::TABLE_NAME_PAGE], $fields = null, $extraFields = [], $appendParams = [])
     {
         $contentTreeItems = ContentTree::find()
-            ->leftJoinOnTranslation()
             ->notHidden()
             ->notDeleted()
-            ->with(['currentTranslation', 'defaultTranslation'])
+            ->withTranslations(true)
             ->leftJoin(ContentTreeMenu::tableName(),
                 ContentTreeMenu::tableName() . '.content_tree_id = ' . ContentTree::tableName() . '.id')
             ->leftJoin(Menu::tableName(), Menu::tableName() . '.id = ' . ContentTreeMenu::tableName() . '.menu_id')
@@ -140,7 +134,7 @@ class NestedMenu extends Nav
                 'or',
                 [
                     Menu::tableName() . '.key' => 'header',
-                    ContentTree::tableName() . '.table_name' => [ContentTree::TABLE_NAME_PAGE]
+                    ContentTree::tableName() . '.table_name' => $tableNames
                 ],
                 [
                     ContentTree::tableName() . '.table_name' => [ContentTree::TABLE_NAME_WEBSITE]
@@ -148,6 +142,7 @@ class NestedMenu extends Nav
             ])
             ->orderBy('lft')
             ->all();
+
         return NestedSetModel::getMenuTree($contentTreeItems, $fields, $extraFields, $appendParams);
     }
 

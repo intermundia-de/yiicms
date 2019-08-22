@@ -126,13 +126,13 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'content_tree_id' => Yii::t('common', 'Content Tree ID'),
-            'language' => Yii::t('common', 'Language'),
-            'alias' => Yii::t('common', 'Alias'),
-            'alias_path' => Yii::t('common', 'Alias Path'),
-            'name' => Yii::t('common', 'Name'),
-            'short_description' => Yii::t('common', 'Short Description'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'content_tree_id' => Yii::t('intermundiacms', 'Content Tree ID'),
+            'language' => Yii::t('intermundiacms', 'Language'),
+            'alias' => Yii::t('intermundiacms', 'Alias'),
+            'alias_path' => Yii::t('intermundiacms', 'Alias Path'),
+            'name' => Yii::t('intermundiacms', 'Name'),
+            'short_description' => Yii::t('intermundiacms', 'Short Description'),
         ];
     }
 

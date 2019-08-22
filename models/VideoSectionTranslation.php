@@ -106,13 +106,13 @@ class VideoSectionTranslation extends BaseTranslateModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'language' => Yii::t('common', 'Language'),
-            'video_section_id' => Yii::t('common', 'Video Section ID'),
-            'title' => Yii::t('common', 'Title'),
-            'file' => Yii::t('common', 'File'),
-            'content_top' => Yii::t('common', 'Content Top'),
-            'content_bottom' => Yii::t('common', 'Content Bottom'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'language' => Yii::t('intermundiacms', 'Language'),
+            'video_section_id' => Yii::t('intermundiacms', 'Video Section ID'),
+            'title' => Yii::t('intermundiacms', 'Title'),
+            'file' => Yii::t('intermundiacms', 'File'),
+            'content_top' => Yii::t('intermundiacms', 'Content Top'),
+            'content_bottom' => Yii::t('intermundiacms', 'Content Bottom'),
         ];
     }
 

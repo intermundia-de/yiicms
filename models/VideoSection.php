@@ -41,9 +41,9 @@ class VideoSection extends BaseModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'deleted_at' => Yii::t('common', 'Deleted At'),
-            'deleted_by' => Yii::t('common', 'Deleted By'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'deleted_at' => Yii::t('intermundiacms', 'Deleted At'),
+            'deleted_by' => Yii::t('intermundiacms', 'Deleted By'),
         ];
     }
 

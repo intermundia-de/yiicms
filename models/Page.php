@@ -66,10 +66,10 @@ class Page extends BaseModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'view' => Yii::t('common', 'Page View'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'view' => Yii::t('intermundiacms', 'Page View'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
         ];
     }
 

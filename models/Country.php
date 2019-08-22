@@ -79,17 +79,17 @@ class Country extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'continent_id' => Yii::t('common', 'Continent'),
-            'status' => Yii::t('common', 'Status'),
-            'iso_code_1' => Yii::t('common', 'Iso Code 1'),
-            'iso_code_2' => Yii::t('common', 'Iso Code 2'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At'),
-            'deleted_at' => Yii::t('common', 'Deleted At'),
-            'created_by' => Yii::t('common', 'Created By'),
-            'updated_by' => Yii::t('common', 'Updated By'),
-            'deleted_by' => Yii::t('common', 'Deleted By'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'continent_id' => Yii::t('intermundiacms', 'Continent'),
+            'status' => Yii::t('intermundiacms', 'Status'),
+            'iso_code_1' => Yii::t('intermundiacms', 'Iso Code 1'),
+            'iso_code_2' => Yii::t('intermundiacms', 'Iso Code 2'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
+            'deleted_at' => Yii::t('intermundiacms', 'Deleted At'),
+            'created_by' => Yii::t('intermundiacms', 'Created By'),
+            'updated_by' => Yii::t('intermundiacms', 'Updated By'),
+            'deleted_by' => Yii::t('intermundiacms', 'Deleted By'),
         ];
     }
 

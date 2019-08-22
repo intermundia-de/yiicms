@@ -89,15 +89,15 @@ class CarouselItemTranslation extends BaseTranslateModel
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'carousel_item_id' => Yii::t('common', 'Carousel Item ID'),
-            'caption' => Yii::t('common', 'Caption'),
-            'name' => Yii::t('common', 'Name'),
-            'language' => Yii::t('common', 'Language'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At'),
-            'created_by' => Yii::t('common', 'Created By'),
-            'updated_by' => Yii::t('common', 'Updated By'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'carousel_item_id' => Yii::t('intermundiacms', 'Carousel Item ID'),
+            'caption' => Yii::t('intermundiacms', 'Caption'),
+            'name' => Yii::t('intermundiacms', 'Name'),
+            'language' => Yii::t('intermundiacms', 'Language'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
+            'created_by' => Yii::t('intermundiacms', 'Created By'),
+            'updated_by' => Yii::t('intermundiacms', 'Updated By'),
         ];
     }
 

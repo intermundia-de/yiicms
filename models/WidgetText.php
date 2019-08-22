@@ -71,11 +71,11 @@ class WidgetText extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'key' => Yii::t('common', 'Key'),
-            'status' => Yii::t('common', 'Status'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'updated_at' => Yii::t('common', 'Updated At'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'key' => Yii::t('intermundiacms', 'Key'),
+            'status' => Yii::t('intermundiacms', 'Status'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
         ];
     }
 
@@ -128,8 +128,8 @@ class WidgetText extends ActiveRecord
     public static function statuses()
     {
         return [
-            self::STATUS_DRAFT => Yii::t('common', 'Draft'),
-            self::STATUS_ACTIVE => Yii::t('common', 'Active'),
+            self::STATUS_DRAFT => Yii::t('intermundiacms', 'Draft'),
+            self::STATUS_ACTIVE => Yii::t('intermundiacms', 'Active'),
         ];
     }
 

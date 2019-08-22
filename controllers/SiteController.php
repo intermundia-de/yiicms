@@ -2,20 +2,35 @@
 
 namespace intermundia\yiicms\controllers;
 
-use Yii;
 use common\models\ContentTree;
 use intermundia\yiicms\formatters\SitemapXmlResponseFormatter;
-use intermundia\yiicms\web\Controller;
-use yii\web\NotFoundHttpException;
+use intermundia\yiicms\web\BackendController;
+use Yii;
 
 /**
- * Class SiteController
- *
- * @author Mirian Jintchvelashvili
- * @package frontend\controllers
+ * Site controller
  */
-class SiteController extends Controller
+class SiteController extends BackendController
 {
+    /**
+     * @inheritdoc
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
+    }
+
+    public function beforeAction($action)
+    {
+        $this->layout = Yii::$app->user->isGuest || !Yii::$app->user->can('loginToBackend') ? 'base' : 'common';
+
+        return parent::beforeAction($action);
+    }
+
     /**
      * Generates sitemap.xml
      *

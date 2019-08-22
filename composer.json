@@ -14,7 +14,8 @@
         "yiisoft/yii2": "~2.0.0",
         "kartik-v/yii2-widget-select2": "*",
         "kartik-v/yii2-widget-timepicker": "dev-master",
-        "unclead/yii2-multiple-input": "^2.21"
+        "unclead/yii2-multiple-input": "^2.21",
+        "apollo11/yii2-logger": "^v1.3.0"
     },
     "autoload": {
         "psr-4": {

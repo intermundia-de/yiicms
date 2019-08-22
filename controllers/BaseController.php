@@ -11,23 +11,19 @@ use intermundia\yiicms\models\ContentTreeTranslation;
 use intermundia\yiicms\models\ContentMultiModel;
 use intermundia\yiicms\models\FileManagerItem;
 use intermundia\yiicms\models\TimelineEvent;
-use intermundia\yiicms\web\ContentController;
+use intermundia\yiicms\web\BackendController;
 use intermundia\yiicms\models\User;
 use intermundia\yiicms\models\UserToken;
 use intermundia\yiicms\traits\FormAjaxValidationTrait;
 use intermundia\yiicms\models\ContentTree;
 use common\base\MultiModel;
-use http\Exception\InvalidArgumentException;
-use trntv\filekit\File;
 use Yii;
-use yii\base\InvalidCallException;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
-use yii\helpers\Html;
 use yii\web\NotFoundHttpException;
 
-class BaseController extends ContentController
+class BaseController extends BackendController
 {
     use FormAjaxValidationTrait;
 
@@ -69,23 +65,28 @@ class BaseController extends ContentController
     }
 
     /**
-     * @param $tableName
+     * @param $contentType
      * @param $parentContentId
      * @param $language
      * @return string|\yii\web\Response
      * @throws \yii\db\Exception
      * @var  MultiModel $model
      */
-    public function actionCreate($tableName, $parentContentId, $language)
+    public function actionCreate($contentType, $parentContentId, $language)
     {
-        $baseModelClassName = Yii::$app->contentTree->getClassName($tableName);
+        /** @var BaseModel $baseModelClassName */
+        $baseModelClassName = Yii::$app->contentTree->getClassName($contentType);
+        $tableName = $baseModelClassName::getFormattedTableName();
         $baseTranslateModelClassName = $baseModelClassName::getTranslateModelClass();
+
+        $contentTree = new ContentTree();
+        $contentTree->content_type = $contentType;
 
         $model = new ContentMultiModel([
             'models' => [
                 ContentMultiModel::BASE_MODEL => new $baseModelClassName(),
                 ContentMultiModel::BASE_TRANSLATION_MODEL => new $baseTranslateModelClassName(),
-                ContentMultiModel::CONTENT_TREE_MODEL => new ContentTree(),
+                ContentMultiModel::CONTENT_TREE_MODEL => $contentTree
             ]
         ]);
 
@@ -111,25 +112,27 @@ class BaseController extends ContentController
         $breadCrumbs = $tree->getBreadCrumbs();
         return $this->render(
             'create', [
-            'mulitiModel' => $model,
+            'multiModel' => $model,
             'tableName' => $tableName,
+            'contentType' => $contentType,
             'breadCrumbs' => $breadCrumbs,
             'url' => $tree->getFullUrl()
         ]);
     }
 
     /**
-     * @param $tableName
+     * @param $contentType
      * @param $parentContentId
      * @param $contentId
      * @param $language
      * @return string|\yii\web\Response
-     * @throws NotFoundHttpException
      * @throws \yii\db\Exception
+     * @throws \yii\web\NotFoundHttpException
      */
-    public function actionUpdate($tableName, $parentContentId, $contentId, $language)
+    public function actionUpdate($contentType, $parentContentId, $contentId, $language)
     {
-        $baseModelClassName = Yii::$app->contentTree->getClassName($tableName);
+        $baseModelClassName = Yii::$app->contentTree->getClassName($contentType);
+        $tableName = $baseModelClassName::getFormattedTableName();
         $baseTranslateModelClassName = $baseModelClassName::getTranslateModelClass();
         $translateModel = new $baseTranslateModelClassName();
         $baseTranslationModel = $this->findModel($baseModelClassName, $translateModel, $contentId, $language);
@@ -165,8 +168,9 @@ class BaseController extends ContentController
         $breadCrumbs = $tree ? $tree->getBreadCrumbs() : [];
         return $this->render(
             'update', [
-            'mulitiModel' => $model,
+            'multiModel' => $model,
             'tableName' => $tableName,
+            'contentType' => $contentType,
             'breadCrumbs' => $breadCrumbs,
             'url' => $tree ? $tree->getFullUrl() : '/'
         ]);

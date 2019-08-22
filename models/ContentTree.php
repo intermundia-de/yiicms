@@ -9,6 +9,8 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\helpers\Inflector;
 use yii\helpers\Url;
 
 /**
@@ -17,6 +19,7 @@ use yii\helpers\Url;
  * @property int $id
  * @property int $record_id
  * @property string $table_name
+ * @property string $content_type
  * @property string $website
  * @property int $lft
  * @property int $rgt
@@ -128,7 +131,7 @@ class ContentTree extends \yii\db\ActiveRecord
             ],
             [['custom_class', 'show_as_sibling'], 'safe'],
             [['view'], 'string', 'max' => 64],
-            [['table_name'], 'string', 'max' => 255],
+            [['table_name', 'content_type'], 'string', 'max' => 255],
             [['key'], 'string', 'max' => 1024],
             [['show_as_sibling', 'in_sitemap'], 'integer', 'max' => 1],
         ];
@@ -150,24 +153,24 @@ class ContentTree extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('common', 'ID'),
-            'record_id' => Yii::t('common', 'Record ID'),
-            'table_name' => Yii::t('common', 'Table'),
-            'key' => Yii::t('common', 'Key'),
-            'view' => Yii::t('common', 'View'),
-            'lft' => Yii::t('common', 'Lft'),
-            'rgt' => Yii::t('common', 'Rgt'),
-            'depth' => Yii::t('common', 'Depth'),
-            'created_at' => Yii::t('common', 'Created At'),
-            'created_by' => Yii::t('common', 'Created By'),
-            'updated_at' => Yii::t('common', 'Updated At'),
-            'updated_by' => Yii::t('common', 'Updated By'),
-            'deleted_at' => Yii::t('common', 'Deleted At'),
-            'deleted_by' => Yii::t('common', 'Deleted By'),
-            'hide' => Yii::t('common', 'Hide'),
-            'custom_class' => Yii::t('common', 'Custom Css Class'),
-            'show_as_sibling' => Yii::t('common', 'Display as Sibling'),
-            'in_sitemap' => Yii::t('common', 'In Sitemap'),
+            'id' => Yii::t('intermundiacms', 'ID'),
+            'record_id' => Yii::t('intermundiacms', 'Record ID'),
+            'table_name' => Yii::t('intermundiacms', 'Table'),
+            'key' => Yii::t('intermundiacms', 'Key'),
+            'view' => Yii::t('intermundiacms', 'View'),
+            'lft' => Yii::t('intermundiacms', 'Lft'),
+            'rgt' => Yii::t('intermundiacms', 'Rgt'),
+            'depth' => Yii::t('intermundiacms', 'Depth'),
+            'created_at' => Yii::t('intermundiacms', 'Created At'),
+            'created_by' => Yii::t('intermundiacms', 'Created By'),
+            'updated_at' => Yii::t('intermundiacms', 'Updated At'),
+            'updated_by' => Yii::t('intermundiacms', 'Updated By'),
+            'deleted_at' => Yii::t('intermundiacms', 'Deleted At'),
+            'deleted_by' => Yii::t('intermundiacms', 'Deleted By'),
+            'hide' => Yii::t('intermundiacms', 'Hide'),
+            'custom_class' => Yii::t('intermundiacms', 'Custom Css Class'),
+            'show_as_sibling' => Yii::t('intermundiacms', 'Display as Sibling'),
+            'in_sitemap' => Yii::t('intermundiacms', 'In Sitemap')
         ];
     }
 
@@ -188,14 +191,11 @@ class ContentTree extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return \intermundia\yiicms\models\ContentTreeTranslation
      */
     public function getActiveTranslation()
     {
-        if ($this->currentTranslation) {
-            return $this->getCurrentTranslation();
-        }
-        return $this->getDefaultTranslation();
+        return $this->currentTranslation ?: $this->defaultTranslation;
     }
 
     /**
@@ -392,53 +392,6 @@ class ContentTree extends \yii\db\ActiveRecord
         return [$items];
     }
 
-//    /**
-//     *
-//     *
-//     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
-//     * @param array $fields
-//     * @param array $extraFields
-//     * @param array $appendParams
-//     * @return array
-//     * @throws \Exception
-//     */
-//    public static function getItemsAsTreeMenu(
-//        $menu_id,
-//        $fields = ['id', 'alias', 'name' => 'label', 'url', 'record_id'],
-//        $extraFields = [],
-//        $appendParams = []
-//    ) {
-//        $contentTreeItems = ContentTree::findBySql("SELECT
-//                          `content_tree`.`id`,
-//                          `content_tree`.`record_id`,
-//                          `content_tree`.`table_name`,
-//                          `lft`,
-//                          `rgt`,
-//                          `depth`,
-//                          `content_tree_translation`.alias,
-//                          IFNULL(`content_tree_translation`.`name`, content_tree.table_name) as name,
-//                          `content_tree_translation`.`short_description`
-//                        FROM `content_tree`
-//                          INNER JOIN `content_tree_menu`
-//                            ON `content_tree_menu`.content_tree_id = `content_tree`.id AND `content_tree_menu`.menu_id = :menuId
-//                          LEFT JOIN `content_tree_translation`
-//                            ON `content_tree_translation`.content_tree_id = `content_tree`.id AND `content_tree_translation`.language = :language",
-//            [
-//                'language' => \Yii::$app->language,
-//                'menuId' => $menu_id
-//            ])
-//            ->asArray()
-//            ->all();
-//
-//        $nestedSetModel = new NestedSetModel($contentTreeItems, $extraFields, $appendParams);
-//        $items = $nestedSetModel->getTree($fields);
-////        echo '<pre>';
-////        var_dump($appendParams, $items);
-////        exit;
-//
-//        return [$items];
-//    }
-
     /**
      * Return a BaseModel instance
      *
@@ -449,9 +402,6 @@ class ContentTree extends \yii\db\ActiveRecord
     {
         $baseModel = ArrayHelper::getValue(Yii::$app->baseModelObjects, $this->table_name . '.' . $this->record_id);
         if (!$baseModel) {
-//            echo '<pre>';
-//            var_dump("Base model was not found ", $this->table_name . '.' . $this->record_id);
-//            echo '</pre>';
             $className = Yii::$app->contentTree->getClassName($this->table_name);
             if ($className) {
                 return $className::find()->byId($this->record_id)->one();
@@ -540,7 +490,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function getNodes()
     {
-        return $this->getActualItemActiveTranslation()->alias_path;
+        return $this->activeTranslation->alias_path;
     }
 
     public function getFullUrl($asArray = false, $schema = false)
@@ -643,7 +593,7 @@ class ContentTree extends \yii\db\ActiveRecord
     {
         if ($this->hasCustomViews()) {
             return array_merge([null => Yii::t('backend', 'Default')],
-                Yii::$app->contentTree->getViewsForTable($this->table_name));
+                Yii::$app->contentTree->getViewsForTable($this->content_type));
         } else {
             return [];
         }
@@ -873,5 +823,10 @@ class ContentTree extends \yii\db\ActiveRecord
             $class .= $objectModelClass . ' ';
         }
         return $class;
+    }
+
+    public function getContentType()
+    {
+        return Inflector::camel2words($this->content_type);
     }
 }

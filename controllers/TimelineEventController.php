@@ -17,8 +17,6 @@ use Yii;
  */
 class TimelineEventController extends BackendController
 {
-    //public $layout = 'common';
-
     /**
      * Lists all TimelineEvent models.
      * @return mixed

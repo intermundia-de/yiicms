@@ -143,9 +143,61 @@ To sort existing timeline events based on website key
 4. Update backend  web configuration :
 	Change user components login url to  `core/sign-in/unlock` and update globalAccess component aswell  `sign-in` to `core/sign-in` .
 
-##### note: You can  skip step 4 by redirecting `sign-in` controller actions to `core/sign-in` controller actions or by not deleting `SignInController`.
-______________________
 
+### Upgrade to v2.0.0 version
+
+1. Run migrations by running: `php console/yii migrate --migrationPath=@cmsCore/migrations`
+2. Remove the following modules from `backend/config/web.php`: widget, file, system, translation, rbac, core
+3. You can delete `modules` folder from backend completelly
+4. Add `core` module to backend modules with its submodules
+```php
+'core' => [
+    'class' => \intermundia\yiicms\Module::class,
+    'modules' => [
+	'user' => \intermundia\yiicms\modules\user\Module::class,
+	'country' => \intermundia\yiicms\modules\country\Module::class,
+	'widget' => \intermundia\yiicms\modules\widget\Module::class,
+	'translation' => \intermundia\yiicms\modules\translation\Module::class,
+	'rbac' => \intermundia\yiicms\modules\rbac\Module::class,
+	'file' => \intermundia\yiicms\modules\file\Module::class,
+	'system' => \intermundia\yiicms\modules\system\Module::class,
+    ]
+],
+```
+5. You can delete the following controllers from `backend/controllers` and their corresponding models and search models: 
+ - ContinentController
+ - CountryController
+ - LanguageController
+ - MenuController
+ - SearchController
+ - SigninController
+ - SiteController
+ - TimelineEventController
+ - UserController
+6. You can delete the following folders from `backend/views` and they will be used from core: 
+ - country
+ - continent
+ - layouts
+ - search
+ - sign-in
+ - site
+ - timeline-event
+ - user
+7. Change the `defaultRoute` into `core/timeline-event/index` in `backend/config/web.php`
+8. Change `errorAction` field under `errorHandler` component in `backend/config/web.php`
+9. Change the following line in `common/config/base.php`
+```php
+'on missingTranslation' => ['\backend\modules\translation\Module', 'missingTranslation']
+```
+into 
+```php
+'on missingTranslation' => ['\intermundia\yiicms\modules\translation\Module', 'missingTranslation']
+```
+10. Change `loginUrl` of user component in `backend/config/web.php` into `['core/sign-in/login']`
+11. If you want to show on timeline only changes done under the current website you should update existing timeline events by running the following command
+```php
+php console/yii utils/fix-timeline-events
+```
 
 ### Generate sitemap.xml
 To generate sitemap.xml, go to the   `$domain/sitemap.xml`, where `$domain` is host defined in multisite_websites `domains` configuration for each website.
