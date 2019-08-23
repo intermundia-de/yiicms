@@ -39,7 +39,7 @@ $this->params['breadcrumbs'] = $BreadCrumb;
     'contentTreeModel' => $contentTreeModel,
     'tableName' => $tableName,
     'contentType' => $contentType,
-    'url' => ''
+    'url' => $contentTreeModel->getUrl()
 ]) ?>
 
 <?php
