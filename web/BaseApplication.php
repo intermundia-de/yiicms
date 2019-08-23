@@ -130,12 +130,12 @@ class BaseApplication extends \yii\web\Application
                         $frontendHost = ArrayHelper::getValue($websiteData, 'frontendHost');
                         if (!$frontendHost) {
                             \Yii::warning("\"frontendHost\" does not exist for website \"$domain\"");
-                            $frontendHost = $domain;
+                            $frontendHost = $domainHost;
                         }
 
-                        \Yii::setAlias('@frontendUrl', $requestUrlParsed['scheme'] . $frontendHost);
+                        \Yii::setAlias('@frontendUrl', $requestUrlParsed['scheme'] . '://' . $frontendHost);
                         \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
-                        $this->setHomeUrl($requestUrlParsed['scheme'] . $domain);
+                        $this->setHomeUrl($requestUrlParsed['scheme'] . '://'. $domain);
                         $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
                         \Yii::setAlias('@storageUrl', $storageUrl);
                         break;
