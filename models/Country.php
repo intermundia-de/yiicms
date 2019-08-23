@@ -135,6 +135,11 @@ class Country extends \yii\db\ActiveRecord
         return $query->notDeleted();
     }
 
+    public function getDefaultTranslation()
+    {
+        return ArrayHelper::getValue($this->translations, 0);
+    }
+
     public function getActiveTranslation()
     {
         /** @var CountryTranslationQuery $query */
@@ -244,5 +249,17 @@ class Country extends \yii\db\ActiveRecord
 
         $countries = $countries->all();
         return $countries;
+    }
+
+    public static function getDropdownListItems() {
+        $countries = Country::find()
+            ->innerJoin(CountryTranslation::tableName(),CountryTranslation::tableName().'.country_id = ' . Country::tableName().'.id')
+            ->active()
+            ->notDeleted();
+
+        return ArrayHelper::map($countries->all(), 'id', function($country) {
+            return $country->activeTranslation ? $country->activeTranslation->name :
+                $country->defaultTranslation ? $country->defaultTranslation->name : null;
+        });
     }
 }

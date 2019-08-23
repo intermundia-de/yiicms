@@ -13,16 +13,23 @@ use unclead\multipleinput\MultipleInput; ?>
         <i class="fa fa-minus-square icon-expanded pull-right"></i>
       </h3>
     </div>
-    <div id="corporateDataCollapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="#corporateDataHeading">
+    <div id="corporateDataCollapse" class="panel-collapse collapse" role="tabpanel"
+         aria-labelledby="#corporateDataHeading">
       <div class="panel-body">
-          <?php echo $form->field($model, 'company_country')->textInput(['maxlength' => true]) ?>
+          <?php echo $form->field($model, 'company_country')->dropDownList(
+              array_values(\intermundia\yiicms\models\Country::getDropdownListItems()), [
+                  'prompt' => Yii::t('intermundiacms', 'Select country')
+          ]) ?>
           <?php echo $form->field($model, 'company_city')->textInput(['maxlength' => true]) ?>
           <?php echo $form->field($model, 'company_street_address')->textInput(['maxlength' => true]) ?>
           <?php echo $form->field($model, 'company_postal_code')->textInput(['maxlength' => true]) ?>
           <?php echo $form->field($model, 'location_latitude')->textInput() ?>
           <?php echo $form->field($model, 'location_longitude')->textInput() ?>
 
-        <table id="workingHours" class="table table-bordered">
+        <label class="control-label" for="company_business_hours">
+            <?php echo $model->getAttributeLabel('company_business_hours') ?>
+        </label>
+        <table id="company_business_hours" class="table table-bordered">
           <thead>
           <tr>
             <td>
@@ -37,10 +44,10 @@ use unclead\multipleinput\MultipleInput; ?>
           </tr>
           </thead>
           <tbody>
-          <?php for($i = 0; $i < 7; $i++): ?>
+          <?php for ($i = 0; $i < 7; $i++): ?>
             <tr>
               <td>
-                <p><?php echo Yii::t('intermundiacms', jddayofweek($i,1)) ?></p>
+                <p><?php echo Yii::t('intermundiacms', jddayofweek($i, 1)) ?></p>
               </td>
               <td>
                   <?php echo $form->field($model, "businessHoursShedule[{$i}][startTime]")->widget(\kartik\time\TimePicker::class, [
@@ -60,8 +67,6 @@ use unclead\multipleinput\MultipleInput; ?>
           <?php endfor; ?>
           </tbody>
         </table>
-
-
           <?php echo $form->field($model, 'company_contact_type')->textInput(['maxlength' => true]) ?>
           <?php echo $form->field($model, 'company_telephone')->textInput(['maxlength' => true]) ?>
 

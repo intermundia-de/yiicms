@@ -282,4 +282,24 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         return $this->activeTranslation->$attribute;
     }
+
+    /**
+     * @param string $dependentAttributeName
+     * Dependent attribute name, which value in form input be compared against $compareValue
+     * @param string $compareValue
+     * Value to be compared against $dependentAttributeName value
+     * @param bool $trueOnMatch
+     * determines whether JS validating function returns true or false
+     * when $compareValue == $dependentAttributeName value in form input
+     *
+     * @return string
+     * returns JS code for client side validation
+     * @author Mirian Jintchvelashvili
+     */
+    protected function clientSideValidatorCondition($dependentAttributeName, $compareValue, $trueOnMatch) {
+        return 'function(attribute,value){
+                let required = $("#'.\yii\helpers\Html::getInputId($this, $dependentAttributeName).'").val()==="'.$compareValue.'";
+              return '. ($trueOnMatch ? '' : '!') .'required;
+            }';
+    }
 }
