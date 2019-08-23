@@ -2,7 +2,6 @@
 
 use unclead\multipleinput\MultipleInput; ?>
 
-
 <div id="corporateDataPanel" class="panel-group" role="tablist">
   <div class="panel panel-default">
     <div id="corporateDataHeading" class="panel-heading collapsed" role="tab" data-toggle="collapse"
@@ -38,27 +37,27 @@ use unclead\multipleinput\MultipleInput; ?>
           </tr>
           </thead>
           <tbody>
-          <?php foreach ($model->getWeekDays() as $day): ?>
+          <?php for($i = 0; $i < 7; $i++): ?>
             <tr>
               <td>
-                <p><?php echo $day ?></p>
+                <p><?php echo Yii::t('intermundiacms', jddayofweek($i,1)) ?></p>
               </td>
               <td>
-                  <?php echo $form->field($model, "businessHoursShedule[{$day}][startTime]")->widget(\kartik\time\TimePicker::class, [
+                  <?php echo $form->field($model, "businessHoursShedule[{$i}][startTime]")->widget(\kartik\time\TimePicker::class, [
                       'pluginOptions' => [
                           'showMeridian' => false,
                           'defaultTime' => false
                       ]])->label(false) ?>
               </td>
               <td>
-                  <?php echo $form->field($model, "businessHoursShedule[{$day}][endTime]")->widget(\kartik\time\TimePicker::class, [
+                  <?php echo $form->field($model, "businessHoursShedule[{$i}][endTime]")->widget(\kartik\time\TimePicker::class, [
                       'pluginOptions' => [
                           'showMeridian' => false,
                           'defaultTime' => false
                       ]])->label(false) ?>
               </td>
             </tr>
-          <?php endforeach; ?>
+          <?php endfor; ?>
           </tbody>
         </table>
 

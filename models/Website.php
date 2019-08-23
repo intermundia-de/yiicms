@@ -132,9 +132,9 @@ class Website extends BaseModel
             [['created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['company_name', 'company_contact_type', 'company_telephone', 'company_country', 'company_city', 'company_street_address', 'company_postal_code'], 'string', 'max' => 255],
             ['location_latitude', 'number', 'numberPattern' => '/^\-?(90|[0-8]?[0-9])\.[0-9]{0,6}$/',
-                'message' => 'Value must be in WGS84 format'],
+                'message' => 'Invalid format'],
             ['location_longitude', 'number', 'numberPattern' => '/^\-?(180|1[0-7][0-9]|[0-9]{0,2})\.[0-9]{0,6}$/',
-                'message' => 'Value must be in WGS84 format'],
+                'message' => 'Invalid format'],
             ['company_social_links', 'string', 'max' => 2048],
             ['businessHoursShedule', 'safe']
         ];
@@ -195,21 +195,5 @@ class Website extends BaseModel
                 'ct.record_id = ' . Website::tableName() . ".id and ct.table_name = '" . ContentTree::TABLE_NAME_WEBSITE . "' and depth = 0"
             )
             ->one();
-    }
-
-    /**
-     * @return array
-     */
-    public function getWeekDays()
-    {
-        return [
-            'Monday',
-            'Tuesday',
-            'Wednsday',
-            'Thursday',
-            'Friday',
-            'Saturday',
-            'Sunday'
-        ];
     }
 }

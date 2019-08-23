@@ -140,8 +140,8 @@ class View extends \yii\web\View
 
             $businessHours = Json::decode($website->company_business_hours);
 
-            array_walk($businessHours, function (&$shedule, $day) {
-                $shedule = ['dayOfWeek' => $day,
+            array_walk($businessHours, function (&$shedule, $dayIndex) {
+                $shedule = ['dayOfWeek' => jddayofweek($dayIndex,1),
                     'opens' => $shedule['startTime'], 'closes' => $shedule['endTime']];
             });
             $data["location"]["OpeningHoursSpecification"] = array_values($businessHours);
