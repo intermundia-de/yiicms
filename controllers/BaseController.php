@@ -364,7 +364,7 @@ class BaseController extends BackendController
         if ($tree) {
             $data = ['old' => ['view' => $tree->view ? $tree->view : Yii::t('intermundiacms', 'Default')]];
 
-            if (Yii::$app->contentTree->viewExists($tree->table_name, $view)) {
+            if (Yii::$app->contentTree->viewExists($tree->content_type, $view)) {
                 $tree->view = $view;
             } else {
                 $tree->view = null;
