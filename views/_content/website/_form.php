@@ -48,3 +48,7 @@ use yii\helpers\Url;
 echo $form->field($model, 'image[]')->widget(FileInput::class, [
     'options' => ['accept' => 'image/*', 'multiple' => true],
 ]); ?>
+
+<?php echo $form->field($model, 'admin_email')->textInput(['maxlength' => true]) ?>
+<?php echo $form->field($model, 'cc_email')->textInput(['maxlength' => true]) ?>
+<?php echo $form->field($model, 'bcc_email')->textInput(['maxlength' => true]) ?>

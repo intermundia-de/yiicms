@@ -27,6 +27,10 @@ use yii\web\UploadedFile;
  * @property string $page_header
  * @property string $meta_tags
  * @property string $og_site_name
+ * @property string $admin_email
+ * @property string $bcc_email
+ * @property string $cc_email
+
  *
  * @property Website $website
  */
@@ -143,6 +147,7 @@ class WebsiteTranslation extends BaseTranslateModel
                 'targetClass' => Website::className(),
                 'targetAttribute' => ['website_id' => 'id']
             ],
+            [['admin_email', 'cc_email', 'bcc_email'], 'checkValidEmail'],
         ];
     }
 
@@ -172,10 +177,24 @@ class WebsiteTranslation extends BaseTranslateModel
             'footer_copyright' => Yii::t('intermundiacms', 'Footer Copyright'),
             'footer_logo' => Yii::t('intermundiacms', 'Footer Logo'),
             'og_site_name' => Yii::t('intermundiacms', 'Og Site Name'),
-            'image' => Yii::t('intermundiacms', 'Image')
-
-
+            'image' => Yii::t('intermundiacms', 'Image'),
+            'admin_email' => Yii::t('intermundiacms', 'Admin Email'),
+            'bcc_email' => Yii::t('intermundiacms', 'BCC Email'),
+            'cc_email' => Yii::t('intermundiacms', 'CC Email')
         ];
+    }
+
+    /**
+     * @param string $attribute the attribute currently being validated
+     */
+    public function checkValidEmail($attribute)
+    {
+        $emails = explode(',', $this->{$attribute});
+        foreach ($emails as $email) {
+            if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
+                $this->addError($attribute, Yii::t('intermundiacms', 'Email: ' . trim($email) . ' is incorrect!!'));
+            }
+        }
     }
 
     /**
