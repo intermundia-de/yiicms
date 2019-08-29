@@ -144,6 +144,7 @@ class Search extends \yii\db\ActiveRecord
 
         $query->andFilterWhere([
             'id' => $this->id,
+            'language' => [Yii::$app->language, Yii::$app->websiteMasterLanguage]
         ]);
 
         if ($this->table_name) {

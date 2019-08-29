@@ -30,6 +30,7 @@ use yii\helpers\ArrayHelper;
  * @package intermundia\yiicms\models
  *
  * @property boolean $titleChanged
+ * @property boolean $shortDescriptionChanged
  * @property array $oldAttr
  *
  * @property BaseModel $baseModel
@@ -46,6 +47,7 @@ abstract class BaseTranslateModel extends ActiveRecord
     public $tableName;
 
     public $titleChanged = false;
+    public $shortDescriptionChanged = false;
     public $oldAttr = [];
 
     const CHANGE_TITLE = 'changeTitle';
@@ -96,8 +98,9 @@ abstract class BaseTranslateModel extends ActiveRecord
         /** @var BaseModel $class */
         $class = $this->getModelClass();
         $foreignKeyName = $this->getForeignKeyNameOnModel();
-        return $this->hasOne(ContentTree::class,
-            ['record_id' => $foreignKeyName])->andWhere([ContentTree::tableName() . '.table_name' => $class::getFormattedTableName()])->with('activeTranslation');
+        return $this->hasOne(ContentTree::class, ['record_id' => $foreignKeyName])
+            ->andWhere([ContentTree::tableName() . '.table_name' => $class::getFormattedTableName()])
+            ->with(['currentTranslation', 'defaultTranslation']);
     }
 
     /**
@@ -137,10 +140,12 @@ abstract class BaseTranslateModel extends ActiveRecord
     {
         // Temporary save new title and attributes
         $newTitle = $this->getTitle();
+        $newShortDescription = $this->getShortDescription();
         $newAttributes = $this->attributes;
         // Load oldAttributes to get oldTitle and compare to newTitle
         $this->load($this->oldAttributes, '');
         $this->titleChanged = $newTitle !== $this->getTitle() || !$this->oldAttributes;
+        $this->shortDescriptionChanged = $newShortDescription !== $this->getShortDescription() || !$this->oldAttributes;
         // Load new attributes again
         $this->load($newAttributes, '');
     }
@@ -161,7 +166,7 @@ abstract class BaseTranslateModel extends ActiveRecord
          *  This event update own and children's alias_path,file_manager_item's path,
          *  rename file folder name oldAlias to newAlias
          */
-        $this->titleChanged && $this->trigger(self::CHANGE_TITLE);
+        ($this->titleChanged || $this->shortDescriptionChanged) && $this->trigger(self::CHANGE_TITLE);
 
         $contentTreeTranslation = $this->contentTree->getTranslation()->andWhere(['language' => $this->language])->one();
         $this->alias_path = $contentTreeTranslation ? $contentTreeTranslation->alias_path : null;

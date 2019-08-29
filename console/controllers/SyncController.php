@@ -17,6 +17,7 @@ use intermundia\yiicms\models\FileManagerItem;
 use Yii;
 use yii\console\Controller;
 use yii\db\ActiveQuery;
+use yii\debug\panels\DumpPanel;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
@@ -60,87 +61,126 @@ class SyncController extends Controller
      * @throws \yii\db\Exception
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function actionSearch()
+    public function actionSearch($websiteKey = null)
     {
-        $insert = 0;
-        $update = 0;
-        $delete = 0;
-        $tableNames = array_map(function ($tableName) {
-            return $tableName['tableName'];
-        }, \Yii::$app->contentTree->getEditableClasses());
+        if (!$websiteKey) {
+            if (!Console::confirm("Do you want to sync for all website key?")) {
+                return;
+            }
+            $websiteKeys = ArrayHelper::getColumn(
+                ContentTree::findClean()->byTableName('website')->asArray()->all(),
+                'key');
+        } else {
+            $websiteKeys = [$websiteKey];
+        }
 
-        foreach ($tableNames as $tableName) {
-            $searchAttributes = \Yii::$app->contentTree->getSearchableAttributes($tableName);
-            $className = Yii::$app->contentTree->getClassName($tableName);
-            $translateClass = $className::getTranslateModelClass();
-            $translateModels = $translateClass::find()
-                ->joinWith('search')
-                ->joinWith('contentTree')
-                ->asArray()->all();
-            foreach ($translateModels as $translateModel) {
 
-                if ($translateModel['search']) {
-                    $searchAttr = array_filter($translateModel['search'], function ($searchable) use ($tableName) {
-                        if ($searchable['table_name'] == $tableName) {
-                            return $searchable['attribute'];
+        foreach ($websiteKeys as $key) {
+            $this->log("Start sync websiteKey: $key");
+            Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($key)->byTableName('website')->one();
+            if (!Yii::$app->websiteContentTree) {
+                $this->log("Website key: '$websiteKey' not found. Please enter valid website key");
+                continue;
+            }
+            $languages = ContentTreeTranslation::find()
+                ->select('language')
+                ->join('inner join', \common\models\ContentTree::tableName(), 'content_tree_id = content_tree.id')
+                ->andWhere(['key' => $key])
+                ->groupBy('language')
+                ->all();
+
+            $languages = ArrayHelper::getColumn($languages, 'language');
+
+            $insert = 0;
+            $update = 0;
+            $delete = 0;
+            $tableNames = array_map(function ($tableName) {
+                return $tableName['tableName'];
+            }, \Yii::$app->contentTree->getEditableClasses());
+
+            foreach ($tableNames as $tableName) {
+                $searchAttributes = \Yii::$app->contentTree->getSearchableAttributes($tableName);
+                $className = Yii::$app->contentTree->getClassName($tableName);
+                $translateClass = $className::getTranslateModelClass();
+                foreach ($languages as $language) {
+                    $translateModels = $translateClass::find()
+                        ->joinWith('search')
+                        ->joinWith('contentTree')
+                        ->andWhere([$translateClass::tableName() . '.language' => $language])
+                        ->asArray()
+                        ->all();
+                    foreach ($translateModels as $translateModel) {
+                        if ($translateModel['search']) {
+                            $searchAttr = array_filter($translateModel['search'], function ($searchable) use ($tableName, $language) {
+                                if ($searchable['table_name'] == $tableName && $searchable['language'] == $language) {
+                                    return $searchable['attribute'];
+                                }
+                                return false;
+                            });
+                            $attributes = array_map(function ($searchable) use ($tableName) {
+                                return $searchable['attribute'];
+
+                            }, $searchAttr);
+
+                            $editedAttributes = array_diff($searchAttributes, $attributes);
+                            $deletedAttributes = array_diff($attributes, $searchAttributes);
+
+                            if (count($editedAttributes) > 0) {
+                                foreach ($editedAttributes as $searchAttribute) {
+                                    $insert++;
+                                    $data[] = [
+                                        'content_tree_id' => $translateModel['contentTree']['id'],
+                                        'table_name' => $tableName,
+                                        'record_id' => $translateModel[$tableName . '_id'],
+                                        'language' => $language,
+                                        'attribute' => $searchAttribute,
+                                        'content' => strip_tags($translateModel[$searchAttribute])
+                                    ];
+                                }
+                            }
+                            if (count($deletedAttributes) > 0) {
+                                $delete++;
+                                Search::deleteAll([
+                                    'attribute' => $deletedAttributes,
+                                    'table_name' => $tableName
+                                ]);
+                            }
+
+                            foreach ($searchAttr as $search) {
+                                if (!in_array($search['attribute'], $deletedAttributes)
+                                    && $search['content'] != strip_tags($translateModel[$search['attribute']])
+                                    && $search['language'] = $language
+                                ) {
+                                    $update++;
+                                    Search::updateAll([
+                                        'content' => strip_tags($translateModel[$search['attribute']])
+                                    ], ['id' => $search['id']]);
+                                }
+                            }
+                        } else {
+                            foreach ($searchAttributes as $searchAttribute) {
+                                $insert++;
+                                $data[] = [
+                                    'content_tree_id' => $translateModel['contentTree']['id'],
+                                    'table_name' => $tableName,
+                                    'record_id' => $translateModel[$tableName . '_id'],
+                                    'language' => $language,
+                                    'attribute' => $searchAttribute,
+                                    'content' => strip_tags($translateModel[$searchAttribute])
+                                ];
+                            }
                         }
-                        return false;
-                    });
-                    $attributes = array_map(function ($searchable) use ($tableName) {
-                        return $searchable['attribute'];
-                    }, $searchAttr);
-
-                    $editedAttributes = array_diff($searchAttributes, $attributes);
-                    $deletedAttributes = array_diff($attributes, $searchAttributes);
-
-                    if (count($editedAttributes) > 0) {
-                        foreach ($editedAttributes as $searchAttribute) {
-                            $insert++;
-                            $data[] = [
-                                'content_tree_id' => $translateModel['contentTree']['id'],
-                                'table_name' => $tableName,
-                                'record_id' => $translateModel[$tableName . '_id'],
-                                'language' => $translateModel['language'],
-                                'attribute' => $searchAttribute,
-                                'content' => strip_tags($translateModel[$searchAttribute])
-                            ];
-                        }
-                    }
-                    if (count($deletedAttributes) > 0) {
-                        $delete++;
-                        Search::deleteAll(['attribute' => $deletedAttributes, 'table_name' => $tableName]);
-                    }
-
-                    foreach ($searchAttr as $search) {
-                        if (!in_array($search['attribute'],
-                                $deletedAttributes) && $search['content'] != strip_tags($translateModel[$search['attribute']])) {
-                            $update++;
-                            Search::updateAll(['content' => strip_tags($translateModel[$search['attribute']])],
-                                'id = ' . $search['id']);
-                        }
-                    }
-                } else {
-                    foreach ($searchAttributes as $searchAttribute) {
-                        $insert++;
-                        $data[] = [
-                            'content_tree_id' => $translateModel['contentTree']['id'],
-                            'table_name' => $tableName,
-                            'record_id' => $translateModel[$tableName . '_id'],
-                            'language' => $translateModel['language'],
-                            'attribute' => $searchAttribute,
-                            'content' => strip_tags($translateModel[$searchAttribute])
-                        ];
                     }
                 }
             }
-        }
-        if (isset($data) && count($data) > 0) {
-            Search::batchInsert($data);
-        }
+            if (isset($data) && count($data) > 0) {
+                Search::batchInsert($data);
+            }
 
-        $this->log("Inserted " . $insert . " rows in Search Table");
-        $this->log("Updated  " . $update . " rows in Search Table");
-        $this->log("Deleted  " . $delete . " rows in Search Table");
+            $this->log("Inserted " . $insert . " rows in Search Table");
+            $this->log("Updated  " . $update . " rows in Search Table");
+            $this->log("Deleted  " . $delete . " rows in Search Table");
+        }
     }
 
     public function actionWebsites()
@@ -404,9 +444,7 @@ class SyncController extends Controller
                 if (count($notFoundItemIds)) {
                     $this->log("File storage item not found for file manager item ids: [" . implode(' , ',
                             $failedItemIds) . "]");
-
-                    $answer = readline("Delete these file manager items? (Y/N): ");
-                    if ($answer == 'Y') {
+                    if (Console::confirm("Delete these file manager items?")) {
                         $transaction = Yii::$app->db->beginTransaction();
                         try {
                             FileManagerItem::deleteAll(['id' => $notFoundItemIds]);
@@ -429,8 +467,10 @@ class SyncController extends Controller
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
         $contentTrees = ContentTree::find()
             ->joinWith('translations')
+            ->linkedIdIsNull()
             ->asArray()
             ->all();
+        Console::output("Copying has started");
         FileManagerItem::deleteAll(['language' => $to]);
         FileHelper::removeDirectory(Yii::getAlias(FileManagerItem::STORAGE_PATH . $to));
 
@@ -474,7 +514,8 @@ class SyncController extends Controller
         }
 
         $transaction->commit();
-
+        Console::output("=========================================================================");
+        Console::output("Copying has finished");
     }
 
     private function modifyBlameData($data)

@@ -38,8 +38,6 @@ class CKEditorComponent extends Component
 
     public function beforeRequest()
     {
-        \Yii::$app->view->registerJs("var FRONTEND_HOST = '" . \Yii::getAlias('@frontendUrl') . "';",
-            View::POS_BEGIN);
         if (\Yii::$app->user->canEditContent()) {
             \Yii::$app->view->registerJs("
                 if (typeof CKEDITOR !== 'undefined'){

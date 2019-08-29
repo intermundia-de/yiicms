@@ -27,6 +27,8 @@ use yii\web\UploadedFile;
  * @property string $page_header
  * @property string $meta_tags
  * @property string $og_site_name
+ * @property string $ga_code
+ * @property string $google_tag_manager_code
  *
  * @property Website $website
  */
@@ -84,6 +86,7 @@ class WebsiteTranslation extends BaseTranslateModel
                     'claim_image' => 'claim_image',
                     'image' => 'image'
                 ],
+                'filePath' => '[[attribute_language]]/[[column]]_[[filename]].[[extension]]'
             ],
         ], parent::behaviors());
     }
@@ -94,6 +97,7 @@ class WebsiteTranslation extends BaseTranslateModel
     public function rules()
     {
         return [
+            [['title'], 'required'],
             [['website_id',], 'integer'],
             [['language'], 'string', 'max' => 15],
             [['name'], 'string', 'max' => 255],
@@ -121,6 +125,7 @@ class WebsiteTranslation extends BaseTranslateModel
                     'logo_image_name',
                     'additional_logo_image_name',
                     'copyright',
+                    'ga_code',
                     'google_tag_manager_code',
                     'html_code_before_close_body'
                 ],
@@ -158,6 +163,7 @@ class WebsiteTranslation extends BaseTranslateModel
             'name' => Yii::t('common', 'Name'),
             'additional_logo_image_name' => Yii::t('common', 'Additional Logo Image'),
             'copyright' => Yii::t('common', 'Copyright'),
+            'ga_code' => Yii::t('common', 'Google Analytics Code'),
             'google_tag_manager_code' => Yii::t('common', 'Google Tag Manager Code'),
             'html_code_before_close_body' => Yii::t('common', 'Html Code Before Close Body'),
             'website_id' => Yii::t('common', 'Website ID'),

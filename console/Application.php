@@ -22,4 +22,5 @@ class Application extends \yii\console\Application
      */
     public $websiteContentTree = null;
     public $pageContentTree = null;
+    public $websiteMasterLanguage = null;
 }

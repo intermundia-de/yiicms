@@ -20,7 +20,7 @@ use yii\helpers\Url;
 /**
  * Class BaseApplication
  *
- * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+ * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\web
  */
 class BaseApplication extends \yii\web\Application
@@ -107,7 +107,7 @@ class BaseApplication extends \yii\web\Application
                     $this->websiteLanguages = $this->getWebsiteLanguages($websiteKey);
                     $shortCode = LanguageHelper::convertLongCodeIntoShort($this->language);
                     if (strpos($domain, '/') !== false
-                        && (substr($domain, strpos($domain, '/') + 1) === $lang || $shortCode)) {
+                        && ( substr($domain, strpos($domain, '/') + 1) === $lang || $shortCode )) {
                         $this->hasLanguageInUrl = true;
                     }
                     $frontendHost = ArrayHelper::getValue($websiteData, 'frontendHost');
@@ -117,7 +117,8 @@ class BaseApplication extends \yii\web\Application
                     }
 
                     \Yii::setAlias('@frontendUrl', $matches[1] . $frontendHost);
-                    $this->setHomeUrl($matches[1] . $frontendHost);
+                    \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
+                    $this->setHomeUrl($matches[1] . $domain);
                     $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
                     \Yii::setAlias('@storageUrl', $storageUrl);
                     break;
@@ -135,6 +136,7 @@ class BaseApplication extends \yii\web\Application
     public function getWebsiteLanguages($websiteKey)
     {
         $languageCodes = array_unique(array_values(\Yii::$app->multiSiteCore->websites[$websiteKey]['domains']));
+
         return ArrayHelper::map(Language::find()->byCode($languageCodes)->asArray()->all(), 'code', 'name');
     }
 }
