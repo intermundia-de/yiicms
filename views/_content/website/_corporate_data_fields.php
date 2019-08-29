@@ -3,15 +3,17 @@
 use unclead\multipleinput\MultipleInput; ?>
 
 <div id="corporateDataPanel" class="panel-group" role="tablist">
-  <div class="panel panel-default">
+  <div class="panel panel-default lobipanel" data-sortable="true">
     <div id="corporateDataHeading" class="panel-heading collapsed" role="tab" data-toggle="collapse"
          data-parent="#corporateDataPanel"
          data-target="#corporateDataCollapse"
          aria-controls="corporateDataCollapse">
       <h3 class="panel-title"><?php echo Yii::t('intermundiacms', 'Corporate Data') ?>
+      </h3>
+      <div class="panel-controls">
         <i class="fa fa-plus-square icon-collapsed pull-right"></i>
         <i class="fa fa-minus-square icon-expanded pull-right"></i>
-      </h3>
+      </div>
     </div>
     <div id="corporateDataCollapse" class="panel-collapse collapse" role="tabpanel"
          aria-labelledby="#corporateDataHeading">

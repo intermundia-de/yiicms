@@ -1,9 +1,21 @@
 .cke_button_icon.cke_button__link-page_icon {
-    background-image:url('../img/link.png');
+    background-image: url('../img/link.png');
     background-position: 0;
-    background-size:16px;
+    background-size: 16px;
 }
 
 .file-preview .kv-file-content img {
     max-height: 100%;
+}
+.panel-controls {
+    height: 40px;
+    position: relative;
+    width: 100%;
+}
+
+.panel-controls i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
 }
