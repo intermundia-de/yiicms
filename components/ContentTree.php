@@ -174,7 +174,7 @@ class ContentTree extends Component
 
     public function getViewsForTable($tableName)
     {
-        $views = ArrayHelper::getValue($this->customViews, $tableName);
+        $views = ArrayHelper::getValue($this->customViews, $tableName, []);
         ksort($views);
         return $views;
     }

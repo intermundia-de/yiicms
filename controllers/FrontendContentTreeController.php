@@ -42,7 +42,7 @@ class FrontendContentTreeController extends Controller
     public function beforeAction($action)
     {
         $this->selectPageContentTree();
-        $this->selectBaseModels();
+//        $this->selectBaseModels();
         return parent::beforeAction($action);
     }
 
@@ -63,7 +63,7 @@ class FrontendContentTreeController extends Controller
             throw new NotFoundHttpException("Content is not editable");
         }
 
-        $this->getView()->contentTreeObject = $contentTreeItem;
+//        $this->getView()->contentTreeObject = $contentTreeItem;
         return $this->render('index', [
             'contentTreeItem' => $contentTreeItem,
             'model' => $model,
@@ -201,8 +201,8 @@ class FrontendContentTreeController extends Controller
     {
         Yii::$app->pageContentTree = $this->findContentTreeByFullPath();
 //        $this->contentTreeObjects = [$this->pageContentTree] + ContentTree::find()->notDeleted()->all();
-        Yii::$app->contentTreeObjects = array_merge([Yii::$app->pageContentTree],
-            Yii::$app->pageContentTree->children()->notHidden()->notDeleted()->all());
+//        Yii::$app->contentTreeObjects = array_merge([Yii::$app->pageContentTree],
+//            Yii::$app->pageContentTree->children()->notHidden()->notDeleted()->all());
     }
 
     protected function selectBaseModels()
@@ -253,7 +253,7 @@ class FrontendContentTreeController extends Controller
                 ->one())) {
             throw new NotFoundHttpException("Content does not exist for [ID = " . Yii::$app->defaultContentId . "]");
         }
-        $this->getView()->contentTreeObject = $contentTree;
+//        $this->getView()->contentTreeObject = $contentTree;
         return $contentTree;
     }
 }

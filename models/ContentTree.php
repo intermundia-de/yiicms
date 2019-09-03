@@ -827,4 +827,9 @@ class ContentTree extends \yii\db\ActiveRecord
     {
         return Inflector::camel2words($this->content_type);
     }
+
+    public function hasDefaultView()
+    {
+        return !$this->view;
+    }
 }
