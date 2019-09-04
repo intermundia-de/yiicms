@@ -56,6 +56,7 @@ class ContentChangeListener extends Behavior
         $contentTreeTranslation->content_tree_id = $contentTree->id;
         $contentTreeTranslation->language = $language;
         $contentTreeTranslation->name = $baseTranslateModel->getTitle();
+        $contentTreeTranslation->short_description = $baseTranslateModel->getShortDescription();
 
         if (!$contentTreeTranslation->save()) {
             throw new \Exception('Error Saving ContentTreeTranslation: ' . VarDumper::dumpAsString($contentTreeTranslation->errors));
