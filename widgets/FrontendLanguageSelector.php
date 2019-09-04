@@ -25,6 +25,13 @@ class FrontendLanguageSelector extends Nav
      * URL for parent Dropdown 'a' tag
      */
     public $dropDownParentUrl;
+
+    /**
+     * @var $dropDownParentUrl string
+     * text for parent Dropdown 'a' tag
+     */
+    public $dropDownParentText;
+
     /**
      * @var $dropDownParentOptions [] | null
      * HTML options for parent 'li' tag
@@ -127,7 +134,7 @@ class FrontendLanguageSelector extends Nav
             return $items;
         }
         $parentItem = [
-            'label' => $this->currentLanguage->name,
+            'label' => $this->dropDownParentText ?: $this->currentLanguage->name,
             'items' => $items,
             'linkOptions' => $this->dropDownParentLinkOptions,
             'dropDownOptions' => $this->dropDownOptions];
