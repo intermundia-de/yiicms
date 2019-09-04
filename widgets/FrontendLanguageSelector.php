@@ -59,23 +59,44 @@ class FrontendLanguageSelector extends Nav
      * Array of 2 character language codes to exclude from render list
      */
     public $excludeLanguages = ['en'];
-    private function resolveLanguageDomains(){
+    private function resolveLanguageDomains()
+    {
         $this->languageDomains = \Yii::$app->multiSiteCore->websites[Yii::$app->websiteContentTree->key]['domains'];
+        //Sort website domains based on key length ascending order
+        uksort($this->languageDomains, function ($a, $b) {
+            return strlen($a) - strlen($b);
+        });
+        $multipleDomainPerLanguage = array_count_values($this->languageDomains);
+        if (array_key_exists(Yii::$app->websiteMasterLanguage, $multipleDomainPerLanguage)) {
+            unset($multipleDomainPerLanguage[Yii::$app->websiteMasterLanguage]);
+        }
+        $checkHosts = $multipleDomainPerLanguage ? (max(array_values($multipleDomainPerLanguage)) > 1) : false;
         foreach ($this->languageDomains as $languageDomain => $langCode) {
-            //Check if domain host matches requested url host
-            $domainHost = parse_url("//$languageDomain", PHP_URL_HOST);
-            $requestHost = parse_url(\Yii::$app->request->getAbsoluteUrl(), PHP_URL_HOST);
-            if ($domainHost != $requestHost || in_array(LanguageHelper::convertLongCodeIntoShort($langCode), $this->excludeLanguages)) {
+            if ($checkHosts) {
+                //Check if domain host matches requested url host
+                $domainHost = parse_url("//$languageDomain", PHP_URL_HOST);
+                $requestHost = parse_url(\Yii::$app->request->getAbsoluteUrl(), PHP_URL_HOST);
+
+                if ($domainHost != $requestHost || in_array(LanguageHelper::convertLongCodeIntoShort($langCode), $this->excludeLanguages)) {
+                    unset($this->languageDomains[$languageDomain]);
+                    continue;
+                }
+            }
+            if (in_array(LanguageHelper::convertLongCodeIntoShort($langCode), $this->excludeLanguages)) {
                 unset($this->languageDomains[$languageDomain]);
-            } else {
-                $language = Language::find()->byCode($langCode)->one();
-                if(!$language) {
-                    throw new \yii\base\Exception("No record with code=\"{$langCode}\" found in \"language\" table.");
-                }
-                $this->languageDomains[$languageDomain] = $language;
-                if ($langCode == Yii::$app->language) {
-                    $this->currentLanguage = $language;
-                }
+                continue;
+            }
+            if ($this->currentLanguage && $langCode == Yii::$app->websiteMasterLanguage) {
+                unset($this->languageDomains[$languageDomain]);
+                continue;
+            }
+            $language = Language::find()->byCode($langCode)->one();
+            if (!$language) {
+                throw new \yii\base\Exception("No record with code=\"{$langCode}\" found in \"language\" table.");
+            }
+            $this->languageDomains[$languageDomain] = $language;
+            if ($langCode == Yii::$app->language) {
+                $this->currentLanguage = $language;
             }
         }
     }
