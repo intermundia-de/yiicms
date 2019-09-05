@@ -113,6 +113,15 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param string $contentType
+     * @return ContentTreeQuery
+     */
+    public function byContentType($contentType)
+    {
+        return $this->andWhere([ContentTree::tableName() . '.content_type' => $contentType]);
+    }
+
+    /**
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return ContentTreeQuery
      */
