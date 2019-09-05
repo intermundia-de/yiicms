@@ -16,35 +16,35 @@ use yii\helpers\Url;
 /**
  * This is the model class for table "{{%content_tree}}".
  *
- * @property int $id
- * @property int $record_id
- * @property string $table_name
- * @property string $content_type
- * @property string $website
- * @property int $lft
- * @property int $rgt
- * @property int $depth
- * @property int $link_id
- * @property int $created_at
- * @property int $created_by
- * @property int $updated_at
- * @property int $updated_by
- * @property int $deleted_at
- * @property int $deleted_by
- * @property int $hide
- * @property string $view
- * @property string $key
- * @property array $custom_class
- * @property int $show_as_sibling
+ * @property int                      $id
+ * @property int                      $record_id
+ * @property string                   $table_name
+ * @property string                   $content_type
+ * @property string                   $website
+ * @property int                      $lft
+ * @property int                      $rgt
+ * @property int                      $depth
+ * @property int                      $link_id
+ * @property int                      $created_at
+ * @property int                      $created_by
+ * @property int                      $updated_at
+ * @property int                      $updated_by
+ * @property int                      $deleted_at
+ * @property int                      $deleted_by
+ * @property int                      $hide
+ * @property string                   $view
+ * @property string                   $key
+ * @property array                    $custom_class
+ * @property int                      $show_as_sibling
  *
- * @method makeRoot($runValidation = true, $attributes = null)
- * @method prependTo($node, $runValidation = true, $attributes = null)
- * @method appendTo($node, $runValidation = true, $attributes = null)
- * @method insertBefore($node, $runValidation = true, $attributes = null)
- * @method insertAfter($node, $runValidation = true, $attributes = null)
+ * @method makeRoot( $runValidation = true, $attributes = null )
+ * @method prependTo( $node, $runValidation = true, $attributes = null )
+ * @method appendTo( $node, $runValidation = true, $attributes = null )
+ * @method insertBefore( $node, $runValidation = true, $attributes = null )
+ * @method insertAfter( $node, $runValidation = true, $attributes = null )
  * @method deleteWithChildren
- * @method ContentTreeQuery parents($depth = null)
- * @method ContentTreeQuery children($depth = null)
+ * @method ContentTreeQuery parents( $depth = null )
+ * @method ContentTreeQuery children( $depth = null )
  * @method ContentTreeQuery leaves
  * @method prev
  * @method next
@@ -54,15 +54,15 @@ use yii\helpers\Url;
  * @method beforeInsert
  * @method afterInsert
  *
- * @property ContentTree $link
- * @property ContentTreeTranslation $activeTranslation Translation of `Yii::$app->language`
- * @property ContentTreeTranslation $defaultTranslation Translation of `Yii::$app->sourceLanguage`
- * @property ContentTreeTranslation $currentTranslation `activeTranslation` or `defaultTranslation`
- * @property ContentTreeTranslation $linkActiveTranslation
+ * @property ContentTree              $link
+ * @property ContentTreeTranslation   $activeTranslation  Translation of `Yii::$app->language`
+ * @property ContentTreeTranslation   $defaultTranslation Translation of `Yii::$app->sourceLanguage`
+ * @property ContentTreeTranslation   $currentTranslation `activeTranslation` or `defaultTranslation`
+ * @property ContentTreeTranslation   $linkActiveTranslation
  * @property ContentTreeTranslation[] $translations
- * @property User $updatedBy
- * @property User $createdBy
- * @property Search[] $searchModels
+ * @property User                     $updatedBy
+ * @property User                     $createdBy
+ * @property Search[]                 $searchModels
  */
 class ContentTree extends \yii\db\ActiveRecord
 {
@@ -143,6 +143,7 @@ class ContentTree extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         $this->custom_class = is_array($this->custom_class) ? implode(',', $this->custom_class) : '';
+
         return parent::beforeSave($insert);
     }
 
@@ -262,7 +263,8 @@ class ContentTree extends \yii\db\ActiveRecord
     public static function find($alias = null)
     {
         $alias = $alias ?: ContentTree::tableName();
-        return (new \intermundia\yiicms\models\query\ContentTreeQuery(get_called_class()))
+
+        return ( new \intermundia\yiicms\models\query\ContentTreeQuery(get_called_class()) )
             ->forRoot(Yii::$app->websiteContentTree->id, $alias);
     }
 
@@ -322,14 +324,15 @@ class ContentTree extends \yii\db\ActiveRecord
             ->all();
         $nestedSetModel = new NestedSetModel($contentTreeItems, $extraFields, $appendParams);
         $items = $nestedSetModel->getTree($fields);
+
         return [$items];
     }
 
     /**
-     * @param null $id
-     * @param null $tableNames
-     * @param null $lft
-     * @param null $rgt
+     * @param null  $id
+     * @param null  $tableNames
+     * @param null  $lft
+     * @param null  $rgt
      * @param array $fields
      * @param array $extraFields
      * @param array $appendParams
@@ -423,6 +426,7 @@ class ContentTree extends \yii\db\ActiveRecord
     public function getTreeId()
     {
         $tree = ContentTree::find()->byRecordIdTableName($this->record_id, $this->table_name)->linkedIdIsNull()->one();
+
         return $tree->id;
     }
 
@@ -494,6 +498,7 @@ class ContentTree extends \yii\db\ActiveRecord
     public function getFullUrl($asArray = false, $schema = false)
     {
         $url = ['content-tree/index', 'nodes' => $this->getNodes()];
+
         return $asArray ? $url : Url::to($url, $schema);
     }
 
@@ -527,6 +532,7 @@ class ContentTree extends \yii\db\ActiveRecord
                 ->limit(1)
                 ->one();
         }
+
         return $this->closestPage;
     }
 
@@ -540,6 +546,7 @@ class ContentTree extends \yii\db\ActiveRecord
         if ($includeSectionAlias && $this->table_name !== self::TABLE_NAME_PAGE) {
             $url .= "#id_{$this->id}";
         }
+
         return $url;
     }
 
@@ -571,8 +578,8 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function getCssClass()
     {
-        return "content-{$this->table_name} content-{$this->table_name}-" . ($this->view ?: 'default')
-            . " content-{$this->table_name}-" . $this->id . ($this->hide == 1 ? ' content-hidden' : '')
+        return "content-{$this->table_name} content-{$this->table_name}-" . ( $this->view ?: 'default' )
+            . " content-{$this->table_name}-" . $this->id . ( $this->hide == 1 ? ' content-hidden' : '' )
             . " content-{$this->table_name}-{$this->getAlias()}" . " content-{$this->table_name}-{$this->key}";
     }
 
@@ -601,9 +608,11 @@ class ContentTree extends \yii\db\ActiveRecord
     {
         if (Yii::$app->user->canEditContent()) {
             $editableContent = $editable === true ? 'data-editable=true  contenteditable=true' : '';
+
             // @TODO We need to consider parent_id also later
             return $editableContent . ' data-language="' . Yii::$app->language . '" data-content-id="' . $this->id . '" data-type="' . $type . '" data-backend-url="' . $this->getBackendFullUrl() . '" data-attr="' . $attribute . '"';
         }
+
         return '';
     }
 
@@ -613,6 +622,7 @@ class ContentTree extends \yii\db\ActiveRecord
             // @TODO We need to consider parent_id also later
             return ' data-language="' . Yii::$app->language . '" data-content-id="' . $this->id . '" data-title="' . $this->getActualItem()->activeTranslation->name . '" data-type="' . $type . '" data-backend-url="' . $this->getBackendFullUrl() . '"';
         }
+
         return '';
     }
 
@@ -622,6 +632,7 @@ class ContentTree extends \yii\db\ActiveRecord
         if ($tableName) {
             $query->andWhere([self::tableName() . '.table_name' => $tableName]);
         }
+
         return $query->andWhere(['is not', self::tableName() . '.link_id', null])
             ->notDeleted()
             ->one();
@@ -635,6 +646,7 @@ class ContentTree extends \yii\db\ActiveRecord
             $name = $node->getActualItemActiveTranslation()->name;
             $breadCrumbs[] = ['name' => $name, 'url' => $node->getFullUrl()];
         }
+
         return $breadCrumbs;
     }
 
@@ -643,6 +655,7 @@ class ContentTree extends \yii\db\ActiveRecord
         if ($this->link_id) {
             return $this->link;
         }
+
         return $this;
     }
 
@@ -667,6 +680,7 @@ class ContentTree extends \yii\db\ActiveRecord
                 $nodes = '';
             }
         }
+
         return $nodes;
     }
 
@@ -699,6 +713,7 @@ class ContentTree extends \yii\db\ActiveRecord
                 $nodes = '';
             }
         }
+
         return $nodes;
     }
 
@@ -723,8 +738,8 @@ class ContentTree extends \yii\db\ActiveRecord
 
     /**
      * @param string $footerKey
-     * @param array $tableNames
-     * @param null $depth
+     * @param array  $tableNames
+     * @param null   $depth
      * @return ContentTree[]|array
      *
      * @deprecated Will be removed in v3.0.0. Use [[getItemsForMenu]] instead
@@ -744,9 +759,9 @@ class ContentTree extends \yii\db\ActiveRecord
 
 
     /**
-     * @param $key
+     * @param       $key
      * @param array $tableNames
-     * @param null $depth
+     * @param null  $depth
      * @return ContentTree[]|array
      */
     public static function getItemsForMenu(
@@ -781,6 +796,7 @@ class ContentTree extends \yii\db\ActiveRecord
         if ($depth !== null) {
             $query->andWhere([$ct . '.depth' => $depth]);
         }
+
         return $query->orderBy($ct . '.lft')->all();
     }
 
@@ -831,5 +847,43 @@ class ContentTree extends \yii\db\ActiveRecord
     public function hasDefaultView()
     {
         return !$this->view;
+    }
+
+    /**
+     * Delete ContentTree item with its base model and with children items
+     *
+     * @return bool
+     * @throws \yii\db\Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function deleteWithBaseModel()
+    {
+        $children = array_merge($this->children()->orderBy('lft DESC')->all(), [$this]);
+
+        $transaction = Yii::$app->db->beginTransaction();
+        foreach ($children as $child) {
+            if ($child->delete()) {
+                Yii::error('Unable to delete ContentTree: '.$child->id);
+                $transaction->rollBack();
+                return false;
+            }
+        }
+
+        $transaction->commit();
+        return true;
+    }
+
+    public function beforeDelete()
+    {
+        if (!$this->link_id) {
+            $baseModel = $this->getModel();
+            if (!$baseModel) {
+                Yii::warning("Base model does not exist for ContentTree: " . $this->id);
+            } elseif ($baseModel && $baseModel->delete()) {
+                Yii::info("ContentTree with base model was deleted");
+            }
+        }
+
+        return parent::beforeDelete();
     }
 }
