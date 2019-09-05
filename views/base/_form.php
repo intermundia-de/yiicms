@@ -1,11 +1,11 @@
 <?php
 
-/** @var $model \intermundia\yiicms\models\BaseTranslateModel */
-
 use intermundia\yiicms\widgets\LanguageSelector;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 
+/** @var $model \intermundia\yiicms\models\BaseTranslateModel */
+/** @var $baseModel \common\models\BaseModel */
 /** @var $contentTreeModel \intermundia\yiicms\models\ContentTree */
 /** @var $url string */
 /** @var $tableName string */
@@ -29,6 +29,7 @@ use yii\helpers\Html;
             <div class="panel-body">
                 <?php echo $this->render('../_content/' . $contentType . '/_form', [
                     'model' => $model,
+                    'baseModel' => $baseModel,
                     'tableName' => $tableName,
                     'contentType' => $contentType,
                     'contentTreeModel' => $contentTreeModel,

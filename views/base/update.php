@@ -10,13 +10,16 @@
  * @var $multiModel             intermundia\yiicms\models\ContentMultiModel
  */
 
-$model = $multiModel->getModel(\intermundia\yiicms\models\ContentMultiModel::BASE_TRANSLATION_MODEL);
-$contentTreeModel = $multiModel->getModel(\intermundia\yiicms\models\ContentMultiModel::CONTENT_TREE_MODEL);
-
+use intermundia\yiicms\bundle\JSTreeAsset;
+use intermundia\yiicms\models\ContentMultiModel;
 use yii\helpers\Html;
 use yii\bootstrap\Modal;
 
-$this->registerAssetBundle(\intermundia\yiicms\bundle\JSTreeAsset::class);
+$baseModel = $multiModel->getModel(ContentMultiModel::BASE_MODEL);
+$model = $multiModel->getModel(ContentMultiModel::BASE_TRANSLATION_MODEL);
+$contentTreeModel = $multiModel->getModel(ContentMultiModel::CONTENT_TREE_MODEL);
+
+$this->registerAssetBundle(JSTreeAsset::class);
 
 $this->title = Yii::t('intermundiacms', 'Update {modelClass}: ', [
         'modelClass' => $contentTreeModel->getContentType(),
@@ -36,6 +39,7 @@ $this->params['breadcrumbs'] = $BreadCrumb;
 ?>
 <?php echo $this->render('_form', [
     'model' => $model,
+    'baseModel' => $baseModel,
     'contentTreeModel' => $contentTreeModel,
     'tableName' => $tableName,
     'contentType' => $contentType,
