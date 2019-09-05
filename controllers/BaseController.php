@@ -552,6 +552,7 @@ class BaseController extends BackendController
                         $linkedTree->link_id = $linkedParentTree->id;
                         $linkedTree->record_id = $linkedParentTree->record_id;
                         $linkedTree->table_name = $linkedParentTree->table_name;
+                        $linkedTree->content_type = $linkedParentTree->content_type;
                         $transaction = Yii::$app->db->beginTransaction();
                         if (!$linkedTree->appendTo($parentTree)) {
                             return json_encode(['code' => 0, 'message' => 'Could Not Prepend To Parent Node']);

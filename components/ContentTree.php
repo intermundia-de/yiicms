@@ -84,9 +84,9 @@ class ContentTree extends Component
         parent::init();
     }
 
-    public function getClassName($tableName)
+    public function getClassName($contentType)
     {
-        $config = ArrayHelper::getValue($this->editableContent, $tableName);
+        $config = ArrayHelper::getValue($this->editableContent, $contentType);
         if (!$config || !is_array($config)) {
             return null;
         }
