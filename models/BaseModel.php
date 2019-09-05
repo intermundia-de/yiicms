@@ -139,7 +139,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         return [
             'base/update',
-            'contentType' => $this->getFormattedTableName(),
+            'contentType' => $this->getContentType(),
             'parentContentId' => $this->getParentId(),
             'contentId' => $this->id,
             'language' => $languageCode
@@ -281,5 +281,11 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public function renderAttribute($attribute)
     {
         return $this->activeTranslation->$attribute;
+    }
+
+    public function getContentType()
+    {
+        // @TODO Optimize this not to access contentTree
+        return $this->contentTree->content_type;
     }
 }
