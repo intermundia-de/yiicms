@@ -6,6 +6,7 @@
  */
 namespace intermundia\yiicms\console;
 
+use intermundia\yiicms\models\BaseModel;
 use intermundia\yiicms\models\ContentTree;
 
 /**
@@ -23,4 +24,11 @@ class Application extends \yii\console\Application
     public $websiteContentTree = null;
     public $pageContentTree = null;
     public $websiteMasterLanguage = null;
+
+    /**
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     * @var BaseModel[]
+     */
+    public $baseModelObjects = [];
+
 }
