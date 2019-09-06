@@ -12,6 +12,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Inflector;
 use yii\helpers\Url;
+use yii\helpers\VarDumper;
 
 /**
  * This is the model class for table "{{%content_tree}}".
@@ -282,6 +283,7 @@ class ContentTree extends \yii\db\ActiveRecord
         if ($this->_alias === null) {
             $this->_alias = $this->getActualItemActiveTranslation()->alias;
         }
+
         return $this->_alias;
     }
 
@@ -836,6 +838,7 @@ class ContentTree extends \yii\db\ActiveRecord
         foreach ($objectModelClasses as $objectModelClass) {
             $class .= $objectModelClass . ' ';
         }
+
         return $class;
     }
 
@@ -885,5 +888,38 @@ class ContentTree extends \yii\db\ActiveRecord
         }
 
         return parent::beforeDelete();
+    }
+
+    public function linkInside(ContentTree $parentTree, ContentTree $linkFrom)
+    {
+        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
+        $this->link_id = $linkFrom->id;
+        $this->record_id = $linkFrom->record_id;
+        $this->table_name = $linkFrom->table_name;
+        $this->content_type = $linkFrom->content_type;
+        if (!$this->appendTo($parentTree)) {
+            Yii::error("Linking did not work: Errors: " . VarDumper::dumpAsString($this->errors));
+            return false;
+        }
+
+        foreach ($linkFrom->translations as $translation) {
+            if (!isset($parentTreeTranslations[$translation->language])) {
+                continue;
+            }
+            $data = $translation->toArray();
+            $parentTreeTranslation = $parentTreeTranslations[$translation->language];
+            unset($data['id']);
+            $newTranslation = new ContentTreeTranslation();
+            $newTranslation->load($data, '');
+            $newTranslation->content_tree_id = $this->id;
+            $newTranslation->alias_path = $parentTreeTranslation->alias_path . '/' . $newTranslation->alias;
+            $newTranslation->getBehavior('sluggable')->onlyMakeUniqueInPath = true;
+            if (!$newTranslation->save()) {
+                Yii::error("Linking did not work: Errors: " . VarDumper::dumpAsString($newTranslation->errors));
+                return false;
+            }
+        }
+
+        return true;
     }
 }
