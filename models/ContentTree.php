@@ -922,4 +922,16 @@ class ContentTree extends \yii\db\ActiveRecord
 
         return true;
     }
+
+    /**
+     * Check if current object is linked in $contentTree
+     *
+     * @param \intermundia\yiicms\models\ContentTree $contentTree
+     * @return array|\intermundia\yiicms\models\ContentTree|null
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function isLinkedInside(ContentTree $contentTree)
+    {
+        return $contentTree->children(1)->byLinkId($this->id)->one();
+    }
 }
