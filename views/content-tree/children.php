@@ -96,7 +96,7 @@ echo \yii\grid\GridView::widget([
             'label' => Yii::t('intermundiacms', 'Modifier'),
             'content' => function ($model) {
                 /** @var $model \intermundia\yiicms\models\ContentTree */
-                return \common\models\User::findOne($model->updated_by)->username;
+                return $model->updatedBy->username;
             },
             'contentOptions' => ['class' => 'not-draggable'],
         ],
