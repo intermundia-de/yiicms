@@ -240,34 +240,35 @@ class BaseController extends BackendController
         /** @var BaseModel $baseModel */
         $baseModel = $ClassName::find()->byId($id)->one();
         $tree = ContentTree::find()->byId($contentTreeId)->one();
-        $tree->deleted_at = time();
-        $tree->deleted_by = Yii::$app->user->id;
-
-        if (!$tree->link_id) {
-            $baseModel->deleted_at = time();
-            $baseModel->deleted_by = Yii::$app->user->id;
-            $baseModel->save();
-        }
-
-        $children = $tree->children()->notDeleted()->all();
-
         $parent = $tree->getParent();
+        $recordName = $tree->getActualItemActiveTranslation()->name;
+        $oldData = $baseModel->activeTranslation->getData();
 
-        foreach ($children as $child) {
-            if (!$child->link_id) {
-                /** @var BaseModel $childBaseModel */
-                $ClassName = Yii::$app->contentTree->getClassName($child->table_name);
-                $childBaseModel = $ClassName::find()->byId($child->record_id)->one();
-                $childBaseModel->deleted_at = time();
-                $childBaseModel->deleted_by = Yii::$app->user->id;
-                $childBaseModel->save();
-            }
-            $child->deleted_at = time();
-            $child->deleted_by = Yii::$app->user->id;
-            $child->save();
-        }
-
-        $tree->save();
+        $tree->deleteWithBaseModel();
+//        $tree->deleted_by = Yii::$app->user->id;
+//
+//        if (!$tree->link_id) {
+//            $baseModel->deleted_at = time();
+//            $baseModel->deleted_by = Yii::$app->user->id;
+//            $baseModel->save();
+//        }
+//
+//        $children = $tree->children()->notDeleted()->all();
+//        foreach ($children as $child) {
+//            if (!$child->link_id) {
+//                /** @var BaseModel $childBaseModel */
+//                $ClassName = Yii::$app->contentTree->getClassName($child->table_name);
+//                $childBaseModel = $ClassName::find()->byId($child->record_id)->one();
+//                $childBaseModel->deleted_at = time();
+//                $childBaseModel->deleted_by = Yii::$app->user->id;
+//                $childBaseModel->save();
+//            }
+//            $child->deleted_at = time();
+//            $child->deleted_by = Yii::$app->user->id;
+//            $child->save();
+//        }
+//
+//        $tree->save();
         $transaction->commit();
         $category = $ClassName::getFormattedTableName();
         Yii::$app->commandBus->handle(new AddToTimelineCommand([
@@ -275,8 +276,8 @@ class BaseController extends BackendController
             'category' => $category,
             'event' => TimelineEvent::EVENT_DELETE,
             'record_id' => $id,
-            'record_name' => $tree->getActualItemActiveTranslation()->name,
-            'data' => ['old' => $baseModel->activeTranslation->getData()],
+            'record_name' => $recordName,
+            'data' => ['old' => $oldData],
             'createdBy' => Yii::$app->user->id
         ]));
 
