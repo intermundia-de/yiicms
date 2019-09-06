@@ -862,7 +862,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
         $transaction = Yii::$app->db->beginTransaction();
         foreach ($children as $child) {
-            if ($child->delete()) {
+            if (!$child->delete()) {
                 Yii::error('Unable to delete ContentTree: '.$child->id);
                 $transaction->rollBack();
                 return false;
