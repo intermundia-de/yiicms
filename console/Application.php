@@ -24,6 +24,7 @@ class Application extends \yii\console\Application
     public $websiteContentTree = null;
     public $pageContentTree = null;
     public $websiteMasterLanguage = null;
+    public $websiteKey = null;
 
     /**
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
