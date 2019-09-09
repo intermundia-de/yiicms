@@ -14,7 +14,7 @@ $menus = \intermundia\yiicms\models\Menu::find()->all();
 ?>
 
 <div class="content-view">
-    <?php echo $this->render('../_content/' . $contentTreeItem->table_name . '/view', [
+    <?php echo $this->render('../_content/' . $contentTreeItem->content_type . '/view', [
         'model' => $model,
         'contentTreeModel' => $contentTreeItem
     ]); ?>
