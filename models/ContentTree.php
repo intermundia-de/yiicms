@@ -8,6 +8,7 @@ use creocoder\nestedsets\NestedSetsBehavior;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Inflector;
@@ -896,8 +897,7 @@ class ContentTree extends \yii\db\ActiveRecord
         $this->table_name = $linkFrom->table_name;
         $this->content_type = $linkFrom->content_type;
         if (!$this->appendTo($parentTree)) {
-            Yii::error("Linking did not work: Errors: " . VarDumper::dumpAsString($this->errors));
-            return false;
+            throw new Exception("Linking did not work: Errors: " . VarDumper::dumpAsString($this->errors));
         }
 
         foreach ($linkFrom->translations as $translation) {
@@ -913,8 +913,7 @@ class ContentTree extends \yii\db\ActiveRecord
             $newTranslation->alias_path = $parentTreeTranslation->alias_path . '/' . $newTranslation->alias;
             $newTranslation->getBehavior('sluggable')->onlyMakeUniqueInPath = true;
             if (!$newTranslation->save()) {
-                Yii::error("Linking did not work: Errors: " . VarDumper::dumpAsString($newTranslation->errors));
-                return false;
+                throw new Exception("Linking did not work: Errors: " . VarDumper::dumpAsString($newTranslation->errors));
             }
         }
 
