@@ -48,7 +48,7 @@ $tableNames['all'] = 'All';
 
         <form action="<?php echo Url::to(['/base/menu']) ?>" method="post" id="show_in_menu" class="form-inline"
               style="display: inline-block">
-            <input type="hidden" name="id" value="<?= $contentTreeItem->getTreeId() ?>">
+            <input type="hidden" name="id" value="<?= $contentTreeItem->id ?>">
 
             <?php echo Html::checkboxList('menu_ids[]', array_keys($checked), \yii\helpers\ArrayHelper::map($menus, 'id', 'name')); ?>
         </form>

@@ -416,9 +416,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function getMenuTreeModel()
     {
-        $tree = ContentTree::find()->byRecordIdTableName($this->record_id, $this->table_name)->linkedIdIsNull()->one();
-        $model = ContentTreeMenu::find()->byContentTreeId($tree->id)->all();
-
+        $model = ContentTreeMenu::find()->byContentTreeId($this->id)->all();
         return ArrayHelper::map($model, 'menu_id', function ($model) {
             return $model->content_tree_id;
         });

@@ -427,7 +427,7 @@ class BaseController extends BackendController
             $showInMenu = array_map('intval', Yii::$app->request->post('menu_ids', []));
 
             $id = intval(Yii::$app->request->post('id'));
-            $tree = ContentTree::find()->byId($id)->linkedIdIsNull()->one();
+            $tree = ContentTree::find()->byId($id)->one();
             if ($tree && $menuModel = ContentTreeMenu::find()->byContentTreeId($tree->id)->all()) {
                 $menu = ArrayHelper::map($menuModel, 'menu_id', 'menu_id');
                 $del = [];
