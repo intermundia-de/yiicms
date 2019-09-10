@@ -305,26 +305,31 @@ class ContentTree extends \yii\db\ActiveRecord
         $appendParams = []
     )
     {
-        $ct = ContentTreeTranslation::tableName();
-        $c = ContentTree::tableName();
-        $contentTreeItems = ContentTree::find()
-            ->select("
-                $c.`id`,
-                $c.`record_id`,
-                $c.`link_id`,
-                $c.`table_name`,
-                $c.`lft`,
-                $c.`rgt`,
-                $c.`depth`,
-                $c.`hide`,
-                tt.alias as alias,
-                tt.name as name,
-                tt.`short_description`
-            ")->leftJoinOnTranslation()
-            ->orderBy($c . '.lft')
-            ->notDeleted()
-            ->asArray()
-            ->all();
+        $contentTreeItems = ContentTree::findBySql("
+            SELECT `content_tree`.`id`,
+                   `content_tree`.`record_id`,
+                   `content_tree`.`link_id`,
+                   `content_tree`.`table_name`,
+                   `content_tree`.`lft`,
+                   `content_tree`.`rgt`,
+                   `content_tree`.`depth`,
+                   `content_tree`.`hide`,
+                   IFNULL(ct.alias, ctt.alias) AS `alias`,
+                   IFNULL(ct.name, ctt.name)   AS `name`,
+                   IFNULL(ct.short_description, ctt.short_description)
+            FROM `content_tree`
+                     LEFT JOIN `content_tree_translation` `ct` ON
+                ct.content_tree_id = `content_tree`.id AND ct.language = :language
+                     LEFT JOIN `content_tree_translation` `ctt` ON
+                ctt.content_tree_id = `content_tree`.id AND ctt.language = :masterLanguage
+            WHERE (`content_tree`.`website` = :website)
+              AND (`content_tree`.`deleted_at` IS NULL)
+            ORDER BY `content_tree`.`lft`
+        ", [
+            'website' => Yii::$app->websiteContentTree->id,
+            'language' => \Yii::$app->language,
+            'masterLanguage' => \Yii::$app->websiteMasterLanguage
+        ])->asArray()->all();
         $nestedSetModel = new NestedSetModel($contentTreeItems, $extraFields, $appendParams);
         $items = $nestedSetModel->getTree($fields);
 
@@ -418,6 +423,7 @@ class ContentTree extends \yii\db\ActiveRecord
     public function getMenuTreeModel()
     {
         $model = ContentTreeMenu::find()->byContentTreeId($this->id)->all();
+
         return ArrayHelper::map($model, 'menu_id', function ($model) {
             return $model->content_tree_id;
         });
@@ -865,13 +871,15 @@ class ContentTree extends \yii\db\ActiveRecord
         $transaction = Yii::$app->db->beginTransaction();
         foreach ($children as $child) {
             if (!$child->delete()) {
-                Yii::error('Unable to delete ContentTree: '.$child->id);
+                Yii::error('Unable to delete ContentTree: ' . $child->id);
                 $transaction->rollBack();
+
                 return false;
             }
         }
 
         $transaction->commit();
+
         return true;
     }
 
