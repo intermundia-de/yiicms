@@ -19,13 +19,13 @@ use yii\helpers\VarDumper;
  * Class BaseModel
  *
  *
- * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+ * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\models
  *
  * @property BaseTranslateModel $activeTranslation
  * @property BaseTranslateModel $currentTranslation
  * @property BaseTranslateModel $defaultTranslation
- * @property ContentTree $contentTree
+ * @property ContentTree        $contentTree
  * @property BaseTranslateModel $translation
  */
 abstract class BaseModel extends ActiveRecord implements BaseModelInterface
@@ -42,8 +42,8 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
 
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return \yii\db\ActiveQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function getContentTree()
     {
@@ -75,6 +75,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
         if ($this->currentTranslation) {
             return $this->getCurrentTranslation();
         }
+
         return $this->getDefaultTranslation();
     }
 
@@ -96,7 +97,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
             ->andWhere(['language' => Yii::$app->language]);
     }
 
-    
+
     public static function getFormattedTableName()
     {
         return preg_replace('/^(\{\{%)|(}}$)/', '', self::tablename());
@@ -106,7 +107,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         return implode(" ", array_map('ucfirst', explode('_', self::getFormattedTableName())));
     }
-    
+
     public function getParent()
     {
         return ContentTree::find()->byRecordIdTableName($this->id,
@@ -187,6 +188,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
         foreach ($this->getTranslatedLanguages() as $code => $language) {
             $items[] = ['label' => $language, 'url' => $this->getUpdateUrlByLanguage($code)];
         }
+
         return $items;
     }
 
@@ -218,25 +220,26 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     /**
      * Return FileManagerItem path from `activeTranslation`'s $fileManagerFilename attribute
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $fileManagerFilename
      * @param $index
      * @return string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function getUrlForFile($fileManagerFilename, $index = 0)
     {
         if ($this->activeTranslation) {
             return $this->activeTranslation->getUrlForFile($fileManagerFilename, $index);
         }
+
         return '';
     }
 
     /**
      * Return FileManagerItem path from `activeTranslation`'s $fileManagerFilename attribute
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $fileManagerFilename
      * @return string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function getAttrForFile($fileManagerFilename, $attr)
     {
@@ -247,17 +250,31 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         if (Yii::$app->user->canEditContent() || $this->activeTranslation->{$fieldName}) {
             $contentTreeItem = $contentTreeItem ?: $this->contentTree;
+
             return '<div class="xmlblock ' . $classes . '" ' . $contentTreeItem->getEditableAttributes($fieldName, 'rich-text') . '>
                     ' . $this->activeTranslation->{$fieldName} . '
                 </div>';
         }
+
         return '';
+    }
+
+    /**
+     * Check if model has given $attributeName as file(s)
+     *
+     * @param $attributeName
+     * @return bool
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function hasFile($attributeName)
+    {
+        return !!ArrayHelper::getValue($this->activeTranslation, $attributeName, []);
     }
 
     /**
      * Treat the attribute as an image and render <img> tag from the first element of the attribute array
      *
-     * @param $attributeName
+     * @param       $attributeName
      * @param array $options
      * @return string
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
@@ -265,9 +282,10 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public function renderImage($attributeName, $options = [])
     {
         $images = ArrayHelper::getValue($this->activeTranslation, $attributeName, []);
-        if ($images){
+        if ($images) {
             return Html::img($images[0]->geturl(), $options);
         }
+
         return '';
     }
 
