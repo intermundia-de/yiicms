@@ -196,6 +196,9 @@ class TimelineEvent extends ActiveRecord
             } else {
                 /** @var BaseModel $className */
                 $className = \Yii::$app->contentTree->getClassName($this->category);
+                if (!$className){
+                    return '';
+                }
                 return $className::find()->byId($this->record_id)->one();
             }
         }
