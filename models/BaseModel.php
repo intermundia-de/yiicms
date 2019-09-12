@@ -290,6 +290,24 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     }
 
     /**
+     * Render images in im tags
+     *
+     * @param $attributeName
+     * @param $options
+     * @return string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function renderImages($attributeName, $options)
+    {
+        $images = ArrayHelper::getValue($this->activeTranslation, $attributeName, []);
+
+        return implode(' ', array_map(function ($image) use ($options) {
+            return Html::img($image->geturl(), $options);
+        }, $images));
+
+    }
+
+    /**
      * Return the content attribute of activeTranslation
      *
      * @param string $attribute
