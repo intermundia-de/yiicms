@@ -135,6 +135,7 @@ class ContentTree extends \yii\db\ActiveRecord
             [['table_name', 'content_type'], 'string', 'max' => 255],
             [['key'], 'string', 'max' => 1024],
             [['show_as_sibling'], 'integer', 'max' => 1],
+            [['view'], 'default', 'value' => ''],
         ];
     }
 
@@ -169,7 +170,7 @@ class ContentTree extends \yii\db\ActiveRecord
             'updated_by' => Yii::t('intermundiacms', 'Updated By'),
             'deleted_at' => Yii::t('intermundiacms', 'Deleted At'),
             'deleted_by' => Yii::t('intermundiacms', 'Deleted By'),
-            'hide' => Yii::t('intermundiacms', 'Hide'),
+            'hide' => Yii::t('intermundiacms', 'Show/Hide'),
             'custom_class' => Yii::t('intermundiacms', 'Custom Css Class'),
             'show_as_sibling' => Yii::t('intermundiacms', 'Display as Sibling'),
         ];
@@ -603,12 +604,7 @@ class ContentTree extends \yii\db\ActiveRecord
      */
     public function getViews()
     {
-        if ($this->hasCustomViews()) {
-            return array_merge([null => Yii::t('backend', 'Default')],
-                Yii::$app->contentTree->getViewsForTable($this->content_type));
-        } else {
-            return [];
-        }
+        return Yii::$app->contentTree->getViewsForTable($this->content_type);
     }
 
     public function getEditableAttributes($attribute, $type = '', $editable = true)

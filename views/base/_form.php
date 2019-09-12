@@ -47,6 +47,8 @@ use yii\helpers\Html;
                 <?php echo $form->field($model, 'language')->widget(LanguageSelector::class, []) ?>
                 <?php echo $this->render('../content-tree/_model_fields', [
                     'contentTreeModel' => $contentTreeModel,
+                    'model' => $model,
+                    'baseModel' => $baseModel,
                     'form' => $form,
                 ]); ?>
             </div>

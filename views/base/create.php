@@ -27,8 +27,9 @@ $model = $multiModel->getModel(ContentMultiModel::BASE_TRANSLATION_MODEL);
 $contentTreeModel = $multiModel->getModel(ContentMultiModel::CONTENT_TREE_MODEL);
 $this->registerAssetBundle(JSTreeAsset::class);
 
-$this->title = Yii::t('intermundiacms', 'Create {modelClass}', [
-        'modelClass' => $model->getModelClassName(),
+$displayName = Yii::$app->contentTree->getDisplayName($contentTreeModel->content_type);
+$this->title = Yii::t('intermundiacms', 'Create new {modelClass}', [
+        'modelClass' => '"'. $displayName .'"',
     ]) . ' ' . $model->getTitle();
 
 $BreadCrumb = [];
@@ -37,7 +38,7 @@ foreach ($breadCrumbs as $breadCrumb) {
     $BreadCrumb[] = ['label' => Yii::t('intermundiacms', $breadCrumb['name']), 'url' => $breadCrumb['url']];
 }
 
-$BreadCrumb[] = ['label' => Yii::t('intermundiacms', $model->getModelClassName()), 'url' => ''];
+$BreadCrumb[] = ['label' => Yii::t('intermundiacms', $displayName), 'url' => ''];
 $BreadCrumb[] = Yii::t('intermundiacms', 'Create');
 $this->params['breadcrumbs'] = $BreadCrumb;
 ?>
