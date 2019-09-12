@@ -16,6 +16,7 @@ use yii\web\UploadedFile;
  * @property int $min
  * @property int $max
  * @property string $language
+ * @property string $name
  * @property string $short_description
  * @property string $general_legal_note
  * @property string $obligatory_information
@@ -225,7 +226,7 @@ class WebsiteTranslation extends BaseTranslateModel
 
     public function getTitle()
     {
-        return $this->title;
+        return $this->name;
     }
 
     public function getShortDescription()
