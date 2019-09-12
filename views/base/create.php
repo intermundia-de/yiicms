@@ -15,11 +15,12 @@ use yii\bootstrap\Modal;
  * @var $tableName
  * @var $contentType
  * @var $breadCrumbs
- * @var $this                    yii\web\View
- * @var $dataProvider            yii\data\ActiveDataProvider
- * @var $model                   intermundia\yiicms\models\BaseTranslateModel
- * @var $contentTreeModel        intermundia\yiicms\models\ContentTree
- * @var $multiModel              intermundia\yiicms\models\ContentMultiModel
+ * @var $this                     yii\web\View
+ * @var $dataProvider             yii\data\ActiveDataProvider
+ * @var $model                    intermundia\yiicms\models\BaseTranslateModel
+ * @var $contentTreeModel         intermundia\yiicms\models\ContentTree
+ * @var $parentContentTree        intermundia\yiicms\models\ContentTree
+ * @var $multiModel               intermundia\yiicms\models\ContentMultiModel
  */
 
 $baseModel = $multiModel->getModel(ContentMultiModel::BASE_MODEL);
@@ -29,7 +30,7 @@ $this->registerAssetBundle(JSTreeAsset::class);
 
 $displayName = Yii::$app->contentTree->getDisplayName($contentTreeModel->content_type);
 $this->title = Yii::t('intermundiacms', 'Create new {modelClass}', [
-        'modelClass' => '"'. $displayName .'"',
+        'modelClass' => '"' . $displayName . '"',
     ]) . ' ' . $model->getTitle();
 
 $BreadCrumb = [];
@@ -48,7 +49,7 @@ $this->params['breadcrumbs'] = $BreadCrumb;
     'contentTreeModel' => $contentTreeModel,
     'tableName' => $tableName,
     'contentType' => $contentType,
-    'url' => ''
+    'url' => $parentContentTree->getUrl()
 ]) ?>
 
 <?php

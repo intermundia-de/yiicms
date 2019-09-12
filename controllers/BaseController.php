@@ -65,9 +65,9 @@ class BaseController extends BackendController
     }
 
     /**
-     * @param $contentType
-     * @param $parentContentId
-     * @param $language
+     * @param           $contentType
+     * @param           $parentContentId
+     * @param           $language
      * @return string|\yii\web\Response
      * @throws \yii\db\Exception
      * @var  MultiModel $model
@@ -93,25 +93,29 @@ class BaseController extends BackendController
         $model->getBaseTranslationModel()->parentContentId = $parentContentId;
         $model->getBaseTranslationModel()->language = $language;
 
+        $parentContentTree = ContentTree::find()->byId($parentContentId)->one();
 
         $transaction = Yii::$app->db->beginTransaction();
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             if (intval(Yii::$app->request->post('go_to_parent'))) {
-                $tree = ContentTree::find()->byId($parentContentId)->one();
+                $tree = $parentContentTree;
             } else {
                 $foreignKey = $model->getModel('baseTrasnlationModel')->getForeignKeyNameOnModel();
                 $tree = ContentTree::find()->byRecordIdTableName($model->getBaseTranslationModel()->$foreignKey,
                     $tableName)->one();
             }
             $transaction->commit();
+
             return $this->redirect($tree->getFullUrl());
         }
         $transaction->rollBack();
         $tree = ContentTree::find()->byId($parentContentId)->one();
 
         $breadCrumbs = $tree->getBreadCrumbs();
+
         return $this->render(
             'create', [
+            'parentContentTree' => $parentContentTree,
             'multiModel' => $model,
             'tableName' => $tableName,
             'contentType' => $contentType,
@@ -154,18 +158,21 @@ class BaseController extends BackendController
             $transaction->commit();
             if (intval($request->post('go_to_parent'))) {
                 $tree = ContentTree::find()->byId($parentContentId)->one();
+
                 return $this->redirect($tree->getFullUrl());
             }
             if (intval($request->post('stay_here'))) {
                 return $this->refresh();
             }
             $tree = ContentTree::find()->byRecordIdTableName($contentId, $tableName)->one();
+
             return $this->redirect($tree->getFullUrl());
         }
 
         $transaction->rollBack();
         $tree = ContentTree::find()->byId($parentContentId)->one();
         $breadCrumbs = $tree ? $tree->getBreadCrumbs() : [];
+
         return $this->render(
             'update', [
             'multiModel' => $model,
@@ -194,7 +201,7 @@ class BaseController extends BackendController
             $id = $post['id'];
             $to = $post['to'];
             $from = $post['from'];
-            if (!($tableName || $id || $to)) {
+            if (!( $tableName || $id || $to )) {
                 throw new InvalidArgumentException();
             }
 
@@ -215,6 +222,7 @@ class BaseController extends BackendController
             $copyTranslations->copyAll();
 
             $transaction->commit();
+
             return $this->redirect($copyTranslations->getBaseModel()->getUpdateUrlByLanguage($to));
 
 
@@ -336,17 +344,20 @@ class BaseController extends BackendController
             if ($prev > 0 && $prevTree = ContentTree::find()->byId($prev)->one()) {
                 if ($tree->insertAfter($prevTree)) {
                     $this->swapTimelineEvent($tree);
+
                     return true;
                 }
             } else {
                 if ($next > 0 && $nextTree = ContentTree::find()->byId($next)->one()) {
                     if ($tree->insertBefore($nextTree)) {
                         $this->swapTimelineEvent($tree);
+
                         return true;
                     }
                 }
             }
         }
+
         return false;
     }
 
@@ -380,8 +391,10 @@ class BaseController extends BackendController
                 'data' => $data,
                 'createdBy' => Yii::$app->user->id
             ]));
+
             return $tree->save();
         }
+
         return false;
     }
 
@@ -413,8 +426,10 @@ class BaseController extends BackendController
                 'data' => $data,
                 'createdBy' => Yii::$app->user->id
             ]));
+
             return $tree->save();
         }
+
         return false;
     }
 
@@ -479,6 +494,7 @@ class BaseController extends BackendController
                     return false;
                 }
             }
+
             return true;
         }
     }
@@ -490,9 +506,10 @@ class BaseController extends BackendController
     public function actionTree()
     {
         $id = intval(Yii::$app->request->post('key', 0));
-        $tableNames = (Yii::$app->request->post('table_names', null));
+        $tableNames = ( Yii::$app->request->post('table_names', null) );
 
         $tree = ContentTree::getItemsAsTreeForLink($id, $tableNames);
+
         return json_encode($tree);
     }
 
@@ -503,9 +520,10 @@ class BaseController extends BackendController
     public function actionTreeForMove()
     {
         $id = intval(Yii::$app->request->post('key', 0));
-        $tableNames = (Yii::$app->request->post('table_names', null));
+        $tableNames = ( Yii::$app->request->post('table_names', null) );
 
         $tree = ContentTree::getItemsAsTreeForLink($id, $tableNames);
+
         return json_encode($tree);
     }
 
@@ -572,6 +590,7 @@ class BaseController extends BackendController
                                 $linkedTreeTranslation->getBehavior('sluggable')->onlyMakeUniqueInPath = true;
                                 if (!$linkedTreeTranslation->save()) {
                                     $transaction->rollBack();
+
                                     return json_encode(['code' => 0, 'message' => 'Could Not Save In Translation']);
                                 }
                             }
@@ -585,6 +604,7 @@ class BaseController extends BackendController
         } else {
             $res = ['code' => 0, 'message' => 'Tree Not Found'];
         }
+
         return json_encode($res);
     }
 
@@ -604,6 +624,7 @@ class BaseController extends BackendController
                         $translation->move = $newMovedTree->depth - $movedTree->depth;
                         if (!$translation->save()) {
                             $transaction->rollBack();
+
                             return [
                                 'code' => 0,
                                 'message' => 'Could not save transalation for language: ' . $translation->language
@@ -625,13 +646,14 @@ class BaseController extends BackendController
     /**
      * Finds the User model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
+     *
      * @param integer $id
      * @return User the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findUserModel($id)
     {
-        if (($model = User::findOne($id)) !== null) {
+        if (( $model = User::findOne($id) ) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
@@ -648,13 +670,14 @@ class BaseController extends BackendController
      */
     protected function findModel($basicModelClass, $translateModel, $contentId, $language)
     {
-        if (($model = $translateModel::find()->findByObjectIdAndLanguage($contentId, $language,
-                $translateModel->getForeignKeyNameOnModel())->one()) !== null) {
+        if (( $model = $translateModel::find()->findByObjectIdAndLanguage($contentId, $language,
+                $translateModel->getForeignKeyNameOnModel())->one() ) !== null) {
             return $model;
         } else {
-            if (($model = $basicModelClass::find()->byId($contentId)->one()) !== null) {
+            if (( $model = $basicModelClass::find()->byId($contentId)->one() ) !== null) {
                 $key = $translateModel->getForeignKeyNameOnModel();
                 $translateModel->$key = intval($contentId);
+
                 return $translateModel;
             } else {
                 throw new NotFoundHttpException('The requested page does not exist.');

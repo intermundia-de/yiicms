@@ -7,7 +7,7 @@
  * @var $this                    yii\web\View
  * @var $model                   intermundia\yiicms\models\BaseTranslateModel
  * @var $contentTreeModel        intermundia\yiicms\models\ContentTree
- * @var $multiModel             intermundia\yiicms\models\ContentMultiModel
+ * @var $multiModel              intermundia\yiicms\models\ContentMultiModel
  */
 
 use intermundia\yiicms\bundle\JSTreeAsset;
@@ -21,8 +21,9 @@ $contentTreeModel = $multiModel->getModel(ContentMultiModel::CONTENT_TREE_MODEL)
 
 $this->registerAssetBundle(JSTreeAsset::class);
 
+$displayName = Yii::$app->contentTree->getDisplayName($contentTreeModel->content_type);
 $this->title = Yii::t('intermundiacms', 'Update {modelClass}: ', [
-        'modelClass' => $contentTreeModel->getContentType(),
+        'modelClass' => $displayName,
     ]) . ' ' . $model->getTitle();
 
 $BreadCrumb = [];
@@ -32,7 +33,7 @@ foreach ($breadCrumbs as $breadCrumb) {
 }
 
 
-$BreadCrumb[] = ['label' => Yii::t('intermundiacms', $model->getTitle()), 'url' => ''];
+$BreadCrumb[] = ['label' => Yii::t('intermundiacms', $displayName . ' ' . $model->getTitle()), 'url' => ''];
 $BreadCrumb[] = Yii::t('intermundiacms', 'Update');
 $this->params['breadcrumbs'] = $BreadCrumb;
 
