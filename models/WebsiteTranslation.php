@@ -28,6 +28,8 @@ use yii\web\UploadedFile;
  * @property string $page_header
  * @property string $meta_tags
  * @property string $og_site_name
+ * @property string $ga_code
+ * @property string $google_tag_manager_code
  * @property string $admin_email
  * @property string $bcc_email
  * @property string $cc_email
@@ -89,6 +91,7 @@ class WebsiteTranslation extends BaseTranslateModel
                     'claim_image' => 'claim_image',
                     'image' => 'image'
                 ],
+                'filePath' => '[[attribute_language]]/[[column]]_[[filename]].[[extension]]'
             ],
         ], parent::behaviors());
     }
@@ -99,6 +102,7 @@ class WebsiteTranslation extends BaseTranslateModel
     public function rules()
     {
         return [
+            [['title'], 'required'],
             [['website_id',], 'integer'],
             [['language'], 'string', 'max' => 15],
             [['name'], 'string', 'max' => 255],
@@ -126,6 +130,7 @@ class WebsiteTranslation extends BaseTranslateModel
                     'logo_image_name',
                     'additional_logo_image_name',
                     'copyright',
+                    'ga_code',
                     'google_tag_manager_code',
                     'html_code_before_close_body'
                 ],
@@ -158,12 +163,12 @@ class WebsiteTranslation extends BaseTranslateModel
     public function attributeLabels()
     {
         return [
-
             'id' => Yii::t('intermundiacms', 'ID'),
             'logo_image_name' => Yii::t('intermundiacms', 'Logo Image'),
             'name' => Yii::t('intermundiacms', 'Name'),
             'additional_logo_image_name' => Yii::t('intermundiacms', 'Additional Logo Image'),
             'copyright' => Yii::t('intermundiacms', 'Copyright'),
+            'ga_code' => Yii::t('intermundiacms', 'Google Analytics Code'),
             'google_tag_manager_code' => Yii::t('intermundiacms', 'Google Tag Manager Code'),
             'html_code_before_close_body' => Yii::t('intermundiacms', 'Html Code Before Close Body'),
             'website_id' => Yii::t('intermundiacms', 'Website ID'),

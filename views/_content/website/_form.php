@@ -36,6 +36,7 @@ use yii\helpers\Url;
 ]); ?>
 
 <?php echo $form->field($model, 'copyright')->textInput(['maxlength' => true]) ?>
+<?php echo $form->field($model, 'ga_code')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'google_tag_manager_code')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'html_code_before_close_body')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'footer_name')->textInput(['maxlength' => true]) ?>
