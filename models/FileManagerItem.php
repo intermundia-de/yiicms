@@ -27,6 +27,7 @@ use yii\helpers\FileHelper;
  * @property int $updated_at
  * @property int $created_by
  * @property int $updated_by
+ * @property int $position
  *
  * @property FileManagerItem[] $images
  */
@@ -58,7 +59,7 @@ class FileManagerItem extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['record_id', 'size', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['record_id', 'size', 'created_at', 'updated_at', 'created_by', 'updated_by', 'position'], 'integer'],
             [['base_url', 'mime', 'language'], 'string'],
             [['oldPath'], 'string'],
             [['table_name', 'column_name', 'name'], 'string', 'max' => 255],
@@ -87,6 +88,7 @@ class FileManagerItem extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('intermundiacms', 'Updated At'),
             'created_by' => Yii::t('intermundiacms', 'Created By'),
             'updated_by' => Yii::t('intermundiacms', 'Updated By'),
+            'position' => Yii::t('intermundiacms', 'Position'),
         ];
     }
 
@@ -94,6 +96,18 @@ class FileManagerItem extends \yii\db\ActiveRecord
      * {@inheritdoc}
      * @return \intermundia\yiicms\models\query\FileManagerItemQuery the active query used by this AR class.
      */
+
+    public function beforeSave($insert)
+    {
+        $fileManagerItems = FileManagerItem::find()->byTable($this->table_name)->byRecordId($this->record_id)->all();
+
+        echo "<pre>";
+        var_dump($fileManagerItems);
+        echo "</pre>";
+        exit;
+        return parent::beforeSave($insert);
+    }
+
     public static function find()
     {
         return new \intermundia\yiicms\models\query\FileManagerItemQuery(get_called_class());
