@@ -410,9 +410,9 @@ class ContentTree extends \yii\db\ActiveRecord
      */
     public function getModel()
     {
-        $baseModel = ArrayHelper::getValue(Yii::$app->baseModelObjects, $this->table_name . '.' . $this->record_id);
+        $baseModel = ArrayHelper::getValue(Yii::$app->baseModelObjects, $this->content_type . '.' . $this->record_id);
         if (!$baseModel) {
-            $className = Yii::$app->contentTree->getClassName($this->table_name);
+            $className = Yii::$app->contentTree->getClassName($this->content_type);
             if ($className) {
                 return $className::find()->byId($this->record_id)->one();
             }
