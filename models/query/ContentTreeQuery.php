@@ -185,6 +185,17 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param string $alias
+     * @return \intermundia\yiicms\models\query\ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function deleted($alias = null)
+    {
+        $alias = $alias ?: ContentTree::tableName();
+        return $this->andWhere(['not', ["$alias.deleted_at" => null]]);
+    }
+
+    /**
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return ContentTreeQuery
      */
