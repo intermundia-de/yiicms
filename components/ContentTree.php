@@ -15,7 +15,7 @@ use yii\helpers\ArrayHelper;
 /**
  * Class ContentTree
  *
- * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+ * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\components
  */
 class ContentTree extends Component
@@ -90,6 +90,7 @@ class ContentTree extends Component
         if (!$config || !is_array($config)) {
             return null;
         }
+
         return ArrayHelper::getValue($config, 'class');
     }
 
@@ -99,13 +100,17 @@ class ContentTree extends Component
         if (!$config || !is_array($config)) {
             return null;
         }
+
         return ArrayHelper::getValue($config, 'searchableAttributes', []);
     }
 
     public function getEditableClasses()
     {
         $array = [];
-        foreach ($this->editableContent as $contentType => $config) {
+        $editableContent = array_filter($this->editableContent, function ($item) {
+            return !isset($item['display']) || $item['display'] === true;
+        });
+        foreach ($editableContent as $contentType => $config) {
             $array[] = [
                 'contentType' => $contentType,
                 'displayName' => $config['displayName']
@@ -114,6 +119,7 @@ class ContentTree extends Component
         usort($array, function ($item, $item2) {
             return strcmp($item['displayName'], $item2['displayName']);
         });
+
         return $array;
     }
 
@@ -164,6 +170,7 @@ class ContentTree extends Component
                     break;
             }
         }
+
         return '';
     }
 
@@ -174,8 +181,11 @@ class ContentTree extends Component
 
     public function getViewsForTable($tableName)
     {
-        $views = ArrayHelper::getValue($this->customViews, $tableName, []);
-        ksort($views);
+        $views = array_merge([
+            '' => Yii::t('backend', 'Default')
+        ], ArrayHelper::getValue($this->customViews, $tableName, []));
+        asort($views);
+
         return $views;
     }
 
@@ -193,6 +203,7 @@ class ContentTree extends Component
     public function viewExists($tableName, $view)
     {
         $views = Yii::$app->contentTree->getViewsForTable($tableName);
+
         return (bool)ArrayHelper::getValue($views, $view);
     }
 
@@ -203,6 +214,7 @@ class ContentTree extends Component
     public function getCustomCssClass($tableName)
     {
         $customClass = ArrayHelper::getValue($this->customContentTreeClass, $tableName);
+
         return ArrayHelper::getValue($customClass, 'customStyles');
     }
 }
