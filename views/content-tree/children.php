@@ -5,9 +5,7 @@
  * Time: 9:25 PM
  */
 
-use yii\grid\ActionColumn;
 use yii\helpers\Html;
-use yii\helpers\Url;
 
 /** @var $contentTreeItem  \intermundia\yiicms\models\ContentTree */
 /** @var $query  \intermundia\yiicms\models\query\ContentTreeQuery */
@@ -20,7 +18,7 @@ echo \yii\grid\GridView::widget([
     'dataProvider' => new \yii\data\ActiveDataProvider([
         'query' => $query,
         'pagination' => [
-            'pageSize' => 50
+            'pageSize' => 500
         ]
     ]),
     'tableOptions' => ['class' => 'table table-striped table-bordered', 'id' => 'content_tree_child'],
@@ -147,6 +145,7 @@ echo \yii\grid\GridView::widget([
                     /** @var \intermundia\yiicms\models\ContentTree $contentTreeItem */
                     /** @var \intermundia\yiicms\models\BaseModel $model */
                     $model = $contentTreeItem->getModel();
+
                     return \yii\bootstrap\ButtonDropdown::widget([
                         'label' => '<span class="glyphicon glyphicon-cog"></span>',
                         'encodeLabel' => false,
