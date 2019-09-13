@@ -5,11 +5,15 @@
  * Time: 9:25 PM
  */
 
+use intermundia\yiicms\helpers\LanguageHelper;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
 /** @var $contentTreeItem  \intermundia\yiicms\models\ContentTree */
 /** @var $query  \intermundia\yiicms\models\query\ContentTreeQuery */
-$this->registerAssetBundle(\intermundia\yiicms\bundle\ChildrenTreeAsset::class);
+/** @var $this  \intermundia\yiicms\web\View */
+
+$assetBundle = $this->registerAssetBundle(\intermundia\yiicms\bundle\ChildrenTreeAsset::class);
 ?>
 
     <br>
@@ -111,6 +115,18 @@ echo \yii\grid\GridView::widget([
             'content' => function ($model) {
                 /** @var $model \intermundia\yiicms\models\ContentTree */
                 return Yii::$app->formatter->format($model->created_at, 'datetime');
+            },
+            'contentOptions' => ['class' => 'not-draggable']
+        ],
+        [
+            'label' => Yii::t('intermundiacms', 'Translations'),
+            'content' => function ($model) use ($assetBundle) {
+                /** @var $model \intermundia\yiicms\models\ContentTree */
+                return implode(' ', array_map(function($langCode) use ($assetBundle) {
+                    return Html::img($assetBundle->baseUrl.'/flags/'.LanguageHelper::convertLongCodeIntoShort($langCode).'.png', [
+                            'style' => 'width: 20px;'
+                    ]);
+                }, ArrayHelper::getColumn($model->translations, 'language')));
             },
             'contentOptions' => ['class' => 'not-draggable']
         ],
