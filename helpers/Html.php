@@ -100,7 +100,7 @@ class Html extends \yii\helpers\Html
         }
 
         $aliasPaths = ArrayHelper::map(
-            ContentTree::find()->byId($matches[1])->with('activeTranslation')->all(),
+            ContentTree::find()->byId($matches[1])->with(['defaultTranslation', 'currentTranslation'])->all(),
             'id',
             function ($model) {
                 /** @var $model ContentTree */
