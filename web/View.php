@@ -69,7 +69,7 @@ class View extends \yii\web\View
         if ($this->meta_tags === null && Yii::$app->pageContentTree) {
             /** @var Page $page */
             $page = Yii::$app->pageContentTree->getModel();
-            $pageTranslation = $page->getActiveTranslation()->one();
+            $pageTranslation = $page->getActiveTranslation();
             $this->meta_tags = [
                 'meta_title' => $pageTranslation->meta_title ?: $pageTranslation->title,
                 'meta_description' => $pageTranslation->meta_description,

@@ -27,6 +27,7 @@ use yii\helpers\VarDumper;
  * @property BaseTranslateModel $defaultTranslation
  * @property ContentTree        $contentTree
  * @property BaseTranslateModel $translation
+ * @property BaseTranslateModel[] $translations
  */
 abstract class BaseModel extends ActiveRecord implements BaseModelInterface
 {
@@ -68,15 +69,11 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return \intermundia\yiicms\models\BaseTranslateModel
      */
     public function getActiveTranslation()
     {
-        if ($this->currentTranslation) {
-            return $this->getCurrentTranslation();
-        }
-
-        return $this->getDefaultTranslation();
+        return $this->currentTranslation ?: $this->defaultTranslation ?: $this->translations[0];
     }
 
     /**
