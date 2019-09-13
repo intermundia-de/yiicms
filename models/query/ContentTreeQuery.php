@@ -89,6 +89,7 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     public function byLinkId($id, $alias = null)
     {
         $alias = $alias ?: ContentTree::tableName();
+
         return $this->andWhere([$alias . '.link_id' => $id]);
     }
 
@@ -122,12 +123,13 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function leftJoinOnTranslation()
     {
         $tr = ContentTreeTranslation::tableName();
+
         return $this->leftJoin($tr . 't',
             ' t' . '.content_tree_id = ' . ContentTree::tableName() . ".id AND t.language = :language", [
                 'language' => \Yii::$app->language
@@ -138,12 +140,13 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function innerJoinOnActiveTranslation()
     {
         $tr = ContentTreeTranslation::tableName();
+
         return $this->innerJoin($tr,
             $tr . '.content_tree_id = ' . ContentTree::tableName() . ".id AND $tr.language = :language", [
                 'language' => \Yii::$app->language
@@ -151,9 +154,9 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $alias
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function byAlias($alias)
     {
@@ -161,9 +164,9 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $aliasPath
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function byAliasPath($aliasPath)
     {
@@ -175,12 +178,13 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function notDeleted($alias = null)
     {
         $alias = $alias ?: ContentTree::tableName();
+
         return $this->andWhere([$alias . '.deleted_at' => null]);
     }
 
@@ -192,12 +196,13 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     public function deleted($alias = null)
     {
         $alias = $alias ?: ContentTree::tableName();
+
         return $this->andWhere(['not', ["$alias.deleted_at" => null]]);
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function notHidden()
     {
@@ -205,38 +210,42 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function hidden()
     {
         return $this->andWhere([ContentTree::tableName() . '.hide' => 1]);
     }
+
     /**
      * @return ContentTreeQuery
      */
-    public function notHiddeInSiblings(){
+    public function notHiddeInSiblings()
+    {
         return $this->andWhere([ContentTree::tableName() . '.show_as_sibling' => 0]);
     }
 
     /**
      * @return ContentTreeQuery
      */
-    public function hiddeInSiblings(){
+    public function hiddeInSiblings()
+    {
         return $this->andWhere([ContentTree::tableName() . '.show_as_sibling' => 1]);
     }
 
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
-     * @param $contentTreeId
+     * @param      $contentTreeId
      * @param null $language
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function byIdAndLanguage($contentTreeId, $language = null)
     {
         $language = $language ?: \Yii::$app->language;
+
         return $this->leftJoinOnTranslation()
             ->andWhere([
                 ContentTree::tableName() . '.id' => $contentTreeId,
@@ -247,9 +256,9 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     /**
      *
      *
-     * @author Guga Grigolia <grigolia.guga@gmail.com>
      * @param $key
      * @return ContentTreeQuery
+     * @author Guga Grigolia <grigolia.guga@gmail.com>
      */
     public function byKey($key)
     {
@@ -259,14 +268,15 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     /**
      * Find for particular root
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
-     * @param int $id
+     * @param int  $id
      * @param null $alias
      * @return ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function forRoot(int $id, $alias = null)
     {
         $alias = $alias ?: ContentTree::tableName();
+
         return $this->andWhere([$alias . '.website' => $id]);
     }
 
@@ -282,9 +292,25 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     public function withTranslations($linkTranslations = false)
     {
         $this->with(['currentTranslation', 'defaultTranslation']);
-        if ($linkTranslations){
+        if ($linkTranslations) {
             $this->with(['link.currentTranslation', 'link.defaultTranslation']);
         }
+
         return $this;
+    }
+
+    /**
+     * Search ContentTree by view
+     *
+     * @param string $view
+     * @param string $alias
+     * @return \intermundia\yiicms\models\query\ContentTreeQuery
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function byView($view, $alias = null)
+    {
+        $alias = $alias ?: ContentTree::tableName();
+
+        return $this->andWhere(["$alias.view" => $view]);
     }
 }
