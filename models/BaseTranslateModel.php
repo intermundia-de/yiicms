@@ -249,4 +249,15 @@ abstract class BaseTranslateModel extends ActiveRecord
         }
         return $content;
     }
+
+    /**
+     * Return ContentTree object's content_type
+     *
+     * @return string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function getContentType()
+    {
+        return $this->contentTree->content_type;
+    }
 }

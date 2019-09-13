@@ -45,7 +45,7 @@ class SearchBehavior extends Behavior
         foreach ($searchableAttributes as $searchableAttribute) {
             $data[] = [
                 'content_tree_id' => $baseTranslationModel->contentTree->id,
-                'table_name' => $baseTranslationModel->getModelClass()::getFormattedTableName(),
+                'table_name' => $baseTranslationModel->getContentType(),
                 'record_id' => $baseTranslationModel->foreignKeyName,
                 'language' => $baseTranslationModel->language,
                 'attribute' => $searchableAttribute,
@@ -78,7 +78,7 @@ class SearchBehavior extends Behavior
         }
 
         if (count($deletedAttributes) > 0) {
-            Search::deleteAll(['attribute' => $deletedAttributes, 'table_name' => $baseTranslationModel->getModelClass()::getFormattedTableName()]);
+            Search::deleteAll(['attribute' => $deletedAttributes, 'table_name' => $baseTranslationModel->getContentType()]);
         }
 
         foreach ($searches as $search) {
@@ -94,7 +94,7 @@ class SearchBehavior extends Behavior
     public function getSearchableAttributes()
     {
         return array_intersect($this->owner->attributes(),
-            \Yii::$app->contentTree->getSearchableAttributes($this->owner->getModelClass()::getFormattedTableName()));
+            \Yii::$app->contentTree->getSearchableAttributes($this->owner->getContentType()));
     }
     /**
      *
@@ -106,7 +106,7 @@ class SearchBehavior extends Behavior
         foreach ($searchableAttributes as $searchableAttribute) {
             $data[] = [
                 'content_tree_id' => $this->owner->contentTreeId,
-                'table_name' => $this->owner->tableName,
+                'table_name' => $this->owner->getContentType(),
                 'record_id' => $this->owner->foreignKeyName,
                 'language' => $this->owner->language,
                 'attribute' => $searchableAttribute,

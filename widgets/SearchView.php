@@ -30,9 +30,10 @@ class SearchView extends BaseListView
     {
 
         foreach ($this->dataProvider->getModels() as $model) {
+            /** @var \intermundia\yiicms\models\Search $model */
             if (!empty($model->contentTree->activeTranslation->name) && !empty($model->content)) {
                 $path = '';
-                $titleUrl = Html::a($model->contentTree->activeTranslation->name, $model->contentTree->getFullUrl());
+                $titleUrl = Html::a($model->contentTree->getName(), $model->contentTree->getFullUrl());
                 $icon = '&nbsp&nbsp<i class="fa ' . Yii::$app->contentTree->getIcon($model->table_name) . '"></i> ';
 
                 $type = Html::tag('h6', implode(" ", array_map('ucfirst', explode('_', $model->attribute))) . ':');

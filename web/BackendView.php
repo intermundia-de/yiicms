@@ -17,7 +17,7 @@ use yii\helpers\FileHelper;
 /**
  * Class BackendView
  *
- * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+ * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\web
  */
 class BackendView extends \yii\web\View
@@ -27,7 +27,7 @@ class BackendView extends \yii\web\View
         if (strpos($view, '@') !== 0) {
             $moduleId = Yii::$app->controller->module->id;
             $filePath = FileHelper::normalizePath(Yii::$app->controller->id . "/$view.php");
-            if ($moduleId === 'backend') {
+            if ($moduleId === 'backend' || $moduleId === 'core') {
                 if (file_exists(Yii::getAlias("@backend/views/$filePath"))) {
                     $view = "@backend/views/" . $filePath;
                 } else {
