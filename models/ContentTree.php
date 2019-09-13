@@ -197,7 +197,7 @@ class ContentTree extends \yii\db\ActiveRecord
      */
     public function getActiveTranslation()
     {
-        return $this->currentTranslation ?: $this->defaultTranslation;
+        return $this->currentTranslation ?: $this->defaultTranslation ?: $this->translations[0];
     }
 
     /**
