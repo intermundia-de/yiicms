@@ -5,6 +5,7 @@ namespace intermundia\yiicms\models\query;
 use intermundia\yiicms\models\ContentTree;
 use intermundia\yiicms\models\ContentTreeTranslation;
 use creocoder\nestedsets\NestedSetsQueryBehavior;
+use Yii;
 
 /**
  * This is the ActiveQuery class for [[\intermundia\yiicms\models\ContentTree]].
@@ -312,5 +313,29 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
         $alias = $alias ?: ContentTree::tableName();
 
         return $this->andWhere(["$alias.view" => $view]);
+    }
+
+    /**
+     * Find only ContentTree which has translation on current language or default language
+     *
+     * @return self
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function hasTranslation()
+    {
+        $ctt = ContentTreeTranslation::tableName();
+        $this->leftJoin($ctt . ' ctt', ContentTree::tableName() . ".id = ctt.content_tree_id AND ctt.language = :language", [
+            'language' => Yii::$app->language,
+        ]);
+        if (Yii::$app->language !== Yii::$app->websiteMasterLanguage) {
+            $this->leftJoin($ctt . ' ctt2', ContentTree::tableName() . ".id = ctt.content_tree_id AND ctt.language = :masterLanguage", [
+                'masterLanguage' => Yii::$app->websiteMasterLanguage
+            ])
+                ->andWhere('ctt.id IS NOT NULL OR ctt2.id IS NOT NULL');
+        } else {
+            $this->andWhere('ctt.id IS NOT NULL');
+        }
+
+        return $this;
     }
 }
