@@ -34,6 +34,7 @@ class Formatter extends \yii\i18n\Formatter
         return implode(' ', array_map(function ($fileManagerItem) use ($options) {
             $options = ArrayHelper::merge([
                 'alt' => $fileManagerItem->name,
+                'style' => 'width: 200px;'
             ], $options);
 
             return \yii\helpers\Html::img($fileManagerItem->getUrl(), $options);
