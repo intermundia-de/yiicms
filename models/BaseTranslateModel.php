@@ -202,17 +202,18 @@ abstract class BaseTranslateModel extends ActiveRecord
     /**
      * Get attribute from FileManagerItem
      *
-     * @param $fileManagerFilename
-     * @param $attr
+     * @param     $fileManagerFilename
+     * @param     $attr
+     * @param int $index
      * @return mixed|string
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function getAttrForFile($fileManagerFilename, $attr)
+    public function getAttrForFile($fileManagerFilename, $attr, $index = 0)
     {
         /** @var FileManagerItem $fileManagerFile */
         $fileManagerFile = ArrayHelper::getValue($this, $fileManagerFilename);
         if ($fileManagerFile) {
-            return $fileManagerFile->$attr;
+            return $fileManagerFile[$index]->$attr;
         }
         return '';
     }
