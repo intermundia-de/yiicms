@@ -125,9 +125,15 @@ $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['m
             <?php echo Html::submitButton(Yii::t('intermundiacms', 'Add'), ['class' => 'btn btn-primary']) ?>
             <?php yii\widgets\ActiveForm::end(); ?>
             <?php Modal::end();endif; ?>
-        <?php echo ButtonDropdown::widget([
+        <?php
+        echo ButtonDropdown::widget([
             'label' => 'Update',
-            'options' => ['class' => 'btn btn-primary'],
+            'split' => true,
+            'tagName' => 'a',
+            'options' => [
+                'href' => $updateItems ? $updateItems[0]['url'] : '#',
+                'class' => 'btn btn-primary'
+            ],
             'dropdown' => [
                 'items' => $updateItems,
                 'options' => [

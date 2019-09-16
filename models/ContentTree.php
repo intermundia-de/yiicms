@@ -505,7 +505,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function getFullUrl($asArray = false, $schema = false)
     {
-        $url = ['content-tree/index', 'nodes' => $this->getNodes()];
+        $url = ['content-tree/index', 'nodes' => $this->getNodes(), 'language' => $this->activeTranslation->language];
 
         return $asArray ? $url : Url::to($url, $schema);
     }
