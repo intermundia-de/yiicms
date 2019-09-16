@@ -21,16 +21,23 @@ use yii\helpers\ArrayHelper;
 class Formatter extends \yii\i18n\Formatter
 {
     /**
+     * Renders FileManager Items as images
      *
-     *
-     * @param FileManagerItem $fileManagerItem
-     * @param array           $options
+     * @param FileManagerItem[] $fileManagerItems
+     * @param array             $options
      * @return string
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function asThumbnail($fileManagerItem, $options = [])
+    public function asThumbnail($fileManagerItems, $options = [])
     {
-        return Html::thumbnail($fileManagerItem, $options);
+
+        return implode(' ', array_map(function ($fileManagerItem) use ($options) {
+            $options = ArrayHelper::merge([
+                'alt' => $fileManagerItem->name,
+            ], $options);
+
+            return \yii\helpers\Html::img($fileManagerItem->getUrl(), $options);
+        }, $fileManagerItems));
     }
 
     /**
