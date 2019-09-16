@@ -328,7 +328,7 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
             'language' => Yii::$app->language,
         ]);
         if (Yii::$app->language !== Yii::$app->websiteMasterLanguage) {
-            $this->leftJoin($ctt . ' ctt2', ContentTree::tableName() . ".id = ctt.content_tree_id AND ctt.language = :masterLanguage", [
+            $this->leftJoin($ctt . ' ctt2', ContentTree::tableName() . ".id = ctt2.content_tree_id AND ctt2.language = :masterLanguage", [
                 'masterLanguage' => Yii::$app->websiteMasterLanguage
             ])
                 ->andWhere('ctt.id IS NOT NULL OR ctt2.id IS NOT NULL');
