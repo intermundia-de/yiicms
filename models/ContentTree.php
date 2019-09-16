@@ -301,7 +301,7 @@ class ContentTree extends \yii\db\ActiveRecord
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public static function getItemsAsTree(
-        $fields = ['id', 'alias', 'name' => 'label', 'url', 'record_id'],
+        $fields = ['id', 'alias', 'name' => 'label', 'url', 'record_id', 'language'],
         $extraFields = [],
         $appendParams = []
     )
@@ -315,9 +315,10 @@ class ContentTree extends \yii\db\ActiveRecord
                    `content_tree`.`rgt`,
                    `content_tree`.`depth`,
                    `content_tree`.`hide`,
-                   IFNULL(ct.alias, ctt.alias) AS `alias`,
-                   IFNULL(ct.name, ctt.name)   AS `name`,
-                   IFNULL(ct.short_description, ctt.short_description)
+                   IFNULL(ct.alias, IFNULL(ctt.alias, (SELECT alias FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `alias`,
+                   IFNULL(ct.name, IFNULL(ctt.name, (SELECT `name` FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `name`,
+                   IFNULL(ct.short_description, IFNULL(ctt.short_description, (SELECT short_description FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `short_description`,
+                   IFNULL(ct.language, IFNULL(ctt.language, (SELECT language FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `language`
             FROM `content_tree`
                      LEFT JOIN `content_tree_translation` `ct` ON
                 ct.content_tree_id = `content_tree`.id AND ct.language = :language

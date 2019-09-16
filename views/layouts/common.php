@@ -29,7 +29,7 @@ $rootItems = ContentTree::getItemsAsTree([
             $url = $processedData['url']['nodes'] . '/' . $url;
         }
 
-        return ['/content-tree/index', 'nodes' => $url];
+        return ['/content-tree/index', 'nodes' => $url, 'language' => $item['language']];
     },
     'icon' => function ($item) {
         return 'fa ' . Yii::$app->contentTree->getIcon($item['table_name'],
