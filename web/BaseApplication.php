@@ -16,6 +16,7 @@ use yii\base\Exception;
 use yii\base\InvalidCallException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use intermundia\yiicms\traits\MultiDomainTrait;
 
 /**
  * Class BaseApplication
@@ -25,6 +26,7 @@ use yii\helpers\Url;
  */
 class BaseApplication extends \yii\web\Application
 {
+    use MultiDomainTrait;
 
     /**
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
@@ -93,11 +95,13 @@ class BaseApplication extends \yii\web\Application
         foreach (\Yii::$app->multiSiteCore->websites as $websiteKey => $websiteData) {
             $masterLanguage = $websiteData['masterLanguage'];
 
+            $websiteDomains = $this->getWebsiteDomains($websiteKey);
+
             //Sort website domains based on key length descending order
-            uksort($websiteData['domains'], function ($a, $b) {
+            uksort($websiteDomains, function ($a, $b) {
                 return strlen($b) - strlen($a);
             });
-            foreach ($websiteData['domains'] as $domain => $lang) {
+            foreach ($websiteDomains as $domain => $lang) {
                 //Compare domain host. '//$domain' prevents parse_url failure, since parse_url requires url with schema
                 $domainHost = parse_url("//$domain", PHP_URL_HOST);
                 if ($domainHost == parse_url($this->request->getAbsoluteUrl(), PHP_URL_HOST)) {
@@ -140,7 +144,7 @@ class BaseApplication extends \yii\web\Application
 
                         \Yii::setAlias('@frontendUrl', $requestUrlParsed['scheme'] . '://' . $frontendHost);
                         \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
-                        $this->setHomeUrl($requestUrlParsed['scheme'] . '://'. $domain);
+                        $this->setHomeUrl($requestUrlParsed['scheme'] . '://' . $domain);
                         $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
                         \Yii::setAlias('@storageUrl', $storageUrl);
                         break;
@@ -152,13 +156,13 @@ class BaseApplication extends \yii\web\Application
             }
         }
         if (!$this->websiteContentTree) {
-            throw new Exception("Current domain is not added in domain list in multisite config");
+            throw new Exception('Current domain is not added neither in "frontend" nor in "backend" domain list in multisite config');
         }
     }
 
     public function getWebsiteLanguages($websiteKey)
     {
-        $languageCodes = array_unique(array_values(\Yii::$app->multiSiteCore->websites[$websiteKey]['domains']));
+        $languageCodes = array_unique(array_values($this->getWebsiteDomains($websiteKey)));
 
         return ArrayHelper::map(Language::find()->byCode($languageCodes)->asArray()->all(), 'code', 'name');
     }
