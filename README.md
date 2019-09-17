@@ -59,8 +59,14 @@ Make sure you do not override `ContentTree::getActiveTranslation` and `BaseModel
             'masterLanguage' => 'en-US',
             "storageUrl" => 'storage url',
             "domains" => [
-                'domain1' => 'en-US',
-                'domain2' => 'en-US',
+                'frontend' => [
+                    'domain1' => 'en-US',
+                    'domain2' => 'en-US',
+                ],
+                'backend' => [
+                    'domain1' => 'en-US',
+                    'domain2' => 'en-US',
+                ]
             ]
         ],
         'website key2' => [
@@ -68,8 +74,14 @@ Make sure you do not override `ContentTree::getActiveTranslation` and `BaseModel
             'masterLanguage' => 'en-US',
             "storageUrl" => 'storage url',
             "domains" => [
-                'domain1' => 'en-US',
-                'domain2' => 'en-US',
+                'frontend' => [
+                    'domain1' => 'en-US',
+                    'domain2' => 'en-US',
+                ],
+                'backend' => [
+                    'domain1' => 'en-US',
+                    'domain2' => 'en-US',
+                ]
             ]
         ]
     ]

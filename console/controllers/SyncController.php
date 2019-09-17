@@ -243,7 +243,7 @@ class SyncController extends Controller
             }
 
 
-            $domains = array_unique($websiteDomains['domains']);
+            $domains = array_unique(Yii::$app->getWebsiteDomains($website));
 
             // Add website translations
             foreach ($domains as $domain => $lang) {
@@ -283,8 +283,8 @@ class SyncController extends Controller
     {
         $websites = Yii::$app->multiSiteCore->websites;
         $languages = [];
-        foreach ($websites as $website) {
-            $languages = array_merge($languages, $website['domains']);
+        foreach ($websites as $websiteKey => $website) {
+            $languages = array_merge($languages, Yii::$app->getWebsiteDomains($websiteKey));
         }
 
         $codes = array_map(function ($item) {

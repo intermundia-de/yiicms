@@ -836,7 +836,7 @@ class UtilsController extends Controller
             }
         }
 
-        $languageCodes = array_unique(array_values(\Yii::$app->multiSiteCore->websites[$websiteKey]['domains']));
+        $languageCodes = array_unique(array_values(\Yii::$app->getWebsiteDomains([$websiteKey])));
         foreach ($languageCodes as $languageCode) {
             $this->removeEmptyDirectories(Yii::getAlias(FileManagerItem::STORAGE_PATH . $languageCode));
         };
@@ -879,7 +879,7 @@ class UtilsController extends Controller
     {
         $websiteMap = [];
         foreach (Yii::$app->multiSiteCore->websites as $websiteKey => $website) {
-            foreach (array_unique(array_values($website['domains'])) as $domain) {
+            foreach (array_unique(array_values(\Yii::$app->getWebsiteDomains($websiteKey))) as $domain) {
                 $websiteMap[$domain] = $websiteKey;
             }
         }
