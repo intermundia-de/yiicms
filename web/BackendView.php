@@ -24,19 +24,44 @@ class BackendView extends \yii\web\View
 {
     public function render($view, $params = [], $context = null)
     {
+
         if (strpos($view, '@') !== 0) {
-            $moduleId = Yii::$app->controller->module->id;
+            $moduleId = $this->getModulePath();
             $filePath = FileHelper::normalizePath(Yii::$app->controller->id . "/$view.php");
-            if ($moduleId === 'backend' || $moduleId === 'core') {
+
+            if ($moduleId === 'backend' || $moduleId === 'backend/core') {
                 if (file_exists(Yii::getAlias("@backend/views/$filePath"))) {
                     $view = "@backend/views/" . $filePath;
                 } else {
                     $view = "@cmsCore/views/" . $filePath;
                 }
+            } elseif (strpos($moduleId, 'backend/core/') === 0) {
+                $modulePrefix = str_replace('backend/core/', '', $moduleId);
+                if (file_exists(Yii::getAlias("@backend/views/$modulePrefix/$filePath"))) {
+                    $view = "@backend/views/$modulePrefix/$filePath";
+                }
             }
 
         }
         return parent::render($view, $params, $context);
+    }
+
+
+    /**
+     * @param $module
+     * @return bool
+     */
+    private function getModulePath()
+    {
+        $module = Yii::$app->controller->module;
+        $corePath = [];
+        while (isset($module->id)) {
+            $corePath [] = $module->id;
+            $module = $module->module;
+        }
+        $rev = array_reverse($corePath);
+
+        return implode('/', $rev);
     }
 
 }
