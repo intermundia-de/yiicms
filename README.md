@@ -154,3 +154,20 @@ ______________________
 	change `defaultRoute' => 'timeline-event/index` to `defaultRoute' => '/core/timeline-event/index`
 
 
+
+______________________
+To optimize images in terms of size,
+
+1: `optipng` and `jpegoptim` must be installed on system
+``` 
+apt-get install -y optipng jpegoptim
+```
+2: run
+```php 
+php console/yii utils/image-optimization $path $quality
+```
+`$path` is relative path to `Yii::getAlias('@storage/web/source')`. All image files inside the provided folder
+will be optimized. Backup of the folder is created with name: `$folderName.bak` before starting optimization.
+To apply image optimization for entire `source` folder, either pass `/` or `""` as `$path` parameter.
+
+`$quality` is output image quality `[0-100]`. Use lower values for better file size reduction. Default value is `80`.
