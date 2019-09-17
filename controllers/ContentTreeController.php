@@ -11,6 +11,7 @@ use intermundia\yiicms\models\ContentTreeTranslation;
 use intermundia\yiicms\web\BackendController;
 use intermundia\yiicms\models\ContentTree;
 use Yii;
+use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 
 
@@ -25,19 +26,26 @@ class ContentTreeController extends BackendController
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $nodes
      * @return string
      * @throws NotFoundHttpException
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function actionIndex($nodes = '')
+    public function actionIndex($nodes = '', $language = '')
     {
+        if (!$language) {
+            return $this->redirect(Url::toRoute([
+                'content-tree/index',
+                'nodes' => $nodes,
+                'language' => Yii::$app->language]));
+        }
+
         if (!$nodes) {
             $nodes = \Yii::$app->defaultAlias;
         }
 
         $alias_path = preg_replace('@^' . Yii::$app->websiteContentTree->getAlias() . '\/@', '', $nodes);
-        $contentTreeItem = $this->findContentTreeByFullPath($alias_path);
+        $contentTreeItem = $this->findContentTreeByFullPath($alias_path, $language);
 
 
         $model = $contentTreeItem->getModel();
@@ -66,10 +74,10 @@ class ContentTreeController extends BackendController
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $alias
      * @return array|ContentTree|null
      * @throws NotFoundHttpException
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     protected function findContentTree($alias)
     {
@@ -82,14 +90,23 @@ class ContentTreeController extends BackendController
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $aliasPath
      * @return \intermundia\yiicms\models\ContentTree|array|null
      * @throws NotFoundHttpException
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    protected function findContentTreeByFullPath($aliasPath)
+    protected function findContentTreeByFullPath($aliasPath, $language)
     {
-        if (!($contentTree = ContentTree::find()->byAliasPath($aliasPath)->notDeleted()->one())) {
+        $contentTree = ContentTree::find()
+            ->leftJoin(ContentTreeTranslation::tableName() . 't ',
+                't.content_tree_id = ' . ContentTree::tableName() . ".id AND t.language = :language", [
+                    'language' => $language
+                ])
+            ->andWhere(["t.alias_path" => $aliasPath])
+            ->notDeleted()
+            ->one();
+
+        if (!$contentTree) {
             throw new NotFoundHttpException("Incorrect alias Path given");
         }
         return $contentTree;

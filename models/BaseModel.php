@@ -190,7 +190,11 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public function getUpdateTranslationItems()
     {
         $items = [];
-        foreach ($this->getTranslatedLanguages() as $code => $language) {
+        $translatedLanguages = $this->getTranslatedLanguages();
+        uksort($translatedLanguages, function($a, $b) {
+            return ($a == Yii::$app->language || $a == Yii::$app->websiteMasterLanguage) ? -1 : 0;
+        });
+        foreach ($translatedLanguages as $code => $language) {
             $items[] = ['label' => $language, 'url' => $this->getUpdateUrlByLanguage($code)];
         }
 
