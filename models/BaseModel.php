@@ -69,6 +69,14 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getActiveTranslationQuery()
+    {
+        return $this->currentTranslation ? $this->getCurrentTranslation() : $this->defaultTranslation ? $this->getDefaultTranslation() : $this->getTranslation();
+    }
+
+    /**
      * @return \intermundia\yiicms\models\BaseTranslateModel
      */
     public function getActiveTranslation()
