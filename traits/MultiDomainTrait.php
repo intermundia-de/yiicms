@@ -23,7 +23,7 @@ trait MultiDomainTrait
     public function getBackendDomains($websiteKey)
     {
         $domains = \Yii::$app->multiSiteCore->websites[$websiteKey]['domains'];
-        if (!array_key_exists('frontend', $domains)) {
+        if (!array_key_exists('backend', $domains)) {
             throw new InvalidConfigException('Multisite config "domains" array must contain sub-array with "backend" key');
         }
         return $domains['backend'];
