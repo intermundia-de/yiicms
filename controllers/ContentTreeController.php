@@ -11,6 +11,7 @@ use intermundia\yiicms\models\ContentTreeTranslation;
 use intermundia\yiicms\web\BackendController;
 use intermundia\yiicms\models\ContentTree;
 use Yii;
+use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 
 
@@ -33,7 +34,10 @@ class ContentTreeController extends BackendController
     public function actionIndex($nodes = '', $language = '')
     {
         if (!$language) {
-            $language = Yii::$app->websiteMasterLanguage;
+            return $this->redirect(Url::toRoute([
+                'content-tree/index',
+                'nodes' => $nodes,
+                'language' => Yii::$app->language ?: Yii::$app->websiteMasterLanguage]));
         }
 
         if (!$nodes) {
@@ -91,12 +95,8 @@ class ContentTreeController extends BackendController
      * @throws NotFoundHttpException
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    protected function findContentTreeByFullPath($aliasPath, $language = null)
+    protected function findContentTreeByFullPath($aliasPath, $language)
     {
-        if (!$language) {
-            $language = Yii::$app->websiteMasterLanguage;
-        }
-
         $contentTree = ContentTree::find()
             ->leftJoin(ContentTreeTranslation::tableName() . 't',
                 ' t' . '.content_tree_id = ' . ContentTree::tableName() . ".id AND t.language = :language", [
