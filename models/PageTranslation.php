@@ -28,7 +28,7 @@ class PageTranslation extends BaseTranslateModel
 
     /**
      * @author Guga Grigolia <grigolia.guga@gmail.com>
-     * @var UploadedFile|FileManagerItem
+     * @var UploadedFile[]|FileManagerItem[]
      */
     public $image;
 

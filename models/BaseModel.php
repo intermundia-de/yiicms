@@ -22,11 +22,11 @@ use yii\helpers\VarDumper;
  * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\models
  *
- * @property BaseTranslateModel $activeTranslation
- * @property BaseTranslateModel $currentTranslation
- * @property BaseTranslateModel $defaultTranslation
- * @property ContentTree        $contentTree
- * @property BaseTranslateModel $translation
+ * @property BaseTranslateModel   $activeTranslation
+ * @property BaseTranslateModel   $currentTranslation
+ * @property BaseTranslateModel   $defaultTranslation
+ * @property ContentTree          $contentTree
+ * @property BaseTranslateModel   $translation
  * @property BaseTranslateModel[] $translations
  */
 abstract class BaseModel extends ActiveRecord implements BaseModelInterface
@@ -280,15 +280,27 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
      * Treat the attribute as an image and render <img> tag from the first element of the attribute array
      *
      * @param       $attributeName
+     * @param bool  $resizeWidth
      * @param array $options
+     * @param int   $imageIndex
      * @return string
+     * @throws \yii\base\InvalidConfigException
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function renderImage($attributeName, $options = [])
+    public function renderImage($attributeName, $resizeWidth = false, $options = [], $imageIndex = 0)
     {
         $images = ArrayHelper::getValue($this->activeTranslation, $attributeName, []);
         if ($images) {
-            return Html::img($images[0]->geturl(), $options);
+            $url = $images[$imageIndex]->geturl();
+            if ($resizeWidth) {
+                $url = Yii::$app->glide->createSignedUrl([
+                    'glide/index',
+                    'path' => $images[$imageIndex]->path,
+                    'w' => $resizeWidth
+                ], true);
+            }
+
+            return Html::img($url, $options);
         }
 
         return '';
