@@ -7,6 +7,7 @@
 
 namespace intermundia\yiicms\controllers;
 
+use intermundia\yiicms\formatters\SitemapXmlResponseFormatter;
 use intermundia\yiicms\models\BaseModel;
 use common\models\ContentTree;
 use Yii;

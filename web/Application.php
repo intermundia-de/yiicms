@@ -37,13 +37,12 @@ class Application extends BaseApplication
     public function beforeRequest()
     {
         parent::beforeRequest();
+        
+        $rules = &$this->urlManager->rules;
+        list($removed) = array_splice($rules, count($rules) - 1, 1);
 
-//
+        $langCode = LanguageHelper::convertLongCodeIntoShort($this->language);
         if ($this->hasLanguageInUrl) {
-            $rules = &$this->urlManager->rules;
-            list($removed) = array_splice($rules, count($rules) - 1, 1);
-
-            $langCode = LanguageHelper::convertLongCodeIntoShort($this->language);
             $this->urlManager->addRules([
                 [
                     'pattern' => '<lang:' . $langCode . '>',
@@ -51,8 +50,23 @@ class Application extends BaseApplication
                     'encodeParams' => false,
                 ],
                 [
+                    'pattern' => "$langCode/sitemap.xml",
+                    'route' => 'site/sitemap-xml',
+                    'encodeParams' => false,
+                ],
+                [
                     'pattern' => "$langCode/<nodes:.*>",
                     'route' => 'content-tree/index',
+                    'encodeParams' => false,
+                ],
+                $removed
+            ]);
+        }
+        else {
+            $this->urlManager->addRules([
+                [
+                    'pattern' => "sitemap.xml",
+                    'route' => 'site/sitemap-xml',
                     'encodeParams' => false,
                 ],
                 $removed

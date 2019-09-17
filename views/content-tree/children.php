@@ -74,6 +74,21 @@ echo \yii\grid\GridView::widget([
             'contentOptions' => ['class' => 'not-draggable'],
         ],
         [
+            'label' => Yii::t('intermundiacms', 'In Sitemap'),
+            'content' => function ($model) {
+                /** @var $model \intermundia\yiicms\models\ContentTree */
+                if($model->table_name == \intermundia\yiicms\models\ContentTree::TABLE_NAME_PAGE) {
+                    return Html::dropDownList('hide', $model->in_sitemap, ['Excluded', 'Included'],
+                        ['class' => 'form-control sitemap-dropdown']);
+                }
+                else {
+                  return Html::tag('p', 'Not available');
+                }
+
+            },
+            'contentOptions' => ['class' => 'not-draggable'],
+        ],
+        [
             'label' => Yii::t('intermundiacms', 'Class'),
             'format' => 'html',
             'content' => function ($model) {

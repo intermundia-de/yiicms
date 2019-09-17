@@ -249,4 +249,13 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
         $alias = $alias ?: ContentTree::tableName();
         return $this->andWhere([$alias . '.website' => $id]);
     }
+
+    /**
+     * @author Mirian Jintchvelashvili
+     * @return ContentTreeQuery
+     */
+    public function inSitemap()
+    {
+        return $this->andWhere([ContentTree::tableName() . '.in_sitemap' => true]);
+    }
 }

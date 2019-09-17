@@ -309,6 +309,29 @@
     });
   });
 
+  $('.sitemap-dropdown').change(function () {
+    var val = $(this).val();
+    var id = $(this).closest('tr').data('key');
+    $.ajax({
+      url: '/base/update-sitemap',
+      type: 'POST',
+      data: {
+        id: id,
+        value: val
+      },
+      success: function (res) {
+        if (res == false) {
+          lobiNotify('error', 'Hidden Option', 'Changes not Saved');
+        } else {
+          lobiNotify('success', 'Hidden Option', 'Changes Saved')
+        }
+      },
+      error: function (err) {
+        lobiNotify('error', 'Hidden Option', 'Changes not Saved');
+      }
+    });
+  });
+
   $('.widget-text-form select[name*=\"[language]\"]').change(function () {
     var option = $(this).find('option[value=\"' + this.value + '\"]');
     window.location.href = option.attr('data-url')
