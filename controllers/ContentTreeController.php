@@ -37,7 +37,7 @@ class ContentTreeController extends BackendController
             return $this->redirect(Url::toRoute([
                 'content-tree/index',
                 'nodes' => $nodes,
-                'language' => Yii::$app->language ?: Yii::$app->websiteMasterLanguage]));
+                'language' => Yii::$app->language]));
         }
 
         if (!$nodes) {
@@ -98,8 +98,8 @@ class ContentTreeController extends BackendController
     protected function findContentTreeByFullPath($aliasPath, $language)
     {
         $contentTree = ContentTree::find()
-            ->leftJoin(ContentTreeTranslation::tableName() . 't',
-                ' t' . '.content_tree_id = ' . ContentTree::tableName() . ".id AND t.language = :language", [
+            ->leftJoin(ContentTreeTranslation::tableName() . 't ',
+                't.content_tree_id = ' . ContentTree::tableName() . ".id AND t.language = :language", [
                     'language' => $language
                 ])
             ->andWhere(["t.alias_path" => $aliasPath])
