@@ -98,7 +98,7 @@ class ContentTreeController extends BackendController
     protected function findContentTreeByFullPath($aliasPath, $language)
     {
         $contentTree = ContentTree::find()
-            ->leftJoin(ContentTreeTranslation::tableName() . 't ',
+            ->leftJoin(ContentTreeTranslation::tableName() . ' t',
                 't.content_tree_id = ' . ContentTree::tableName() . ".id AND t.language = :language", [
                     'language' => $language
                 ])
