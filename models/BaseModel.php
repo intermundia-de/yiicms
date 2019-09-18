@@ -105,12 +105,12 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
 
     public static function getFormattedTableName()
     {
-        return preg_replace('/^(\{\{%)|(}}$)/', '', self::tablename());
+        return preg_replace('/^(\{\{%)|(}}$)/', '', static::tableName());
     }
 
     public static function getTableNameUpperCase()
     {
-        return implode(" ", array_map('ucfirst', explode('_', self::getFormattedTableName())));
+        return implode(" ", array_map('ucfirst', explode('_', static::getFormattedTableName())));
     }
 
     public function getParent()
@@ -131,7 +131,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         return [
             'base/update',
-            'contentType' => $this->contentTree->content_type,
+            'contentType' => $this->getContentType(),
             'parentContentId' => $this->getParentId(),
             'contentId' => $this->id,
             'language' => $this->getActiveTranslationLanguageCode() ?: Yii::$app->language
@@ -342,6 +342,12 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
 
     public function getContentType()
     {
+        if (!$this->contentTree){
+            echo '<pre>';
+            var_dump($this->contentTree);
+            echo '</pre>';
+            exit;
+        }
         // @TODO Optimize this not to access contentTree
         return $this->contentTree->content_type;
     }
