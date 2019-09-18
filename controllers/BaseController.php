@@ -561,41 +561,16 @@ class BaseController extends BackendController
         $res = ['code' => 1];
         $treeId = intval(Yii::$app->request->post()['tree']);
         $parentTree = ContentTree::find()->byId($treeId)->one();
-        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
+//        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
         if ($parentTree) {
             if (isset(Yii::$app->request->post()['ids']) && is_array(Yii::$app->request->post()['ids'])) {
                 foreach (Yii::$app->request->post()['ids'] as $id) {
                     $linkedParentTree = ContentTree::find()->byId(intval($id))->one();
                     if ($linkedParentTree) {
                         $linkedTree = new ContentTree();
-                        $linkedTree->link_id = $linkedParentTree->id;
-                        $linkedTree->record_id = $linkedParentTree->record_id;
-                        $linkedTree->table_name = $linkedParentTree->table_name;
-                        $linkedTree->content_type = $linkedParentTree->content_type;
-                        $transaction = Yii::$app->db->beginTransaction();
-                        if (!$linkedTree->appendTo($parentTree)) {
-                            return json_encode(['code' => 0, 'message' => 'Could Not Prepend To Parent Node']);
-                        } else {
-                            foreach ($linkedParentTree->translations as $linkedParentTreeTranslation) {
-                                if (!isset($parentTreeTranslations[$linkedParentTreeTranslation->language])) {
-                                    continue;
-                                }
-                                $data = ArrayHelper::toArray($linkedParentTreeTranslation);
-                                $parentTreeTranslation = $parentTreeTranslations[$linkedParentTreeTranslation->language];
-                                unset($data['id']);
-                                $linkedTreeTranslation = new ContentTreeTranslation();
-                                $linkedTreeTranslation->load($data, '');
-                                $linkedTreeTranslation->content_tree_id = $linkedTree->id;
-                                $linkedTreeTranslation->alias_path = $parentTreeTranslation->alias_path . '/' . $linkedTreeTranslation->alias;
-                                $linkedTreeTranslation->getBehavior('sluggable')->onlyMakeUniqueInPath = true;
-                                if (!$linkedTreeTranslation->save()) {
-                                    $transaction->rollBack();
-
-                                    return json_encode(['code' => 0, 'message' => 'Could Not Save In Translation']);
-                                }
-                            }
-                            $transaction->commit();
-                        }
+                        if(!$linkedTree->linkInside($parentTree, $linkedParentTree)) {
+                            return json_encode(['code' => 0, 'message' => 'Failed to link']);
+                        };
                     } else {
                         $res = ['code' => 0, 'message' => 'Tree Not Found'];
                     }
