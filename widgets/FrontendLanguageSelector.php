@@ -16,7 +16,7 @@ use Yii;
  * Renders language selector
  * according to multisite_websites "domains" configuration
  *
- * @author Mirian Jintchvelashvili
+ * @author  Mirian Jintchvelashvili
  * @package intermundia\yiicms\widgets
  */
 class FrontendLanguageSelector extends Nav
@@ -75,7 +75,7 @@ class FrontendLanguageSelector extends Nav
         $this->languageDomains = \Yii::$app->getFrontendDomains(Yii::$app->websiteContentTree->key);
         $multipleDomainPerLanguage = array_count_values($this->languageDomains);
 
-        $checkHosts = $multipleDomainPerLanguage ? (max(array_values($multipleDomainPerLanguage)) > 1) : false;
+        $checkHosts = $multipleDomainPerLanguage ? ( max(array_values($multipleDomainPerLanguage)) > 1 ) : false;
 
         foreach ($this->languageDomains as $languageDomain => $langCode) {
             if ($checkHosts) {
@@ -110,11 +110,12 @@ class FrontendLanguageSelector extends Nav
         $protocol = Yii::$app->request->getIsSecureConnection() ? 'https' : 'http';
         $items = [];
         $item = [];
+        $currentPage = Yii::$app->pageContentTree;
 
         foreach ($this->languageDomains as $url => $language) {
             $item = [
                 'label' => $language->name,
-                'url' => $protocol . '://' . $url
+                'url' => $protocol . '://' . $url . ($currentPage ? $currentPage->getUrlForLanguage($language) : '')
             ];
             if ($this->currentLanguage) {
                 if ($language->code == $this->currentLanguage->code) {

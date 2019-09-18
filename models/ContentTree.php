@@ -511,6 +511,14 @@ class ContentTree extends \yii\db\ActiveRecord
         return $asArray ? $url : Url::to($url, $schema);
     }
 
+    /**
+     * Generates and returns url for object
+     *
+     * @param bool $asArray
+     * @param bool $schema
+     * @return array|string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
     public function getUrl($asArray = false, $schema = false)
     {
         $url = ['content-tree/index', 'nodes' => $this->getNodes()];
@@ -527,6 +535,16 @@ class ContentTree extends \yii\db\ActiveRecord
         }
 
         return $url;
+    }
+
+    public function getUrlForLanguage($languageCode, $asArray = false, $schema = false)
+    {
+        $translation = $this->getTranslation()->andWhere(['language' => $languageCode])->one() ?: $this->defaultTranslation;
+        if (!$translation){
+            return '';
+        }
+
+        return $translation->getUrl($asArray, $schema);
     }
 
     public function getPage()

@@ -8,20 +8,21 @@ use intermundia\yiicms\behaviors\SluggableBehavior;
 use Yii;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "{{%content_tree_translation}}".
  *
- * @property int $id
- * @property int $content_tree_id
- * @property string $language
- * @property string $alias
- * @property string $name
- * @property string $alias_path
- * @property string $short_description
- * @property array $_oldContentTreeAttributes
+ * @property int         $id
+ * @property int         $content_tree_id
+ * @property string      $language
+ * @property string      $alias
+ * @property string      $name
+ * @property string      $alias_path
+ * @property string      $short_description
+ * @property array       $_oldContentTreeAttributes
  *
- * @property boolean $selfUpdateOnly
+ * @property boolean     $selfUpdateOnly
  *
  * @property ContentTree $contentTree
  */
@@ -161,12 +162,13 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         $this->_oldContentTreeAttributes = $this->oldAttributes;
+
         return parent::beforeSave($insert);
     }
 
     /**
      *
-     * @param bool $insert
+     * @param bool  $insert
      * @param array $changedAttributes
      * @throws \yii\base\Exception
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
@@ -351,6 +353,43 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
     public function getFileManagerDirectoryPath($aliasPath = null)
     {
         $aliasPath = $aliasPath ?: $this->alias_path;
+
         return Yii::getAlias(FileManagerItem::STORAGE_PATH) . $this->language . '/' . $aliasPath;
+    }
+
+    /**
+     * Generates a url which contains language also in it
+     *
+     * @param bool $asArray
+     * @param bool $schema
+     * @return array|string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function getFullUrl($asArray = false, $schema = false)
+    {
+        $url = ['content-tree/index', 'nodes' => $this->alias_path, 'language' => $this->language];
+
+        return $asArray ? $url : Url::to($url, $schema);
+    }
+
+    /**
+     * Get url of the object on current language
+     *
+     * @param bool $asArray
+     * @param bool $schema
+     * @return array|string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function getUrl($asArray = false, $schema = false)
+    {
+        if (Yii::$app->defaultContentId === $this->contentTree->id){
+            if ($asArray){
+                return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
+            }
+        }
+        $url = ['content-tree/index', 'nodes' => $this->alias_path];
+        $url = $asArray ? $url : Url::to($url, $schema);
+
+        return $url;
     }
 }
