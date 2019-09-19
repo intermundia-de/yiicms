@@ -15,6 +15,7 @@ use intermundia\yiicms\models\Language;
 use intermundia\yiicms\models\Search;
 use intermundia\yiicms\models\FileManagerItem;
 use Yii;
+use yii\base\Exception;
 use yii\console\Controller;
 use yii\db\ActiveQuery;
 use yii\debug\panels\DumpPanel;
@@ -115,6 +116,7 @@ class SyncController extends Controller
                                 if ($searchable['table_name'] == $tableName && $searchable['language'] == $language) {
                                     return $searchable['attribute'];
                                 }
+
                                 return false;
                             });
                             $attributes = array_map(function ($searchable) use ($tableName) {
@@ -213,11 +215,9 @@ class SyncController extends Controller
                     $dbContentTreeWebsite->key = $website;
                     $dbContentTreeWebsite->table_name = ContentTree::TABLE_NAME_WEBSITE;
                     if (!$dbContentTreeWebsite->makeRoot()) {
-                        echo '<pre>';
-                        var_dump($dbContentTreeWebsite->errors);
-                        echo '</pre>';
                         $transaction->rollBack();
-                        exit;
+                        $this->log("Unable make root: RecordId=" . $websiteId . ". TableName=" . ContentTree::TABLE_NAME_WEBSITE);
+                        throw new Exception("");
                     }
 
                 } catch (\Exception $e) {
@@ -476,7 +476,7 @@ class SyncController extends Controller
 
         foreach ($contentTrees as $contentTree) {
             $translations = ArrayHelper::index($contentTree['translations'], 'language');
-            if (!(isset($translations[$from]) && isset($translations[$to]))) {
+            if (!( isset($translations[$from]) && isset($translations[$to]) )) {
                 continue;
             }
             $fromTranslation = $translations[$from];

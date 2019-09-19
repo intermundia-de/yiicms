@@ -10,6 +10,7 @@ namespace intermundia\yiicms\models;
 
 
 use Yii;
+use yii\base\Exception;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -343,10 +344,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public function getContentType()
     {
         if (!$this->contentTree){
-            echo '<pre>';
-            var_dump($this->contentTree);
-            echo '</pre>';
-            exit;
+            throw new Exception("Incorrect content type. TableName = ".static::tableName().', ID='.$this->id);
         }
         // @TODO Optimize this not to access contentTree
         return $this->contentTree->content_type;
