@@ -206,15 +206,19 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
             $items = [];
             $translatedLanguages = $this->getTranslatedLanguages();
 
+            //linkOptions is used for yii\bootstrap\Dropdown;
             foreach ($translatedLanguages as $code => $language) {
                 $items[] = [
                     'label' => $language,
                     'url' => Url::toRoute([
                         '/base/user-login',
                         'id' => Yii::$app->user->id,
-                        'contentTreeId' => $this->contentTree->id,
+                        'contentTreeId' => $nearesPage->id,
                         'language' => $code
-                    ])
+                    ]),
+                    'linkOptions' => [
+                        'target' => '_blank',
+                    ]
                 ];
             }
 

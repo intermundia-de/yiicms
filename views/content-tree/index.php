@@ -160,7 +160,7 @@ $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['m
                 'options' => [
                     'href' => $liveEditingItems ? $liveEditingItems[0]['url'] : '#',
                     'class' => 'btn btn-info margin',
-                    '_target' => 'blank'
+                    'target' => '_blank'
                 ],
                 'dropdown' => [
                     'items' => $liveEditingItems,
