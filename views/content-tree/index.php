@@ -52,8 +52,8 @@ $tableNames['all'] = 'All';
                 <label><strong><?php echo Yii::t('intermundiacms', 'Show in menu') ?>:</strong> </label>
                 &nbsp;&nbsp;
                 <input type="hidden" name="id" value="<?= $contentTreeItem->id ?>">
-                <?php echo Html::checkboxList('menu_ids[]', array_keys($checked), \yii\helpers\ArrayHelper::map($menus, 'id', 'name') ,[
-                        'tag' => 'span'
+                <?php echo Html::checkboxList('menu_ids[]', array_keys($checked), \yii\helpers\ArrayHelper::map($menus, 'id', 'name'), [
+                    'tag' => 'span'
                 ]); ?>
             </div>
         </form>
@@ -91,8 +91,8 @@ echo Tabs::widget([
     'items' => $items
 ]);
 
-$nearestPage = $contentTreeItem->getPage();
 $updateItems = $model->getUpdateTranslationItems();
+$liveEditingItems = $model->getLiveEditingItems();
 $newTranslationModel = new \yii\base\DynamicModel(['tableName', 'id', 'from', 'to']);
 $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['max' => 55]);
 
@@ -152,14 +152,25 @@ $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['m
                 'data-method' => 'post',
             ]); ?>
         <?php endif; ?>
-        <?php if ($nearestPage) {
-            echo Html::a('Live Content Editing', Url::to([
-                '/base/user-login',
-                'id' => Yii::$app->user->id,
-                'contentTreeId' => $nearestPage->id
-            ]),
-                ['class' => 'btn btn-info margin-5', 'target' => '_blank']);
-        } ?>
+        <?php if ($liveEditingItems) {
+            echo ButtonDropdown::widget([
+                'label' => 'Live Content Editing',
+                'split' => true,
+                'tagName' => 'a',
+                'options' => [
+                    'href' => $liveEditingItems ? $liveEditingItems[0]['url'] : '#',
+                    'class' => 'btn btn-info margin',
+                    '_target' => 'blank'
+                ],
+                'dropdown' => [
+                    'items' => $liveEditingItems,
+                    'options' => [
+                        'class' => 'dropdown-menu-left',
+                    ],
+                ]
+            ]);
+        }
+        ?>
         <hr>
     </div>
     <div class="well well-sm">

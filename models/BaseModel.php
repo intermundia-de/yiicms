@@ -13,6 +13,7 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\helpers\VarDumper;
 
 /**
@@ -194,6 +195,31 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public function getNotTranslatedLanguages()
     {
         return array_diff_key(Yii::$app->websiteLanguages, ArrayHelper::map($this->translations, 'language', 'language'));
+    }
+
+    public function getLiveEditingItems()
+    {
+        $nearesPage = $this->contentTree->getPage();
+        if (!$nearesPage) {
+            return null;
+        } else {
+            $items = [];
+            $translatedLanguages = $this->getTranslatedLanguages();
+
+            foreach ($translatedLanguages as $code => $language) {
+                $items[] = [
+                    'label' => $language,
+                    'url' => Url::toRoute([
+                        '/base/user-login',
+                        'id' => Yii::$app->user->id,
+                        'contentTreeId' => $this->contentTree->id,
+                        'language' => $code
+                    ])
+                ];
+            }
+
+            return $items;
+        }
     }
 
 
