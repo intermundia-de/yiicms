@@ -579,7 +579,8 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function getBackendFullUrl()
     {
-        return Yii::getAlias('@backendUrl/content/website/') . $this->getNodes();
+        $language = Yii::$app->language;
+        return Yii::getAlias('@backendUrl/content/' . $language . '/website/') . $this->getNodes();
     }
 
     public function getFrontendUrl()
