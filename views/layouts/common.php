@@ -22,12 +22,12 @@ $rootItems = ContentTree::getItemsAsTree([
     'name' => 'label',
     'alias',
     'url' => function ($item, $parentItem) {
-        $url = $item['alias'];
+        $url = $item['alias_path'];
         /** @var $parentItem \intermundia\yiicms\components\Node */
-        if ($parentItem) {
-            $processedData = $parentItem->getProcessedData();
-            $url = $processedData['url']['nodes'] . '/' . $url;
-        }
+//        if ($parentItem) {
+//            $processedData = $parentItem->getProcessedData();
+//            $url = $processedData['url']['nodes'] . '/' . $url;
+//        }
 
         return ['/content-tree/index', 'nodes' => $url, 'language' => $item['language']];
     },
