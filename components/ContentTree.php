@@ -94,9 +94,9 @@ class ContentTree extends Component
         return ArrayHelper::getValue($config, 'class');
     }
 
-    public function getSearchableAttributes($tableName)
+    public function getSearchableAttributes($contentType)
     {
-        $config = ArrayHelper::getValue($this->editableContent, $tableName);
+        $config = ArrayHelper::getValue($this->editableContent, $contentType);
         if (!$config || !is_array($config)) {
             return null;
         }

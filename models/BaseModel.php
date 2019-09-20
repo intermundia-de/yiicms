@@ -160,18 +160,26 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         return [
             'base/add-new-language',
-            'tableName' => $this->getFormattedTableName(),
+            'contentType' => $this->getContentType(),
             'id' => $this->id,
             'from' => Yii::$app->websiteMasterLanguage,
             'to' => Yii::$app->language,
         ];
     }
 
+    /**
+     * Return object delete url
+     *
+     * @param $treeId
+     * @return array
+     * @throws \yii\base\Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
     public function getDeleteUrl($treeId)
     {
         return [
             'base/delete',
-            'tableName' => $this->getFormattedTableName(),
+            'contentType' => $this->getContentType(),
             'contentTreeId' => $treeId,
             'id' => $this->id,
         ];

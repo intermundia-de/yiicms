@@ -184,11 +184,8 @@ class BaseController extends BackendController
     }
 
     /**
-     * @param $tableName
-     * @param $id
-     * @param $from
-     * @param $to
      * @return \yii\web\Response
+     * @throws \yii\db\Exception
      */
     public function actionAddNewLanguage()
     {
@@ -197,16 +194,16 @@ class BaseController extends BackendController
             if (!$post) {
                 throw new InvalidArgumentException();
             }
-            $tableName = $post['tableName'];
+            $contentType = $post['contentType'];
             $id = $post['id'];
             $to = $post['to'];
             $from = $post['from'];
-            if (!( $tableName || $id || $to )) {
+            if (!( $contentType || $id || $to )) {
                 throw new InvalidArgumentException();
             }
 
 
-            $className = Yii::$app->contentTree->getClassName($tableName);
+            $className = Yii::$app->contentTree->getClassName($contentType);
             /** @var $baseModel BaseModel */
             $baseModel = $className::find()->byId($id)->one();
 
@@ -214,7 +211,7 @@ class BaseController extends BackendController
                 return $this->redirect($baseModel->getUpdateUrlByLanguage($to));
             }
 
-            $contentTree = ContentTree::find()->byTableName($tableName)->byRecordId($id)->notDeleted()->one();
+            $contentTree = ContentTree::find()->byContentType($contentType)->byRecordId($id)->notDeleted()->one();
 
             $transaction = Yii::$app->db->beginTransaction();
 
@@ -232,7 +229,7 @@ class BaseController extends BackendController
     }
 
     /**
-     * @param $tableName
+     * @param $contentType
      * @param $contentTreeId
      * @param $id
      * @return \yii\web\Response
@@ -240,9 +237,9 @@ class BaseController extends BackendController
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      */
-    public function actionDelete($tableName, $contentTreeId, $id)
+    public function actionDelete($contentType, $contentTreeId, $id)
     {
-        $ClassName = Yii::$app->contentTree->getClassName($tableName);
+        $ClassName = Yii::$app->contentTree->getClassName($contentType);
         $connection = Yii::$app->db;
         $transaction = $connection->beginTransaction();
         /** @var BaseModel $baseModel */

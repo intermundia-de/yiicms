@@ -74,7 +74,7 @@ class CopyTranslation
             return $this->baseClassName;
         }
 
-        $this->baseClassName = \Yii::$app->contentTree->getClassName($this->contentTree->table_name);
+        $this->baseClassName = \Yii::$app->contentTree->getClassName($this->contentTree->content_type);
 
         return $this->baseClassName;
     }
@@ -142,7 +142,7 @@ class CopyTranslation
         $baseTranslation = $this->getBaseTranslateModel();
         unset($baseTranslation['id']);
         $baseTranslation['language'] = $this->to;
-        $attributes = \Yii::$app->contentTree->getSearchableAttributes($this->getBaseClassName()::getFormattedTableName());
+        $attributes = \Yii::$app->contentTree->getSearchableAttributes($this->contentTree->content_type);
 
         $pattern = '/{{%STORAGE_URL_PLACEHOLDER%}}' . $this->from . '(\/([^"])+)+/';
         /**
