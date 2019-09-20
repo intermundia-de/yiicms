@@ -633,7 +633,7 @@ class ContentTree extends \yii\db\ActiveRecord
             $editableContent = $editable === true ? 'data-editable=true  contenteditable=true' : '';
 
             // @TODO We need to consider parent_id also later
-            return $editableContent . ' data-language="' . Yii::$app->language . '" data-content-id="' . $this->id . '" data-type="' . $type . '" data-backend-url="' . $this->getBackendFullUrl() . '" data-attr="' . $attribute . '"';
+            return $editableContent . ' data-language="' . $this->activeTranslation->language . '" data-content-id="' . $this->id . '" data-type="' . $type . '" data-backend-url="' . $this->getBackendFullUrl() . '" data-attr="' . $attribute . '"';
         }
 
         return '';
