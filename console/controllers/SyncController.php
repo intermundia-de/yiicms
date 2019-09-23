@@ -107,6 +107,7 @@ class SyncController extends Controller
                             ->joinWith('search')
                             ->joinWith('contentTree')
                             ->andWhere([$translateClass::tableName() . '.language' => $language])
+                            ->andWhere(['link_id' => null])
                             ->asArray()
                             ->all();
                         foreach ($translateModels as $translateModel) {
