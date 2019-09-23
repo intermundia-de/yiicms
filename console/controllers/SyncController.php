@@ -83,21 +83,17 @@ class SyncController extends Controller
                 $this->log("Website key: '$websiteKey' not found. Please enter valid website key");
                 continue;
             }
-            $languages = ContentTreeTranslation::find()
-                ->select('language')
-                ->join('inner join', \common\models\ContentTree::tableName(), 'content_tree_id = content_tree.id')
-                ->andWhere(['key' => $key])
-                ->groupBy('language')
-                ->all();
 
-            $languages = ArrayHelper::getColumn($languages, 'language');
+            $languages = $codes = array_map(function ($item) {
+                return $item['code'];
+            }, Language::find()->select('code')->asArray()->all());
 
             $insert = 0;
             $update = 0;
             $delete = 0;
             $contentTypes = array_map(function ($contentType) {
                 return $contentType['contentType'];
-            }, \Yii::$app->contentTree->getEditableClasses());
+            }, \Yii::$app->contentTree->getEditableClassesKey());
 
             foreach ($contentTypes as $contentType) {
                 $searchAttributes = \Yii::$app->contentTree->getSearchableAttributes($contentType);
@@ -105,7 +101,6 @@ class SyncController extends Controller
                 $tableName = $className::getFormattedTableName();
                 $translateClass = $className::getTranslateModelClass();
                 if ($tableName == $contentType) {
-
 
                     foreach ($languages as $language) {
                         $translateModels = $translateClass::find()
