@@ -93,7 +93,7 @@ echo Tabs::widget([
 
 $nearestPage = $contentTreeItem->getPage();
 $updateItems = $model->getUpdateTranslationItems();
-$newTranslationModel = new \yii\base\DynamicModel(['tableName', 'id', 'from', 'to']);
+$newTranslationModel = new \yii\base\DynamicModel(['contentType', 'id', 'from', 'to']);
 $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['max' => 55]);
 
 ?>
@@ -120,7 +120,7 @@ $newTranslationModel->addRule(['from', 'tableName', 'to', 'from'], 'string', ['m
                     <?php echo $form->field($newTranslationModel, 'from')->dropDownList(array_merge([0 => 'None'], $model->getTranslatedLanguages()))->label(false) ?>
                 </div>
             </div>
-            <?php echo $form->field($newTranslationModel, 'contentType')->hiddenInput(['value' => $model->getContentType()])->label(false) ?>
+            <?php echo $form->field($newTranslationModel, 'contentType')->hiddenInput(['value' => $contentTreeItem->content_type])->label(false) ?>
             <?php echo $form->field($newTranslationModel, 'id')->hiddenInput(['value' => $model->id])->label(false) ?>
             <?php echo Html::submitButton(Yii::t('intermundiacms', 'Add'), ['class' => 'btn btn-primary']) ?>
             <?php yii\widgets\ActiveForm::end(); ?>
