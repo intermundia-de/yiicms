@@ -359,26 +359,7 @@ class ContentTree extends \yii\db\ActiveRecord
         $appendParams = []
     )
     {
-
-        $query = ContentTree::find()
-            ->select([
-                'content_tree.id',
-                'content_tree.record_id',
-                'content_tree.table_name',
-                'content_tree.lft',
-                'content_tree.rgt',
-                'content_tree.depth',
-                'content_tree_translation.alias',
-                'content_tree_translation.alias_path',
-                'content_tree_translation.name as name',
-                'content_tree_translation.short_description',
-            ])
-            ->leftJoin('content_tree_translation', 'content_tree_translation.content_tree_id = content_tree.id')
-            ->andWhere(['`content_tree_translation`.language' => \Yii::$app->language])
-            ->notDeleted()
-//            ->notHidden()
-//            ->linkedIdIsNull()
-            ->orderBy('content_tree.lft');
+        $query = ContentTree::find()->tree();
 
         if ($lft !== null && $rgt !== null) {
             $query->andWhere(['<', 'content_tree.deleted_at', $lft])
@@ -914,7 +895,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function linkInside(ContentTree $parentTree, ContentTree $linkFrom)
     {
-        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
+//        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
         $this->link_id = $linkFrom->id;
         $this->record_id = $linkFrom->record_id;
         $this->table_name = $linkFrom->table_name;
@@ -924,11 +905,11 @@ class ContentTree extends \yii\db\ActiveRecord
         }
 
         foreach ($linkFrom->translations as $translation) {
-            if (!isset($parentTreeTranslations[$translation->language])) {
-                continue;
-            }
+//            if (!isset($parentTreeTranslations[$translation->language])) {
+//                continue;
+//            }
             $data = $translation->toArray();
-            $parentTreeTranslation = $parentTreeTranslations[$translation->language];
+            $parentTreeTranslation = $parentTree->activeTranslation;
             unset($data['id']);
             $newTranslation = new ContentTreeTranslation();
             $newTranslation->load($data, '');
