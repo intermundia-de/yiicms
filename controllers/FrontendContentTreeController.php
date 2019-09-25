@@ -9,6 +9,7 @@ namespace intermundia\yiicms\controllers;
 
 use intermundia\yiicms\models\BaseModel;
 use common\models\ContentTree;
+use intermundia\yiicms\models\ContentTreeTranslation;
 use Yii;
 use intermundia\yiicms\web\Controller;
 use yii\filters\ContentNegotiator;
@@ -49,9 +50,9 @@ class FrontendContentTreeController extends Controller
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return string
      * @throws NotFoundHttpException
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function actionIndex()
     {
@@ -161,10 +162,10 @@ class FrontendContentTreeController extends Controller
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $alias
      * @return array|ContentTree|null
      * @throws NotFoundHttpException
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     protected function findContentTree($alias)
     {
@@ -177,10 +178,10 @@ class FrontendContentTreeController extends Controller
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $id
      * @return array|ContentTree|null
      * @throws NotFoundHttpException
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     protected function findContentTreeById($id)
     {
@@ -194,8 +195,8 @@ class FrontendContentTreeController extends Controller
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @throws NotFoundHttpException
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     protected function selectPageContentTree()
     {
@@ -220,16 +221,42 @@ class FrontendContentTreeController extends Controller
         }
     }
 
+    protected function findContentTreeNormalizeAliasPath($alias, $contentTreeId = null)
+    {
+        $query = ContentTree::findBySql(
+            "select c.*, CONCAT(GROUP_CONCAT(IFNULL(pt.alias, IFNULL(pt2.alias, pt3.alias))
+    SEPARATOR '/'), '/', ct.alias) as normilized_alias_path
+from content_tree_translation ct
+         JOIN content_tree c on ct.content_tree_id = c.id
+         LEFT JOIN content_tree par on par.lft < c.lft AND par.rgt > c.rgt
+         LEFT JOIN content_tree_translation pt on pt.content_tree_id = par.id AND pt.language = :masterLanguage
+         LEFT JOIN content_tree_translation pt2 on pt2.content_tree_id = par.id AND pt2.language = :language
+         LEFT JOIN content_tree_translation pt3 on pt3.content_tree_id = par.id AND pt3.language not in (:masterLanguage, :language)
+WHERE ct.alias = :alias
+    AND par.table_name != :website
+GROUP BY c.id",
+            [
+                'website' => \intermundia\yiicms\models\ContentTree::TABLE_NAME_WEBSITE,
+                'alias' => $alias,
+                'language' => \Yii::$app->language,
+                'masterLanguage' => \Yii::$app->websiteMasterLanguage
+            ]);
+        // @TODO Deal with multiple records
+        $result = $query->one();
+        return $result;
+    }
+
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return array|ContentTree|null
      * @throws NotFoundHttpException
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     protected function findContentTreeByFullPath()
     {
         $contentTree = null;
+        $aliasPath = Yii::$app->getCurrentAlias();
         $aliasPath = Yii::$app->getCurrentAlias();
         $pageTableName = \intermundia\yiicms\models\ContentTree::TABLE_NAME_PAGE;
         if ($aliasPath) {
@@ -240,17 +267,21 @@ class FrontendContentTreeController extends Controller
                 ->notDeleted()
                 ->one();
             if (!$contentTree) {
-                throw new NotFoundHttpException("Requested page was not found");
+                $alias = substr($aliasPath, strrpos($aliasPath, '/') + 1);
+                $contentTree = $this->findContentTreeNormalizeAliasPath($alias);
+                if (!$contentTree) {
+                    throw new NotFoundHttpException("Requested page was not found");
+                }
             }
             return $contentTree;
         }
 
         if (!($contentTree = ContentTree::find()
-                ->byId(Yii::$app->defaultContentId)
-                ->byTableName($pageTableName)
-                ->notHidden()
-                ->notDeleted()
-                ->one())) {
+            ->byId(Yii::$app->defaultContentId)
+            ->byTableName($pageTableName)
+            ->notHidden()
+            ->notDeleted()
+            ->one())) {
             throw new NotFoundHttpException("Content does not exist for [ID = " . Yii::$app->defaultContentId . "]");
         }
 //        $this->getView()->contentTreeObject = $contentTree;

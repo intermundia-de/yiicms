@@ -482,7 +482,18 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function getNodes()
     {
-        return $this->activeTranslation->alias_path;
+        $alias_path = '';
+        $contentTree = $this;
+        do{
+            if($contentTree->table_name == self::TABLE_NAME_WEBSITE) {
+                break;
+            }
+            $alias_path = $contentTree->getAlias() . '/' . $alias_path;
+            $contentTree = $contentTree->getParent();
+        }while($contentTree);
+
+        return $alias_path;
+//        return $this->activeTranslation->alias_path;
     }
 
     public function getFullUrl($asArray = false, $schema = false)
