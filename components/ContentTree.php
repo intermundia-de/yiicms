@@ -174,9 +174,9 @@ class ContentTree extends Component
         return '';
     }
 
-    public function getDisplayName($tableName)
+    public function getDisplayName($contentType)
     {
-        return ArrayHelper::getValue($this->editableContent, "$tableName.displayName");
+        return ArrayHelper::getValue($this->editableContent, "$contentType.displayName");
     }
 
     public function getViewsForTable($tableName)

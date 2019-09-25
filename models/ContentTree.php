@@ -935,4 +935,15 @@ class ContentTree extends \yii\db\ActiveRecord
     {
         return $contentTree->children(1)->byLinkId($this->id)->one();
     }
+
+    /**
+     * Return the display name of the content_type
+     *
+     * @return mixed
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function getDisplayContentType()
+    {
+        return Yii::$app->contentTree->getDisplayName($this->content_type);
+    }
 }
