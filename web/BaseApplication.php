@@ -46,6 +46,8 @@ class BaseApplication extends \yii\web\Application
 
     public $hasLanguageInUrl = false;
 
+    public $contentTreeAliasPaths = [];
+
     /**
      * @var string website key based on multisiteCore websites config
      */
@@ -83,6 +85,38 @@ class BaseApplication extends \yii\web\Application
     public function beforeRequest()
     {
         $this->resolveLanguageAndWebsite();
+        $this->resolveContentTreeAliasPaths();
+    }
+
+    public function resolveContentTreeAliasPaths()
+    {
+        $db = \Yii::$app->getDb();
+        $command = $db->createCommand(
+            "SELECT c.id,
+IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) SEPARATOR '/'), '/',
+              IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)),
+       IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)) as alias_path
+FROM content_tree c
+         LEFT JOIN content_tree par on par.lft < c.lft AND par.rgt > c.rgt AND par.table_name != 'website'
+         LEFT JOIN content_tree_translation ctt on c.id = ctt.content_tree_id AND ctt.language = :currentLanguage
+         LEFT JOIN content_tree_translation ctt2 on c.id = ctt2.content_tree_id AND ctt2.language = :masterLanguage
+         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) ctt3
+                   ON ctt3.content_tree_id = c.id
+         LEFT JOIN content_tree_translation part on par.id = part.content_tree_id AND part.language = :currentLanguage
+         LEFT JOIN content_tree_translation part2 on par.id = part2.content_tree_id AND part2.language = :masterLanguage
+         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) part3
+                   ON part3.content_tree_id = par.id
+                   
+WHERE c.table_name != 'website'
+GROUP BY c.id
+ORDER BY par.lft;");
+
+        $command->bindParam(":currentLanguage", \Yii::$app->language);
+        $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
+
+        $this->contentTreeAliasPaths = $command->queryAll();
+
+        $this->contentTreeAliasPaths = ArrayHelper::map($this->contentTreeAliasPaths, 'id', 'alias_path');
     }
 
     /**
