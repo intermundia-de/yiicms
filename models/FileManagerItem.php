@@ -134,11 +134,12 @@ class FileManagerItem extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param int $decimals
      * @return string
      */
-    public function getFormattedSize()
+    public function getFormattedSize($decimals = 0)
     {
-        return Yii::$app->formatter->asShortSize($this->size, 0);
+        return Yii::$app->formatter->asShortSize($this->size, $decimals);
     }
 
 
