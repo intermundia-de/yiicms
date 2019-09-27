@@ -60,7 +60,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public function getContentTree()
     {
         return $this->hasOne(ContentTree::class,
-            ['record_id' => 'id'])->andWhere(['table_name' => $this->getFormattedTableName()]);
+            ['record_id' => 'id'])->andWhere([ContentTree::tableName() . '.table_name' => $this->getFormattedTableName()]);
     }
 
     /**
@@ -372,5 +372,13 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
         }
         // @TODO Optimize this not to access contentTree
         return $this->contentTree->content_type;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSearch()
+    {
+        return $this->hasMany(Search::class, ['record_id' => 'id']);
     }
 }

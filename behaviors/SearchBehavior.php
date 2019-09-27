@@ -78,7 +78,7 @@ class SearchBehavior extends Behavior
         }
 
         if (count($deletedAttributes) > 0) {
-            Search::deleteAll(['attribute' => $deletedAttributes, 'table_name' => $baseTranslationModel->getContentType()]);
+            Search::deleteAll(['and', ['attribute' => $deletedAttributes, 'table_name' => $baseTranslationModel->getContentType()], ['not', ['language' => null]]]);
         }
 
         foreach ($searches as $search) {
