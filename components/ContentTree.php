@@ -42,42 +42,54 @@ class ContentTree extends Component
         $this->editableContent = ArrayHelper::merge([
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_PAGE => [
                 'class' => \intermundia\yiicms\models\Page::class,
-                'searchableAttributes' => ['title', 'short_description', 'body'],
+                'searchableAttributes' => [
+                    'translation' => [
+                        'title', 'short_description', 'body'
+                    ]
+                ],
                 'displayName' => Yii::t('intermundiacms', 'Page')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_WEBSITE => [
                 'class' => \intermundia\yiicms\models\Website::class,
-                'searchableAttributes' => ['title', 'short_description'],
+                'searchableAttributes' => [
+                    'translation' => [
+                        'title', 'short_description'
+                    ]
+                ],
                 'displayName' => Yii::t('intermundiacms', 'Website')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_VIDEO_SECTION => [
                 'class' => \intermundia\yiicms\models\VideoSection::class,
 //                'searchableAttributes' => ['title', 'content_top', 'content_bottom'],
-                'searchableAttributes' => [],
+                'searchableAttributes' => ['translation' => []],
                 'displayName' => Yii::t('intermundiacms', 'Video Section')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_CONTENT_TEXT => [
                 'class' => \intermundia\yiicms\models\ContentText::class,
 //                'searchableAttributes' => ['name', 'single_line', 'multi_line'],
-                'searchableAttributes' => ['multi_line'],
+                'searchableAttributes' => [
+                    'translation' => [
+                        'multi_line'
+                    ]
+                ],
                 'displayName' => Yii::t('intermundiacms', 'Content Text')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_SECTION => [
                 'class' => \intermundia\yiicms\models\Section::class,
 //                'searchableAttributes' => ['title', 'description'],
-                'searchableAttributes' => [],
+                'searchableAttributes' => ['translation' => []],
                 'displayName' => Yii::t('intermundiacms', 'Section')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_CAROUSEL => [
                 'class' => \intermundia\yiicms\models\Carousel::class,
 //                    'searchableAttributes' => ['legal_text_for_patients'],
-                'searchableAttributes' => [],
+                'searchableAttributes' => ['translation' => []],
                 'displayName' => Yii::t('intermundiacms', 'Carousel')
             ],
             \intermundia\yiicms\models\ContentTree::TABLE_NAME_CAROUSEL_ITEM => [
                 'class' => \intermundia\yiicms\models\CarouselItem::class,
 //                'searchableAttributes' => ['caption'],
-                'searchableAttributes' => [],
+                'searchableAttributes' => ['translation' => []],
                 'displayName' => Yii::t('intermundiacms', 'Carousel Item')
             ]
         ], $this->editableContent);
@@ -94,14 +106,20 @@ class ContentTree extends Component
         return ArrayHelper::getValue($config, 'class');
     }
 
-    public function getSearchableAttributes($contentType)
+    public function getSearchableAttributes($contentType, $baseModelAttributes = false)
     {
         $config = ArrayHelper::getValue($this->editableContent, $contentType);
         if (!$config || !is_array($config)) {
             return null;
         }
 
-        return ArrayHelper::getValue($config, 'searchableAttributes', []);
+        $searchableAttributesConfig = ArrayHelper::getValue($config, 'searchableAttributes', []);
+
+        if ($baseModelAttributes) {
+            return ArrayHelper::getValue($searchableAttributesConfig, 'base', []);
+        } else {
+            return ArrayHelper::getValue($searchableAttributesConfig, 'translation', []);
+        }
     }
 
     public function getEditableClasses()

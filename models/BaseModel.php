@@ -9,8 +9,10 @@
 namespace intermundia\yiicms\models;
 
 
+use intermundia\yiicms\behaviors\BaseModelSearchBehavior;
 use Yii;
 use yii\base\Exception;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -42,6 +44,14 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public $treeName;
     public $short_description;
 
+    const EVENT_AFTER_CONTENT_TREE_INSERT = 'after_content_tree_insert';
+
+    public function behaviors()
+    {
+        return [
+            BaseModelSearchBehavior::class,
+        ];
+    }
 
     /**
      * @return \yii\db\ActiveQuery
