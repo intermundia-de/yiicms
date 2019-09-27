@@ -44,9 +44,9 @@ class Page extends BaseModel
      */
     public function behaviors()
     {
-        return array_merge([
+        return array_merge(parent::behaviors(),[
             TimestampBehavior::class
-        ],parent::behaviors());
+        ]);
     }
 
     /**

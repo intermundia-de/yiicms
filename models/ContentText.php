@@ -49,10 +49,10 @@ class ContentText extends BaseModel
 
     public function behaviors()
     {
-        return [
+        return array_merge(parent::behaviors(),[
             TimestampBehavior::class,
             BlameableBehavior::class
-        ];
+        ]);
     }
 
     /**
