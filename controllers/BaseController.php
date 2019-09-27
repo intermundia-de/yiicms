@@ -81,6 +81,7 @@ class BaseController extends BackendController
 
         $contentTree = new ContentTree();
         $contentTree->content_type = $contentType;
+        $contentTree->view = '';
 
         $model = new ContentMultiModel([
             'models' => [
