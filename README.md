@@ -210,3 +210,21 @@ into
 ```php
 php console/yii utils/fix-timeline-events
 ```
+12. Use `base` and `translation` keys to specify searchableAttributes for `baseModel` and for `baseTranslationModel`.
+inside `editableContent` configuration Change this:
+```php
+\common\models\ContentTree::TABLE_NAME_PAGE => [
+            'class' => \common\models\Page::class,
+            'searchableAttributes' => ['teaser_title', 'teaser_description', 'pdf_text'],
+      ]
+```
+into this:
+```php
+\common\models\ContentTree::TABLE_NAME_PAGE => [
+            'class' => \common\models\Page::class,
+            'searchableAttributes' => [
+                'translation' => ['teaser_title', 'teaser_description', 'pdf_text'],
+                'base' => ['product_code']
+            ]
+      ]
+```
