@@ -502,8 +502,9 @@ class ContentTree extends \yii\db\ActiveRecord
      */
     public function getUrl($asArray = false, $schema = false)
     {
-        $aliasPath = ArrayHelper::getValue(Yii::$app->contentTreeAliasPaths, $this->id, '');
-        $defaultAliasPath = ArrayHelper::getValue(Yii::$app->contentTreeAliasPaths, Yii::$app->defaultContent->id, '');
+        $aliasMap = Yii::$app->cache->get(['ct_alias_map', Yii::$app->language]);
+        $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
+        $defaultAliasPath = ArrayHelper::getValue($aliasMap, Yii::$app->defaultContent->id, '');
 
         $url = ['content-tree/index', 'nodes' => $aliasPath];
         $url = $asArray ? $url : Url::to($url, $schema);

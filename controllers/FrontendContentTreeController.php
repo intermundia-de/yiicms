@@ -233,7 +233,7 @@ class FrontendContentTreeController extends Controller
         $aliasPath = Yii::$app->getCurrentAlias();
         $pageTableName = \intermundia\yiicms\models\ContentTree::TABLE_NAME_PAGE;
         if ($aliasPath) {
-            $contentTreeId = array_search($aliasPath, Yii::$app->contentTreeAliasPaths);
+            $contentTreeId = array_search($aliasPath, Yii::$app->cache->get(['ct_alias_map', Yii::$app->language]));
             if ($contentTreeId) {
                 $contentTree = ContentTree::find()
                     ->byId($contentTreeId)

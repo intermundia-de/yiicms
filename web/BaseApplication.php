@@ -11,9 +11,12 @@ namespace intermundia\yiicms\web;
 use intermundia\yiicms\helpers\LanguageHelper;
 use intermundia\yiicms\models\BaseModel;
 use intermundia\yiicms\models\ContentTree;
+use intermundia\yiicms\models\ContentTreeTranslation;
 use intermundia\yiicms\models\Language;
+use intermundia\yiicms\models\WidgetText;
 use yii\base\Exception;
 use yii\base\InvalidCallException;
+use yii\caching\DbDependency;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use intermundia\yiicms\traits\MultiDomainTrait;
@@ -45,8 +48,6 @@ class BaseApplication extends \yii\web\Application
     public $websiteLanguages = [];
 
     public $hasLanguageInUrl = false;
-
-    public $contentTreeAliasPaths = [];
 
     /**
      * @var string website key based on multisiteCore websites config
@@ -91,8 +92,13 @@ class BaseApplication extends \yii\web\Application
     public function resolveContentTreeAliasPaths()
     {
         $db = \Yii::$app->getDb();
-        $command = $db->createCommand(
-            "SELECT c.id,
+
+        $cacheKey = ['ct_alias_map', \Yii::$app->language];
+
+        $content = \Yii::$app->cache->get($cacheKey);
+        if (!$content) {
+            $command = $db->createCommand(
+                "SELECT c.id,
 IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) SEPARATOR '/'), '/',
               IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)),
        IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)) as alias_path
@@ -111,12 +117,20 @@ WHERE c.table_name != 'website'
 GROUP BY c.id
 ORDER BY par.lft;");
 
-        $command->bindParam(":currentLanguage", \Yii::$app->language);
-        $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
+            $command->bindParam(":currentLanguage", \Yii::$app->language);
+            $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
 
-        $this->contentTreeAliasPaths = $command->queryAll();
+            $content = $command->queryAll();
+            $content = ArrayHelper::map($content, 'id', 'alias_path');
 
-        $this->contentTreeAliasPaths = ArrayHelper::map($this->contentTreeAliasPaths, 'id', 'alias_path');
+            $depQuery = ContentTreeTranslation::find()->byLanguage(\Yii::$app->language);
+
+            $dependency = new DbDependency([
+                'db' => $db,
+                'sql' => $depQuery->createCommand()->getRawSql()]);
+
+            \Yii::$app->cache->set($cacheKey, $content, 0, $dependency);
+        }
     }
 
     /**
