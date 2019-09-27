@@ -86,51 +86,6 @@ class BaseApplication extends \yii\web\Application
     public function beforeRequest()
     {
         $this->resolveLanguageAndWebsite();
-        $this->resolveContentTreeAliasPaths();
-    }
-
-    public function resolveContentTreeAliasPaths()
-    {
-        $db = \Yii::$app->getDb();
-
-        $cacheKey = ['ct_alias_map', \Yii::$app->language];
-
-        $content = \Yii::$app->cache->get($cacheKey);
-        if (!$content) {
-            $command = $db->createCommand(
-                "SELECT c.id,
-IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) SEPARATOR '/'), '/',
-              IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)),
-       IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)) as alias_path
-FROM content_tree c
-         LEFT JOIN content_tree par on par.lft < c.lft AND par.rgt > c.rgt AND par.table_name != 'website'
-         LEFT JOIN content_tree_translation ctt on c.id = ctt.content_tree_id AND ctt.language = :currentLanguage
-         LEFT JOIN content_tree_translation ctt2 on c.id = ctt2.content_tree_id AND ctt2.language = :masterLanguage
-         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) ctt3
-                   ON ctt3.content_tree_id = c.id
-         LEFT JOIN content_tree_translation part on par.id = part.content_tree_id AND part.language = :currentLanguage
-         LEFT JOIN content_tree_translation part2 on par.id = part2.content_tree_id AND part2.language = :masterLanguage
-         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) part3
-                   ON part3.content_tree_id = par.id
-                   
-WHERE c.table_name != 'website'
-GROUP BY c.id
-ORDER BY par.lft;");
-
-            $command->bindParam(":currentLanguage", \Yii::$app->language);
-            $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
-
-            $content = $command->queryAll();
-            $content = ArrayHelper::map($content, 'id', 'alias_path');
-
-            $depQuery = ContentTreeTranslation::find()->byLanguage(\Yii::$app->language);
-
-            $dependency = new DbDependency([
-                'db' => $db,
-                'sql' => $depQuery->createCommand()->getRawSql()]);
-
-            \Yii::$app->cache->set($cacheKey, $content, 0, $dependency);
-        }
     }
 
     /**
