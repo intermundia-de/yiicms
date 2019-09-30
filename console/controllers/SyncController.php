@@ -12,6 +12,7 @@ namespace intermundia\yiicms\console\controllers;
 use intermundia\yiicms\models\ContentTree;
 use intermundia\yiicms\models\ContentTreeTranslation;
 use intermundia\yiicms\models\Language;
+use intermundia\yiicms\models\Page;
 use intermundia\yiicms\models\Search;
 use intermundia\yiicms\models\FileManagerItem;
 use Yii;
@@ -95,6 +96,9 @@ class SyncController extends Controller
                 return $contentType['contentType'];
             }, \Yii::$app->contentTree->getEditableClassesKey());
 
+            $data['base'] = [];
+            $data['translation'] = [];
+
             foreach ($contentTypes as $contentType) {
                 $searchAttributes = \Yii::$app->contentTree->getSearchableAttributes($contentType);
                 $className = Yii::$app->contentTree->getClassName($contentType);
@@ -130,7 +134,7 @@ class SyncController extends Controller
                                 if (count($editedAttributes) > 0) {
                                     foreach ($editedAttributes as $searchAttribute) {
                                         $insert++;
-                                        $data[] = [
+                                        $data['translation'] = [
                                             'content_tree_id' => $translateModel['contentTree']['id'],
                                             'table_name' => $tableName,
                                             'record_id' => $translateModel[$tableName . '_id'],
@@ -142,9 +146,9 @@ class SyncController extends Controller
                                 }
                                 if (count($deletedAttributes) > 0) {
                                     $delete++;
-                                    Search::deleteAll([
-                                        'attribute' => $deletedAttributes,
-                                        'table_name' => $tableName
+                                    Search::deleteAll(['and',
+                                        ['attribute' => $deletedAttributes, 'table_name' => $tableName],
+                                        ['not', ['language' => null]]
                                     ]);
                                 }
 
@@ -162,7 +166,7 @@ class SyncController extends Controller
                             } else {
                                 foreach ($searchAttributes as $searchAttribute) {
                                     $insert++;
-                                    $data[] = [
+                                    $data['translation'][] = [
                                         'content_tree_id' => $translateModel['contentTree']['id'],
                                         'table_name' => $tableName,
                                         'record_id' => $translateModel[$tableName . '_id'],
@@ -174,10 +178,79 @@ class SyncController extends Controller
                             }
                         }
                     }
+                    //Process BaseModel records
+                    $baseModelsearchAttributes = \Yii::$app->contentTree->getSearchableAttributes($contentType, true);
+
+                    $baseModels = Page::find()
+                        ->joinWith('search')
+                        ->joinWith('contentTree')
+                        ->andWhere(['link_id' => null])
+                        ->asArray()
+                        ->all();
+                    foreach ($baseModels as $baseModel) {
+                        if ($baseModel['search']) {
+                            $searchAttr = array_filter($baseModel['search'], function ($searchable) use ($contentType) {
+                                if ($searchable['table_name'] == $contentType && $searchable['language'] == null) {
+                                    return $searchable['attribute'];
+                                }
+
+                                return false;
+                            });
+                            $attributes = array_map(function ($searchable) use ($tableName) {
+                                return $searchable['attribute'];
+
+                            }, $searchAttr);
+
+                            $editedAttributes = array_diff($baseModelsearchAttributes, $attributes);
+                            $deletedAttributes = array_diff($attributes, $baseModelsearchAttributes);
+
+                            if (count($editedAttributes) > 0) {
+                                foreach ($editedAttributes as $searchAttribute) {
+                                    $insert++;
+                                    $data['base'] = [
+                                        'content_tree_id' => $baseModel['contentTree']['id'],
+                                        'table_name' => $tableName,
+                                        'record_id' => $baseModel['id'],
+                                        'language' => null,
+                                        'attribute' => $searchAttribute,
+                                        'content' => strip_tags($baseModel[$searchAttribute])
+                                    ];
+                                }
+                            }
+                            if (count($deletedAttributes) > 0) {
+                                $delete++;
+                                Search::deleteAll(['attribute' => $deletedAttributes, 'table_name' => $tableName, 'language' => null]);
+                            }
+
+                            foreach ($searchAttr as $search) {
+                                if (!in_array($search['attribute'], $deletedAttributes)
+                                    && $search['content'] != strip_tags($baseModel[$search['attribute']])
+                                ) {
+                                    $update++;
+                                    Search::updateAll([
+                                        'content' => strip_tags($baseModel[$search['attribute']])
+                                    ], ['id' => $search['id']]);
+                                }
+                            }
+                        } else {
+                            foreach ($baseModelsearchAttributes as $searchAttribute) {
+                                $insert++;
+                                $data['base'][] = [
+                                    'content_tree_id' => $baseModel['contentTree']['id'],
+                                    'table_name' => $tableName,
+                                    'record_id' => $baseModel['id'],
+                                    'language' => null,
+                                    'attribute' => $searchAttribute,
+                                    'content' => strip_tags($baseModel[$searchAttribute])
+                                ];
+                            }
+                        }
+                    }
                 }
             }
-            if (isset($data) && count($data) > 0) {
-                Search::batchInsert($data);
+            $fullData = array_merge($data['base'], $data['translation']);
+            if (count($fullData) > 0) {
+                Search::batchInsert($fullData);
             }
 
             $this->log("Inserted " . $insert . " rows in Search Table");

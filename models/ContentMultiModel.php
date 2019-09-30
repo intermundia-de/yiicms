@@ -40,6 +40,14 @@ class ContentMultiModel extends MultiModel
         $baseTranslationModel->$foreignKeyName = $baseModel->id;
 
         $this->saveContentTree();
+        if($baseModelisNewRecord) {
+            /*
+             * The event handler for this event is inside BaseModelSearcableBehavior, since
+             * BaseModelSearcableBehavior should insert rows for baseModel inside search table
+             * AFTER baseModel AND contentTree is created
+             */
+            $baseModel->trigger(BaseModel::EVENT_AFTER_CONTENT_TREE_INSERT);
+        }
 
         if (!$baseTranslationModel->save()){
             return false;
