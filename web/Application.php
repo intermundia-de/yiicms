@@ -38,12 +38,6 @@ class Application extends BaseApplication
     public function beforeRequest()
     {
         parent::beforeRequest();
-
-        $cacheKey = [ContentTreeTranslation::getAliasMapCacheKey()];
-        if(! \Yii::$app->cache->exists($cacheKey)) {
-            ContentTreeTranslation::setAliasMapCache(\Yii::$app->cache);
-        }
-
 //
         if ($this->hasLanguageInUrl) {
             $rules = &$this->urlManager->rules;

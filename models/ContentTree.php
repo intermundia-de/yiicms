@@ -83,6 +83,8 @@ class ContentTree extends \yii\db\ActiveRecord
 
     private $closestPage = false;
 
+    static $aliasMap = false;
+
     /**
      * {@inheritdoc}
      */
@@ -384,6 +386,70 @@ class ContentTree extends \yii\db\ActiveRecord
         return [$items];
     }
 
+    public static function getIdAliasMap($customCache = false)
+    {
+        $cache = $customCache ?: $customCache = Yii::$app->cache;
+
+        $key = self::getAliasMapCacheKey();
+        if (self::$aliasMap === false){
+            if (!$cache->exists($key)){
+                self::$aliasMap = self::getAliasMapData();
+                $cache->set($key, self::$aliasMap);
+            } else {
+                self::$aliasMap = $cache->get($key);
+            }
+        } else {
+            $cache->set($key, self::$aliasMap);
+        }
+        return self::$aliasMap;
+    }
+
+    public static function invalidateAliasMap($customCache = false)
+    {
+        $cache = $customCache ?: $customCache = Yii::$app->cache;
+
+        $key = self::getAliasMapCacheKey();
+        $cache->delete($key);
+        self::$aliasMap = false;
+    }
+
+    public static function getAliasMapCacheKey()
+    {
+        return ['alias_map_' . Yii::$app->language];
+    }
+
+    public static function getAliasMapData()
+    {
+        $db = \Yii::$app->getDb();
+        $command = $db->createCommand(
+            "SELECT c.id,
+IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) SEPARATOR '/'), '/',
+              IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)),
+       IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)) as alias_path
+FROM content_tree c
+         LEFT JOIN content_tree par on par.lft < c.lft AND par.rgt > c.rgt AND par.table_name != 'website'
+         LEFT JOIN content_tree_translation ctt on c.id = ctt.content_tree_id AND ctt.language = :currentLanguage
+         LEFT JOIN content_tree_translation ctt2 on c.id = ctt2.content_tree_id AND ctt2.language = :masterLanguage
+         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) ctt3
+                   ON ctt3.content_tree_id = c.id
+         LEFT JOIN content_tree_translation part on par.id = part.content_tree_id AND part.language = :currentLanguage
+         LEFT JOIN content_tree_translation part2 on par.id = part2.content_tree_id AND part2.language = :masterLanguage
+         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) part3
+                   ON part3.content_tree_id = par.id
+                   
+WHERE c.table_name != 'website'
+GROUP BY c.id
+ORDER BY par.lft;");
+
+        $command->bindParam(":currentLanguage", \Yii::$app->language);
+        $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
+
+        $data = $command->queryAll();
+        $data = ArrayHelper::map($data, 'id', 'alias_path');
+
+        return $data;
+    }
+
     /**
      * Return a BaseModel instance
      *
@@ -502,7 +568,7 @@ class ContentTree extends \yii\db\ActiveRecord
      */
     public function getUrl($asArray = false, $schema = false)
     {
-        $aliasMap = Yii::$app->cache->get(ContentTreeTranslation::getAliasMapCacheKey());
+        $aliasMap = ContentTree::getIdAliasMap();
         $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
         $defaultAliasPath = ArrayHelper::getValue($aliasMap, Yii::$app->defaultContent->id, '');
 
