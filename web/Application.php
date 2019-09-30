@@ -9,6 +9,7 @@ namespace intermundia\yiicms\web;
 
 use intermundia\yiicms\helpers\LanguageHelper;
 use intermundia\yiicms\models\ContentTree;
+use intermundia\yiicms\models\ContentTreeTranslation;
 
 /**
  * Class Application
@@ -37,6 +38,11 @@ class Application extends BaseApplication
     public function beforeRequest()
     {
         parent::beforeRequest();
+
+        $cacheKey = [ContentTreeTranslation::getAliasMapCacheKey()];
+        if(! \Yii::$app->cache->exists($cacheKey)) {
+            ContentTreeTranslation::setAliasMapCache(\Yii::$app->cache);
+        }
 
 //
         if ($this->hasLanguageInUrl) {
