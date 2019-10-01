@@ -16,6 +16,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\helpers\VarDumper;
 
 /**
@@ -25,11 +26,11 @@ use yii\helpers\VarDumper;
  * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\models
  *
- * @property BaseTranslateModel   $activeTranslation
- * @property BaseTranslateModel   $currentTranslation
- * @property BaseTranslateModel   $defaultTranslation
- * @property ContentTree          $contentTree
- * @property BaseTranslateModel   $translation
+ * @property BaseTranslateModel $activeTranslation
+ * @property BaseTranslateModel $currentTranslation
+ * @property BaseTranslateModel $defaultTranslation
+ * @property ContentTree $contentTree
+ * @property BaseTranslateModel $translation
  * @property BaseTranslateModel[] $translations
  */
 abstract class BaseModel extends ActiveRecord implements BaseModelInterface
@@ -197,12 +198,51 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
 
     public function getTranslatedLanguages()
     {
-        return array_intersect_key(Yii::$app->websiteLanguages, ArrayHelper::map($this->translations, 'language', 'language'));
+        $translatedLanguages = array_intersect_key(Yii::$app->websiteLanguages, ArrayHelper::map($this->translations, 'language', 'language'));
+
+        uksort($translatedLanguages, function ($a, $b) {
+            if ($a == Yii::$app->language || $a == Yii::$app->websiteMasterLanguage) {
+                return -1;
+            } else if ($b == Yii::$app->language || $b == Yii::$app->websiteMasterLanguage) {
+                return 1;
+            } else return 0;
+        });
+
+        return $translatedLanguages;
     }
 
     public function getNotTranslatedLanguages()
     {
         return array_diff_key(Yii::$app->websiteLanguages, ArrayHelper::map($this->translations, 'language', 'language'));
+    }
+
+    public function getLiveEditingItems()
+    {
+        $nearesPage = $this->contentTree->getPage();
+        if (!$nearesPage) {
+            return null;
+        } else {
+            $items = [];
+            $translatedLanguages = $this->getTranslatedLanguages();
+
+            //linkOptions is used for yii\bootstrap\Dropdown;
+            foreach ($translatedLanguages as $code => $language) {
+                $items[] = [
+                    'label' => $language,
+                    'url' => Url::toRoute([
+                        '/base/user-login',
+                        'id' => Yii::$app->user->id,
+                        'contentTreeId' => $nearesPage->id,
+                        'language' => $code
+                    ]),
+                    'linkOptions' => [
+                        'target' => '_blank',
+                    ]
+                ];
+            }
+
+            return $items;
+        }
     }
 
 
@@ -309,9 +349,9 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
      * Treat the attribute as an image and render <img> tag from the first element of the attribute array
      *
      * @param       $attributeName
-     * @param bool  $resizeWidth
+     * @param bool $resizeWidth
      * @param array $options
-     * @param int   $imageIndex
+     * @param int $imageIndex
      * @return string
      * @throws \yii\base\InvalidConfigException
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>

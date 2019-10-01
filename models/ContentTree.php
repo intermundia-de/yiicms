@@ -627,7 +627,8 @@ ORDER BY par.lft;");
 
     public function getBackendFullUrl()
     {
-        return Yii::getAlias('@backendUrl/content/website/') . $this->getNodes();
+        $language = Yii::$app->language;
+        return Yii::getAlias('@backendUrl/content/' . $language . '/website/') . $this->getNodes();
     }
 
     public function getFrontendUrl()
@@ -680,7 +681,7 @@ ORDER BY par.lft;");
             $editableContent = $editable === true ? 'data-editable=true  contenteditable=true' : '';
 
             // @TODO We need to consider parent_id also later
-            return $editableContent . ' data-language="' . Yii::$app->language . '" data-content-id="' . $this->id . '" data-type="' . $type . '" data-backend-url="' . $this->getBackendFullUrl() . '" data-attr="' . $attribute . '"';
+            return $editableContent . ' data-language="' . $this->activeTranslation->language . '" data-content-id="' . $this->id . '" data-type="' . $type . '" data-backend-url="' . $this->getBackendFullUrl() . '" data-attr="' . $attribute . '"';
         }
 
         return '';

@@ -21,6 +21,7 @@ use Yii;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
+use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 
 class BaseController extends BackendController
@@ -504,7 +505,7 @@ class BaseController extends BackendController
     public function actionTree()
     {
         $id = intval(Yii::$app->request->post('key', 0));
-        $tableNames = ( Yii::$app->request->post('table_names', null) );
+        $tableNames = (Yii::$app->request->post('table_names', null));
 
         $tree = ContentTree::getItemsAsTreeForLink($id, $tableNames);
 
@@ -518,7 +519,7 @@ class BaseController extends BackendController
     public function actionTreeForMove()
     {
         $id = intval(Yii::$app->request->post('key', 0));
-        $tableNames = ( Yii::$app->request->post('table_names', null) );
+        $tableNames = (Yii::$app->request->post('table_names', null));
 
         $tree = ContentTree::getItemsAsTreeForLink($id, $tableNames);
 
@@ -532,7 +533,7 @@ class BaseController extends BackendController
      * @throws \yii\base\Exception
      * @throws \yii\web\NotFoundHttpException
      */
-    public function actionUserLogin($id, $contentTreeId)
+    public function actionUserLogin($id, $contentTreeId, $language)
     {
         $model = $this->findUserModel($id);
         $tokenModel = UserToken::create(
@@ -541,13 +542,22 @@ class BaseController extends BackendController
             60
         );
 
-        return $this->redirect(
-            Yii::$app->urlManagerFrontend->createAbsoluteUrl([
-                'user/sign-in/login-by-pass',
-                'token' => $tokenModel->token,
-                'contentTreeId' => $contentTreeId
-            ])
-        );
+        $frontendHosts = Yii::$app->getFrontendDomains(Yii::$app->websiteContentTree->key);
+        $frontendHost = array_search($language, $frontendHosts);
+
+        if (!isset(parse_url($frontendHost)['scheme'])) {
+            $frontendHost = 'http://' . $frontendHost;
+        }
+
+        $oldHost = Yii::$app->urlManagerFrontend->getHostInfo();
+        Yii::$app->urlManagerFrontend->setHostInfo($frontendHost);
+        $url = Yii::$app->urlManagerFrontend->createAbsoluteUrl([
+            'user/sign-in/login-by-pass',
+            'token' => $tokenModel->token,
+            'contentTreeId' => $contentTreeId
+        ]);
+        Yii::$app->urlManagerFrontend->setHostInfo($oldHost);
+        return $this->redirect($url);
     }
 
     /**
@@ -626,7 +636,7 @@ class BaseController extends BackendController
      */
     protected function findUserModel($id)
     {
-        if (( $model = User::findOne($id) ) !== null) {
+        if (($model = User::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
@@ -643,11 +653,11 @@ class BaseController extends BackendController
      */
     protected function findModel($basicModelClass, $translateModel, $contentId, $language)
     {
-        if (( $model = $translateModel::find()->findByObjectIdAndLanguage($contentId, $language,
-                $translateModel->getForeignKeyNameOnModel())->one() ) !== null) {
+        if (($model = $translateModel::find()->findByObjectIdAndLanguage($contentId, $language,
+                $translateModel->getForeignKeyNameOnModel())->one()) !== null) {
             return $model;
         } else {
-            if (( $model = $basicModelClass::find()->byId($contentId)->one() ) !== null) {
+            if (($model = $basicModelClass::find()->byId($contentId)->one()) !== null) {
                 $key = $translateModel->getForeignKeyNameOnModel();
                 $translateModel->$key = intval($contentId);
 
