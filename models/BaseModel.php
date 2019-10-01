@@ -9,7 +9,10 @@
 namespace intermundia\yiicms\models;
 
 
+use intermundia\yiicms\behaviors\BaseModelSearchBehavior;
 use Yii;
+use yii\base\Exception;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -42,6 +45,14 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public $treeName;
     public $short_description;
 
+    const EVENT_AFTER_CONTENT_TREE_INSERT = 'after_content_tree_insert';
+
+    public function behaviors()
+    {
+        return [
+            BaseModelSearchBehavior::class,
+        ];
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -50,7 +61,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     public function getContentTree()
     {
         return $this->hasOne(ContentTree::class,
-            ['record_id' => 'id'])->andWhere(['table_name' => $this->getFormattedTableName()]);
+            ['record_id' => 'id'])->andWhere([ContentTree::tableName() . '.table_name' => $this->getFormattedTableName()]);
     }
 
     /**
@@ -160,18 +171,26 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         return [
             'base/add-new-language',
-            'tableName' => $this->getFormattedTableName(),
+            'contentType' => $this->getContentType(),
             'id' => $this->id,
             'from' => Yii::$app->websiteMasterLanguage,
             'to' => Yii::$app->language,
         ];
     }
 
+    /**
+     * Return object delete url
+     *
+     * @param $treeId
+     * @return array
+     * @throws \yii\base\Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
     public function getDeleteUrl($treeId)
     {
         return [
             'base/delete',
-            'tableName' => $this->getFormattedTableName(),
+            'contentType' => $this->getContentType(),
             'contentTreeId' => $treeId,
             'id' => $this->id,
         ];
@@ -231,7 +250,15 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
     {
         $items = [];
         $translatedLanguages = $this->getTranslatedLanguages();
-
+        uksort($translatedLanguages, function($a, $b) {
+            if($a == Yii::$app->language || $a == Yii::$app->websiteMasterLanguage) {
+                return -1;
+            }
+            else if($b == Yii::$app->language || $b == Yii::$app->websiteMasterLanguage) {
+                return 1;
+            }
+            else return 0;
+        });;
         foreach ($translatedLanguages as $code => $language) {
             $items[] = ['label' => $language, 'url' => $this->getUpdateUrlByLanguage($code)];
         }
@@ -380,13 +407,18 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
 
     public function getContentType()
     {
-        if (!$this->contentTree) {
-            echo '<pre>';
-            var_dump($this->contentTree);
-            echo '</pre>';
-            exit;
+        if (!$this->contentTree){
+            throw new Exception("Incorrect content type. TableName = ".static::tableName().', ID='.$this->id);
         }
         // @TODO Optimize this not to access contentTree
         return $this->contentTree->content_type;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSearch()
+    {
+        return $this->hasMany(Search::class, ['record_id' => 'id']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace intermundia\yiicms\models;
 
+use intermundia\yiicms\behaviors\SearchBehavior;
 use intermundia\yiicms\models\query\PageQuery;
 use Yii;
 use yii\behaviors\TimestampBehavior;
@@ -43,9 +44,9 @@ class Page extends BaseModel
      */
     public function behaviors()
     {
-        return [
+        return array_merge(parent::behaviors(),[
             TimestampBehavior::class
-        ];
+        ]);
     }
 
     /**

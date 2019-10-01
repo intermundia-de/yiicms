@@ -82,6 +82,7 @@ class BaseController extends BackendController
 
         $contentTree = new ContentTree();
         $contentTree->content_type = $contentType;
+        $contentTree->view = '';
 
         $model = new ContentMultiModel([
             'models' => [
@@ -185,11 +186,8 @@ class BaseController extends BackendController
     }
 
     /**
-     * @param $tableName
-     * @param $id
-     * @param $from
-     * @param $to
      * @return \yii\web\Response
+     * @throws \yii\db\Exception
      */
     public function actionAddNewLanguage()
     {
@@ -198,16 +196,16 @@ class BaseController extends BackendController
             if (!$post) {
                 throw new InvalidArgumentException();
             }
-            $tableName = $post['tableName'];
+            $contentType = $post['contentType'];
             $id = $post['id'];
             $to = $post['to'];
             $from = $post['from'];
-            if (!($tableName || $id || $to)) {
+            if (!( $contentType || $id || $to )) {
                 throw new InvalidArgumentException();
             }
 
 
-            $className = Yii::$app->contentTree->getClassName($tableName);
+            $className = Yii::$app->contentTree->getClassName($contentType);
             /** @var $baseModel BaseModel */
             $baseModel = $className::find()->byId($id)->one();
 
@@ -215,7 +213,7 @@ class BaseController extends BackendController
                 return $this->redirect($baseModel->getUpdateUrlByLanguage($to));
             }
 
-            $contentTree = ContentTree::find()->byTableName($tableName)->byRecordId($id)->notDeleted()->one();
+            $contentTree = ContentTree::find()->byContentType($contentType)->byRecordId($id)->notDeleted()->one();
 
             $transaction = Yii::$app->db->beginTransaction();
 
@@ -233,7 +231,7 @@ class BaseController extends BackendController
     }
 
     /**
-     * @param $tableName
+     * @param $contentType
      * @param $contentTreeId
      * @param $id
      * @return \yii\web\Response
@@ -241,9 +239,9 @@ class BaseController extends BackendController
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      */
-    public function actionDelete($tableName, $contentTreeId, $id)
+    public function actionDelete($contentType, $contentTreeId, $id)
     {
-        $ClassName = Yii::$app->contentTree->getClassName($tableName);
+        $ClassName = Yii::$app->contentTree->getClassName($contentType);
         $connection = Yii::$app->db;
         $transaction = $connection->beginTransaction();
         /** @var BaseModel $baseModel */
@@ -571,41 +569,16 @@ class BaseController extends BackendController
         $res = ['code' => 1];
         $treeId = intval(Yii::$app->request->post()['tree']);
         $parentTree = ContentTree::find()->byId($treeId)->one();
-        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
+//        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
         if ($parentTree) {
             if (isset(Yii::$app->request->post()['ids']) && is_array(Yii::$app->request->post()['ids'])) {
                 foreach (Yii::$app->request->post()['ids'] as $id) {
                     $linkedParentTree = ContentTree::find()->byId(intval($id))->one();
                     if ($linkedParentTree) {
                         $linkedTree = new ContentTree();
-                        $linkedTree->link_id = $linkedParentTree->id;
-                        $linkedTree->record_id = $linkedParentTree->record_id;
-                        $linkedTree->table_name = $linkedParentTree->table_name;
-                        $linkedTree->content_type = $linkedParentTree->content_type;
-                        $transaction = Yii::$app->db->beginTransaction();
-                        if (!$linkedTree->appendTo($parentTree)) {
-                            return json_encode(['code' => 0, 'message' => 'Could Not Prepend To Parent Node']);
-                        } else {
-                            foreach ($linkedParentTree->translations as $linkedParentTreeTranslation) {
-                                if (!isset($parentTreeTranslations[$linkedParentTreeTranslation->language])) {
-                                    continue;
-                                }
-                                $data = ArrayHelper::toArray($linkedParentTreeTranslation);
-                                $parentTreeTranslation = $parentTreeTranslations[$linkedParentTreeTranslation->language];
-                                unset($data['id']);
-                                $linkedTreeTranslation = new ContentTreeTranslation();
-                                $linkedTreeTranslation->load($data, '');
-                                $linkedTreeTranslation->content_tree_id = $linkedTree->id;
-                                $linkedTreeTranslation->alias_path = $parentTreeTranslation->alias_path . '/' . $linkedTreeTranslation->alias;
-                                $linkedTreeTranslation->getBehavior('sluggable')->onlyMakeUniqueInPath = true;
-                                if (!$linkedTreeTranslation->save()) {
-                                    $transaction->rollBack();
-
-                                    return json_encode(['code' => 0, 'message' => 'Could Not Save In Translation']);
-                                }
-                            }
-                            $transaction->commit();
-                        }
+                        if(!$linkedTree->linkInside($parentTree, $linkedParentTree)) {
+                            return json_encode(['code' => 0, 'message' => 'Failed to link']);
+                        };
                     } else {
                         $res = ['code' => 0, 'message' => 'Tree Not Found'];
                     }

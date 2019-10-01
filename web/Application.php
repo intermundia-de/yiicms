@@ -9,6 +9,7 @@ namespace intermundia\yiicms\web;
 
 use intermundia\yiicms\helpers\LanguageHelper;
 use intermundia\yiicms\models\ContentTree;
+use intermundia\yiicms\models\ContentTreeTranslation;
 
 /**
  * Class Application
@@ -37,7 +38,6 @@ class Application extends BaseApplication
     public function beforeRequest()
     {
         parent::beforeRequest();
-
 //
         if ($this->hasLanguageInUrl) {
             $rules = &$this->urlManager->rules;

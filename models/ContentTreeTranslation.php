@@ -13,16 +13,16 @@ use yii\helpers\Url;
 /**
  * This is the model class for table "{{%content_tree_translation}}".
  *
- * @property int         $id
- * @property int         $content_tree_id
- * @property string      $language
- * @property string      $alias
- * @property string      $name
- * @property string      $alias_path
- * @property string      $short_description
- * @property array       $_oldContentTreeAttributes
+ * @property int $id
+ * @property int $content_tree_id
+ * @property string $language
+ * @property string $alias
+ * @property string $name
+ * @property string $alias_path
+ * @property string $short_description
+ * @property array $_oldContentTreeAttributes
  *
- * @property boolean     $selfUpdateOnly
+ * @property boolean $selfUpdateOnly
  *
  * @property ContentTree $contentTree
  */
@@ -168,7 +168,7 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
 
     /**
      *
-     * @param bool  $insert
+     * @param bool $insert
      * @param array $changedAttributes
      * @throws \yii\base\Exception
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
@@ -195,6 +195,11 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
             $insert && $this->children && !$this->contentTree->link_id && $this->contentTree->depth > 0 && $this->trigger(self::CHANGE_CHILDREN_PATH);
         }
         parent::afterSave($insert, $changedAttributes);
+
+        if ($aliasChanged) {
+            ContentTree::invalidateAliasMap(Yii::$app->frontendCache);
+            ContentTree::getIdAliasMap(Yii::$app->frontendCache);
+        }
     }
 
     /**
@@ -382,8 +387,8 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
      */
     public function getUrl($asArray = false, $schema = false)
     {
-        if (Yii::$app->defaultContentId === $this->contentTree->id){
-            if ($asArray){
+        if (Yii::$app->defaultContentId === $this->contentTree->id) {
+            if ($asArray) {
                 return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
             }
         }

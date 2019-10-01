@@ -83,6 +83,8 @@ class ContentTree extends \yii\db\ActiveRecord
 
     private $closestPage = false;
 
+    static $aliasMap = false;
+
     /**
      * {@inheritdoc}
      */
@@ -301,7 +303,7 @@ class ContentTree extends \yii\db\ActiveRecord
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public static function getItemsAsTree(
-        $fields = ['id', 'alias', 'name' => 'label', 'url', 'record_id', 'language'],
+        $fields = ['id', 'alias_path', 'name' => 'label', 'url', 'record_id', 'language'],
         $extraFields = [],
         $appendParams = []
     )
@@ -315,7 +317,7 @@ class ContentTree extends \yii\db\ActiveRecord
                    `content_tree`.`rgt`,
                    `content_tree`.`depth`,
                    `content_tree`.`hide`,
-                   IFNULL(ct.alias, IFNULL(ctt.alias, (SELECT alias FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `alias`,
+                   IFNULL(ct.alias_path, IFNULL(ctt.alias_path, (SELECT alias_path FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `alias_path`,
                    IFNULL(ct.name, IFNULL(ctt.name, (SELECT `name` FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `name`,
                    IFNULL(ct.short_description, IFNULL(ctt.short_description, (SELECT short_description FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `short_description`,
                    IFNULL(ct.language, IFNULL(ctt.language, (SELECT language FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `language`
@@ -359,26 +361,7 @@ class ContentTree extends \yii\db\ActiveRecord
         $appendParams = []
     )
     {
-
-        $query = ContentTree::find()
-            ->select([
-                'content_tree.id',
-                'content_tree.record_id',
-                'content_tree.table_name',
-                'content_tree.lft',
-                'content_tree.rgt',
-                'content_tree.depth',
-                'content_tree_translation.alias',
-                'content_tree_translation.alias_path',
-                'content_tree_translation.name as name',
-                'content_tree_translation.short_description',
-            ])
-            ->leftJoin('content_tree_translation', 'content_tree_translation.content_tree_id = content_tree.id')
-            ->andWhere(['`content_tree_translation`.language' => \Yii::$app->language])
-            ->notDeleted()
-//            ->notHidden()
-//            ->linkedIdIsNull()
-            ->orderBy('content_tree.lft');
+        $query = ContentTree::find()->tree();
 
         if ($lft !== null && $rgt !== null) {
             $query->andWhere(['<', 'content_tree.deleted_at', $lft])
@@ -401,6 +384,70 @@ class ContentTree extends \yii\db\ActiveRecord
         $items = $nestedSetModel->getTree($fields);
 
         return [$items];
+    }
+
+    public static function getIdAliasMap($customCache = false)
+    {
+        $cache = $customCache ?: $customCache = Yii::$app->cache;
+
+        $key = self::getAliasMapCacheKey();
+        if (self::$aliasMap === false){
+            if (!$cache->exists($key)){
+                self::$aliasMap = self::getAliasMapData();
+                $cache->set($key, self::$aliasMap);
+            } else {
+                self::$aliasMap = $cache->get($key);
+            }
+        } else {
+            $cache->set($key, self::$aliasMap);
+        }
+        return self::$aliasMap;
+    }
+
+    public static function invalidateAliasMap($customCache = false)
+    {
+        $cache = $customCache ?: $customCache = Yii::$app->cache;
+
+        $key = self::getAliasMapCacheKey();
+        $cache->delete($key);
+        self::$aliasMap = false;
+    }
+
+    public static function getAliasMapCacheKey()
+    {
+        return ['alias_map_' . Yii::$app->language];
+    }
+
+    public static function getAliasMapData()
+    {
+        $db = \Yii::$app->getDb();
+        $command = $db->createCommand(
+            "SELECT c.id,
+IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) ORDER BY par.lft SEPARATOR '/'), '/',
+              IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)),
+       IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)) as alias_path
+FROM content_tree c
+         LEFT JOIN content_tree par on par.lft < c.lft AND par.rgt > c.rgt AND par.table_name != 'website'
+         LEFT JOIN content_tree_translation ctt on c.id = ctt.content_tree_id AND ctt.language = :currentLanguage
+         LEFT JOIN content_tree_translation ctt2 on c.id = ctt2.content_tree_id AND ctt2.language = :masterLanguage
+         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) ctt3
+                   ON ctt3.content_tree_id = c.id
+         LEFT JOIN content_tree_translation part on par.id = part.content_tree_id AND part.language = :currentLanguage
+         LEFT JOIN content_tree_translation part2 on par.id = part2.content_tree_id AND part2.language = :masterLanguage
+         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) part3
+                   ON part3.content_tree_id = par.id
+                   
+WHERE c.table_name != 'website'
+GROUP BY c.id
+ORDER BY par.lft;");
+
+        $command->bindParam(":currentLanguage", \Yii::$app->language);
+        $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
+
+        $data = $command->queryAll();
+        $data = ArrayHelper::map($data, 'id', 'alias_path');
+
+        return $data;
     }
 
     /**
@@ -521,14 +568,15 @@ class ContentTree extends \yii\db\ActiveRecord
      */
     public function getUrl($asArray = false, $schema = false)
     {
-        $url = ['content-tree/index', 'nodes' => $this->getNodes()];
+        $aliasMap = ContentTree::getIdAliasMap();
+        $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
+        $defaultAliasPath = ArrayHelper::getValue($aliasMap, Yii::$app->defaultContent->id, '');
+
+        $url = ['content-tree/index', 'nodes' => $aliasPath];
         $url = $asArray ? $url : Url::to($url, $schema);
 
-
-        $defaultContent = Yii::$app->defaultContent;
-        $defaultUrl = ['content-tree/index', 'nodes' => $defaultContent->getNodes()];
+        $defaultUrl = ['content-tree/index', 'nodes' => $defaultAliasPath];
         $defaultUrl = $asArray ? $defaultUrl : Url::to($defaultUrl, $schema);
-
 
         if ($defaultUrl === $url) {
             return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
@@ -915,7 +963,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public function linkInside(ContentTree $parentTree, ContentTree $linkFrom)
     {
-        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
+//        $parentTreeTranslations = ArrayHelper::index($parentTree->translations, 'language');
         $this->link_id = $linkFrom->id;
         $this->record_id = $linkFrom->record_id;
         $this->table_name = $linkFrom->table_name;
@@ -925,11 +973,11 @@ class ContentTree extends \yii\db\ActiveRecord
         }
 
         foreach ($linkFrom->translations as $translation) {
-            if (!isset($parentTreeTranslations[$translation->language])) {
-                continue;
-            }
+//            if (!isset($parentTreeTranslations[$translation->language])) {
+//                continue;
+//            }
             $data = $translation->toArray();
-            $parentTreeTranslation = $parentTreeTranslations[$translation->language];
+            $parentTreeTranslation = $parentTree->activeTranslation;
             unset($data['id']);
             $newTranslation = new ContentTreeTranslation();
             $newTranslation->load($data, '');
@@ -954,5 +1002,16 @@ class ContentTree extends \yii\db\ActiveRecord
     public function isLinkedInside(ContentTree $contentTree)
     {
         return $contentTree->children(1)->byLinkId($this->id)->one();
+    }
+
+    /**
+     * Return the display name of the content_type
+     *
+     * @return mixed
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public function getDisplayContentType()
+    {
+        return Yii::$app->contentTree->getDisplayName($this->content_type);
     }
 }

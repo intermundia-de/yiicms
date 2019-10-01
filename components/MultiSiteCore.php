@@ -81,14 +81,4 @@ class MultiSiteCore extends Component
 //        Yii::$app->language = ArrayHelper::getValue($this->websites, $currentDomain, Yii::$app->language);
 //        \Yii::$app->on(Application::EVENT_AFTER_REQUEST, self::class.'::beforeRequest');
     }
-
-
-    public static function beforeRequest()
-    {
-        echo '<pre>';
-        var_dump("Before request");
-        echo '</pre>';
-
-
-    }
 }

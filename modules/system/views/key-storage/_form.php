@@ -18,7 +18,7 @@ use yii\helpers\Html;
 
 <?php echo $form->field($model, 'key')->textInput() ?>
 
-<?php echo $form->field($model, 'value')->textInput() ?>
+<?php echo $form->field($model, 'value')->textarea() ?>
 
 <?php echo $form->field($model, 'comment')->textarea() ?>
 

@@ -21,15 +21,8 @@ $bundle = BackendAsset::register($this);
 $rootItems = ContentTree::getItemsAsTree([
     'name' => 'label',
     'alias',
-    'url' => function ($item, $parentItem) {
-        $url = $item['alias'];
-        /** @var $parentItem \intermundia\yiicms\components\Node */
-        if ($parentItem) {
-            $processedData = $parentItem->getProcessedData();
-            $url = $processedData['url']['nodes'] . '/' . $url;
-        }
-
-        return ['/content-tree/index', 'nodes' => $url, 'language' => $item['language']];
+    'url' => function ($item) {
+        return ['/content-tree/index', 'nodes' => $item['alias_path'], 'language' => $item['language']];
     },
     'icon' => function ($item) {
         return 'fa ' . Yii::$app->contentTree->getIcon($item['table_name'],
