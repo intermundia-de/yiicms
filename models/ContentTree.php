@@ -407,7 +407,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
     public static function invalidateAliasMap($customCache = false, $language = null)
     {
-        $cache = $customCache ?: $customCache = Yii::$app->cache;
+        $cache = $customCache ?: Yii::$app->cache;
         $language = $language ?: Yii::$app->language;
 
         $key = self::getAliasMapCacheKey($language);
@@ -591,32 +591,16 @@ ORDER BY par.lft;");
 
     public function getUrlForLanguage($languageCode, $asArray = false, $schema = false)
     {
-
         if ($this->id == Yii::$app->defaultContentId){
             return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
         }
-
         $aliasMap = ContentTree::getIdAliasMap(false, $languageCode);
         $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
 
-
-//        if ($this->id == 3) {
-//            echo "<pre>";
-//            var_dump($languageCode, $aliasPath);
-//            echo "</pre>";
-//        }
         $url = ['content-tree/index', 'nodes' => $aliasPath];
         $url = $asArray ? $url : Url::to($url, $schema);
 
         return $url;
-//
-//
-//        $translation = $this->getTranslation()->andWhere(['language' => $languageCode])->one() ?: $this->defaultTranslation;
-//        if (!$translation){
-//            return '';
-//        }
-//
-//        return $translation->getUrl($asArray, $schema);
     }
 
     public function getPage()
