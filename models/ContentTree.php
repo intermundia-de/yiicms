@@ -386,39 +386,41 @@ class ContentTree extends \yii\db\ActiveRecord
         return [$items];
     }
 
-    public static function getIdAliasMap($customCache = false)
+    public static function getIdAliasMap($customCache = false, $language = null)
     {
-        $cache = $customCache ?: $customCache = Yii::$app->cache;
+        $cache = $customCache ?: Yii::$app->cache;
+        $language = $language ?: Yii::$app->language;
 
-        $key = self::getAliasMapCacheKey();
-        if (self::$aliasMap === false){
+        $key = self::getAliasMapCacheKey($language);
+        if (!isset(self::$aliasMap[$language])){
             if (!$cache->exists($key)){
-                self::$aliasMap = self::getAliasMapData();
-                $cache->set($key, self::$aliasMap);
+                self::$aliasMap[$language] = self::getAliasMapData($language);
+                $cache->set($key, self::$aliasMap[$language]);
             } else {
-                self::$aliasMap = $cache->get($key);
+                self::$aliasMap[$language] = $cache->get($key);
             }
         } else {
-            $cache->set($key, self::$aliasMap);
+            $cache->set($key, self::$aliasMap[$language]);
         }
-        return self::$aliasMap;
+        return self::$aliasMap[$language];
     }
 
-    public static function invalidateAliasMap($customCache = false)
+    public static function invalidateAliasMap($customCache = false, $language = null)
     {
         $cache = $customCache ?: $customCache = Yii::$app->cache;
+        $language = $language ?: Yii::$app->language;
 
-        $key = self::getAliasMapCacheKey();
+        $key = self::getAliasMapCacheKey($language);
         $cache->delete($key);
-        self::$aliasMap = false;
+        self::$aliasMap[$language] = false;
     }
 
-    public static function getAliasMapCacheKey()
+    public static function getAliasMapCacheKey($language)
     {
-        return ['alias_map_' . Yii::$app->language];
+        return ['alias_map_' . $language];
     }
 
-    public static function getAliasMapData()
+    public static function getAliasMapData($language)
     {
         $db = \Yii::$app->getDb();
         $command = $db->createCommand(
@@ -441,7 +443,7 @@ WHERE c.table_name != 'website'
 GROUP BY c.id
 ORDER BY par.lft;");
 
-        $command->bindParam(":currentLanguage", \Yii::$app->language);
+        $command->bindParam(":currentLanguage", $language);
         $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
 
         $data = $command->queryAll();
@@ -568,31 +570,53 @@ ORDER BY par.lft;");
      */
     public function getUrl($asArray = false, $schema = false)
     {
-        $aliasMap = ContentTree::getIdAliasMap();
-        $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
-        $defaultAliasPath = ArrayHelper::getValue($aliasMap, Yii::$app->defaultContent->id, '');
-
-        $url = ['content-tree/index', 'nodes' => $aliasPath];
-        $url = $asArray ? $url : Url::to($url, $schema);
-
-        $defaultUrl = ['content-tree/index', 'nodes' => $defaultAliasPath];
-        $defaultUrl = $asArray ? $defaultUrl : Url::to($defaultUrl, $schema);
-
-        if ($defaultUrl === $url) {
-            return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
-        }
-
-        return $url;
+        return $this->getUrlForLanguage(Yii::$app->language, $asArray, $schema);
+//
+//        $aliasMap = ContentTree::getIdAliasMap();
+//        $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
+//        $defaultAliasPath = ArrayHelper::getValue($aliasMap, Yii::$app->defaultContent->id, '');
+//
+//        $url = ['content-tree/index', 'nodes' => $aliasPath];
+//        $url = $asArray ? $url : Url::to($url, $schema);
+//
+//        $defaultUrl = ['content-tree/index', 'nodes' => $defaultAliasPath];
+//        $defaultUrl = $asArray ? $defaultUrl : Url::to($defaultUrl, $schema);
+//
+//        if ($defaultUrl === $url) {
+//            return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
+//        }
+//
+//        return $url;
     }
 
     public function getUrlForLanguage($languageCode, $asArray = false, $schema = false)
     {
-        $translation = $this->getTranslation()->andWhere(['language' => $languageCode])->one() ?: $this->defaultTranslation;
-        if (!$translation){
-            return '';
+
+        if ($this->id == Yii::$app->defaultContentId){
+            return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
         }
 
-        return $translation->getUrl($asArray, $schema);
+        $aliasMap = ContentTree::getIdAliasMap(false, $languageCode);
+        $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
+
+
+//        if ($this->id == 3) {
+//            echo "<pre>";
+//            var_dump($languageCode, $aliasPath);
+//            echo "</pre>";
+//        }
+        $url = ['content-tree/index', 'nodes' => $aliasPath];
+        $url = $asArray ? $url : Url::to($url, $schema);
+
+        return $url;
+//
+//
+//        $translation = $this->getTranslation()->andWhere(['language' => $languageCode])->one() ?: $this->defaultTranslation;
+//        if (!$translation){
+//            return '';
+//        }
+//
+//        return $translation->getUrl($asArray, $schema);
     }
 
     public function getPage()

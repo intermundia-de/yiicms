@@ -14,6 +14,7 @@ use Yii;
 use intermundia\yiicms\web\Controller;
 use yii\filters\ContentNegotiator;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -54,7 +55,7 @@ class FrontendContentTreeController extends Controller
      * @throws NotFoundHttpException
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function actionIndex()
+    public function actionIndex($id = '')
     {
         $contentTreeItem = Yii::$app->pageContentTree;
 

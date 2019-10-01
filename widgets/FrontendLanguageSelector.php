@@ -115,7 +115,7 @@ class FrontendLanguageSelector extends Nav
         foreach ($this->languageDomains as $url => $language) {
             $item = [
                 'label' => $language->name,
-                'url' => $protocol . '://' . $url . ($currentPage ? $currentPage->getUrlForLanguage($language) : '')
+                'url' => $protocol . '://' . $url . ($currentPage ? $currentPage->getUrlForLanguage($language->code) : '')
             ];
             if ($this->currentLanguage) {
                 if ($language->code == $this->currentLanguage->code) {
