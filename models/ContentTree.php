@@ -423,7 +423,7 @@ class ContentTree extends \yii\db\ActiveRecord
         $db = \Yii::$app->getDb();
         $command = $db->createCommand(
             "SELECT c.id,
-IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) SEPARATOR '/'), '/',
+IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) ORDER BY par.lft SEPARATOR '/'), '/',
               IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)),
        IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)) as alias_path
 FROM content_tree c
