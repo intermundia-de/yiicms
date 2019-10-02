@@ -425,23 +425,20 @@ class ContentTree extends \yii\db\ActiveRecord
         $db = \Yii::$app->getDb();
         $command = $db->createCommand(
             "SELECT c.id,
-IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) ORDER BY par.lft SEPARATOR '/'), '/',
-              IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)),
-       IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)) as alias_path
+       IFNULL(CONCAT(GROUP_CONCAT(IFNULL(part.alias, part2.alias) ORDER BY par.lft SEPARATOR '/'), '/',
+                     IFNULL(ctt.alias, ctt2.alias)),
+              IFNULL(ctt.alias, ctt2.alias)) as alias_path
 FROM content_tree c
          LEFT JOIN content_tree par on par.lft < c.lft AND par.rgt > c.rgt AND par.table_name != 'website'
          LEFT JOIN content_tree_translation ctt on c.id = ctt.content_tree_id AND ctt.language = :currentLanguage
          LEFT JOIN content_tree_translation ctt2 on c.id = ctt2.content_tree_id AND ctt2.language = :masterLanguage
-         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) ctt3
-                   ON ctt3.content_tree_id = c.id
          LEFT JOIN content_tree_translation part on par.id = part.content_tree_id AND part.language = :currentLanguage
          LEFT JOIN content_tree_translation part2 on par.id = part2.content_tree_id AND part2.language = :masterLanguage
-         LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) part3
-                   ON part3.content_tree_id = par.id
-                   
+
 WHERE c.table_name != 'website'
 GROUP BY c.id
-ORDER BY par.lft;");
+ORDER BY par.lft;
+");
 
         $command->bindParam(":currentLanguage", $language);
         $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
@@ -596,6 +593,10 @@ ORDER BY par.lft;");
         }
         $aliasMap = ContentTree::getIdAliasMap(false, $languageCode);
         $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
+
+        if(!$aliasPath) {
+            return '';
+        }
 
         $url = ['content-tree/index', 'nodes' => $aliasPath];
         $url = $asArray ? $url : Url::to($url, $schema);

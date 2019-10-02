@@ -9,10 +9,12 @@ namespace intermundia\yiicms\widgets;
 
 use intermundia\yiicms\components\NestedSetModel;
 use intermundia\yiicms\models\ContentTree;
+use intermundia\yiicms\models\ContentTreeTranslation;
 use intermundia\yiicms\models\ContentTreeMenu;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\bootstrap\Nav;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use intermundia\yiicms\models\Menu;
@@ -123,13 +125,20 @@ class NestedMenu extends Nav
      */
     public static function getItemsForFrontMenu($tableNames = [ContentTree::TABLE_NAME_PAGE], $fields = null, $extraFields = [], $appendParams = [])
     {
-        $contentTreeItems = ContentTree::find()
+        $ct = ContentTree::tableName();
+        $ctm = ContentTreeMenu::tableName();
+        $tr = ContentTreeTranslation::tableName();
+        $query = ContentTree::find()
+            ->leftJoin($ctm,
+                $ctm . '.content_tree_id = ' . $ct . '.id')
+            ->leftJoin(Menu::tableName(), Menu::tableName() . '.id = ' . $ctm . '.menu_id');
+
+        $query->innerJoin($tr . 't',
+            ['t.content_tree_id' => new Expression($ct . ".id"), 'language' => [\Yii::$app->language, \Yii::$app->websiteMasterLanguage]]);
+
+        $query->withTranslations(true)
             ->notHidden()
             ->notDeleted()
-            ->withTranslations(true)
-            ->leftJoin(ContentTreeMenu::tableName(),
-                ContentTreeMenu::tableName() . '.content_tree_id = ' . ContentTree::tableName() . '.id')
-            ->leftJoin(Menu::tableName(), Menu::tableName() . '.id = ' . ContentTreeMenu::tableName() . '.menu_id')
             ->andWhere([
                 'or',
                 [
@@ -140,8 +149,31 @@ class NestedMenu extends Nav
                     ContentTree::tableName() . '.table_name' => [ContentTree::TABLE_NAME_WEBSITE]
                 ]
             ])
-            ->orderBy('lft')
-            ->all();
+            ->orderBy('lft');
+
+
+        $contentTreeItems = $query->all();
+
+
+//        $contentTreeItems = ContentTree::find()
+//            ->notHidden()
+//            ->notDeleted()
+//            ->withTranslations(true)
+//            ->leftJoin(ContentTreeMenu::tableName(),
+//                ContentTreeMenu::tableName() . '.content_tree_id = ' . ContentTree::tableName() . '.id')
+//            ->leftJoin(Menu::tableName(), Menu::tableName() . '.id = ' . ContentTreeMenu::tableName() . '.menu_id')
+//            ->andWhere([
+//                'or',
+//                [
+//                    Menu::tableName() . '.key' => 'header',
+//                    ContentTree::tableName() . '.table_name' => $tableNames
+//                ],
+//                [
+//                    ContentTree::tableName() . '.table_name' => [ContentTree::TABLE_NAME_WEBSITE]
+//                ]
+//            ])
+//            ->orderBy('lft')
+//            ->all();
 
         return NestedSetModel::getMenuTree($contentTreeItems, $fields, $extraFields, $appendParams);
     }
