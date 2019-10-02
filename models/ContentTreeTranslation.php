@@ -197,8 +197,8 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
         parent::afterSave($insert, $changedAttributes);
 
         if ($aliasChanged) {
-            ContentTree::invalidateAliasMap(Yii::$app->frontendCache);
-            ContentTree::getIdAliasMap(Yii::$app->frontendCache);
+            ContentTree::invalidateAliasMap(Yii::$app->frontendCache, $this->language);
+            ContentTree::getIdAliasMap(Yii::$app->frontendCache, $this->language);
         }
     }
 
@@ -377,24 +377,42 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
         return $asArray ? $url : Url::to($url, $schema);
     }
 
-    /**
-     * Get url of the object on current language
-     *
-     * @param bool $asArray
-     * @param bool $schema
-     * @return array|string
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
-     */
-    public function getUrl($asArray = false, $schema = false)
-    {
-        if (Yii::$app->defaultContentId === $this->contentTree->id) {
-            if ($asArray) {
-                return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
-            }
-        }
-        $url = ['content-tree/index', 'nodes' => $this->alias_path];
-        $url = $asArray ? $url : Url::to($url, $schema);
+//    /**
+//     * Get url of the object on current language
+//     *
+//     * @param bool $asArray
+//     * @param bool $schema
+//     * @return array|string
+//     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+//     */
+//    public function getUrl($asArray = false, $schema = false)
+//    {
+//
+//        if ($this->content_tree_id === Yii::$app->defaultContentId){
+//            return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
+//        }
+//
+//        $aliasMap = ContentTree::getIdAliasMap(false, $this->language);
+//        $aliasPath = ArrayHelper::getValue($aliasMap, $this->content_tree_id, '');
+//
+//
+//        echo "<pre>";
+//        var_dump($aliasPath, $this->alias_path);
+//        echo "</pre>";
+//        $url = ['content-tree/index', 'nodes' => $aliasPath];
+//        $url = $asArray ? $url : Url::to($url, $schema);
+//
+//        return $url;
 
-        return $url;
-    }
+//
+//        if (Yii::$app->defaultContentId === $this->contentTree->id) {
+//            if ($asArray) {
+//                return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
+//            }
+//        }
+//        $url = ['content-tree/index', 'nodes' => $this->alias_path];
+//        $url = $asArray ? $url : Url::to($url, $schema);
+//
+//        return $url;
+//    }
 }
