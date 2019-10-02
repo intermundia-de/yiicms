@@ -98,13 +98,16 @@ class BaseApplication extends \yii\web\Application
         foreach (\Yii::$app->multiSiteCore->websites as $websiteKey => $websiteData) {
             $masterLanguage = $websiteData['masterLanguage'];
 
-            $websiteDomains = $this->getWebsiteDomains($websiteKey);
+            $frontendDomains = $this->getFrontendDomains($websiteKey);
+            $backendDomains = $this->getBackendDomains($websiteKey);
+            $websiteDomains = array_merge($frontendDomains, $backendDomains);
 
             //Sort website domains based on key length descending order
             uksort($websiteDomains, function ($a, $b) {
                 return strlen($b) - strlen($a);
             });
             foreach ($websiteDomains as $domain => $lang) {
+                $isFrontendDomain = in_array($domain, array_keys($frontendDomains));
                 //Compare domain host. '//$domain' prevents parse_url failure, since parse_url requires url with schema
                 $domainHost = parse_url("//$domain", PHP_URL_HOST);
                 if ($domainHost == parse_url($this->request->getAbsoluteUrl(), PHP_URL_HOST)) {
@@ -139,7 +142,7 @@ class BaseApplication extends \yii\web\Application
                             && (substr($domain, strpos($domain, '/') + 1) === $lang || $shortCode)) {
                             $this->hasLanguageInUrl = true;
                         }
-                        $frontendHost = ArrayHelper::getValue($websiteData, 'frontendHost');
+                        $frontendHost = $isFrontendDomain ? $domainHost : ArrayHelper::getValue($websiteData, 'frontendHost');
                         if (!$frontendHost) {
                             \Yii::warning("\"frontendHost\" does not exist for website \"$domain\"");
                             $frontendHost = $domainHost;
@@ -148,7 +151,8 @@ class BaseApplication extends \yii\web\Application
                         \Yii::setAlias('@frontendUrl', $requestUrlParsed['scheme'] . '://' . $frontendHost);
                         \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
                         $this->setHomeUrl($requestUrlParsed['scheme'] . '://' . $domain);
-                        $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
+                        $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl',
+                            ($isFrontendDomain ? "" : \Yii::getAlias('@frontendUrl')) . "/storage/web");
                         \Yii::setAlias('@storageUrl', $storageUrl);
                         break;
                     }

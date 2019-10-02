@@ -366,7 +366,7 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
                     'glide/index',
                     'path' => $images[$imageIndex]->path,
                     'w' => $resizeWidth
-                ], true);
+                ], false);
             }
 
             return Html::img($url, $options);
