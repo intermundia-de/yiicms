@@ -392,7 +392,8 @@ class ContentTree extends \yii\db\ActiveRecord
         $language = $language ?: Yii::$app->language;
 
         $key = self::getAliasMapCacheKey($language);
-        if (!isset(self::$aliasMap[$language])){
+
+        if (!ArrayHelper::getValue(self::$aliasMap, $language)){
             if (!$cache->exists($key)){
                 self::$aliasMap[$language] = self::getAliasMapData($language);
                 $cache->set($key, self::$aliasMap[$language]);
