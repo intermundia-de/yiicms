@@ -559,7 +559,7 @@ class ContentTree extends \yii\db\ActiveRecord
 
 
         if ($defaultUrl === $url) {
-            return ['content-tree/index', 'nodes' => ''];
+            return $asArray ? ['content-tree/index', 'nodes' => ''] :Url::to(['content-tree/index', 'nodes' => ''], $schema) ;
         }
 
         return $url;
