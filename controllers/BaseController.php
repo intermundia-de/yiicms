@@ -251,6 +251,11 @@ class BaseController extends BackendController
         $recordName = $tree->getActualItemActiveTranslation()->name;
         $oldData = $baseModel->activeTranslation->getData();
 
+        $translatedLanguages = array_map(function($translation) {
+            /** @var BaseTranslateModel $translation */
+            return $translation->language;
+        },$baseModel->translations);
+
         $tree->deleteWithBaseModel();
 //        $tree->deleted_by = Yii::$app->user->id;
 //
@@ -287,6 +292,12 @@ class BaseController extends BackendController
             'data' => ['old' => $oldData],
             'createdBy' => Yii::$app->user->id
         ]));
+
+        //Clear cache for all translated languages
+        foreach($translatedLanguages as $language) {
+            ContentTree::invalidateAliasMap(Yii::$app->frontendCache, $language);
+            ContentTree::getIdAliasMap(Yii::$app->frontendCache, $language);
+        }
 
         return $this->redirect($parent->getFullUrl());
     }

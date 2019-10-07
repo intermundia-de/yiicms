@@ -196,7 +196,7 @@ class ContentTreeTranslation extends \yii\db\ActiveRecord
         }
         parent::afterSave($insert, $changedAttributes);
 
-        if ($aliasChanged) {
+        if ($insert || $aliasChanged) {
             ContentTree::invalidateAliasMap(Yii::$app->frontendCache, $this->language);
             ContentTree::getIdAliasMap(Yii::$app->frontendCache, $this->language);
         }
