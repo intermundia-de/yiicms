@@ -593,7 +593,7 @@ ORDER BY par.lft;");
     public function getUrlForLanguage($languageCode, $asArray = false, $schema = false)
     {
         if ($this->id == Yii::$app->defaultContentId){
-            return $asArray ? ['content-tree/index', 'nodes' => ''] : '/';
+            return $asArray ? ['content-tree/index', 'nodes' => ''] : Url::to('/', $schema);
         }
         $aliasMap = ContentTree::getIdAliasMap(false, $languageCode);
         $aliasPath = ArrayHelper::getValue($aliasMap, $this->id, '');
