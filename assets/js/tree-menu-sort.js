@@ -34,7 +34,7 @@
         }
 
         $.ajax({
-          url: '/menu/sort',
+          url: '/core/menu/sort',
           type: 'POST',
           data: {
             prev: prev,

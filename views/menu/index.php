@@ -33,7 +33,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'buttons' => [
                     'sort' => function ($url, $model) {
                         /** @var \intermundia\yiicms\models\ContentTree $model */
-                        $url = Url::to(['/menu/children', 'id' => $model->id]);
+                        $url = Url::to(['/core/menu/children', 'id' => $model->id]);
                         return Html::a(Html::tag('span', '', ['class' => 'glyphicon glyphicon-sort']), $url, [
                             'title' => Yii::t('intermundiacms', 'sort'),
                         ]);
