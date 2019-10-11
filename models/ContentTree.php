@@ -341,6 +341,61 @@ class ContentTree extends \yii\db\ActiveRecord
     }
 
     /**
+     *
+     *
+     * @param string $menuKey
+     * @param array $fields
+     * @param array $extraFields
+     * @param array $appendParams
+     * @return array
+     * @throws \Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    public static function getMenuItemsAsTree(
+        $menuKey,
+        $fields = ['id', 'alias_path', 'name' => 'label', 'url', 'record_id', 'language'],
+        $extraFields = [],
+        $appendParams = []
+    )
+    {
+        $contentTreeItems = ContentTree::findBySql("
+            SELECT `content_tree`.`id`,
+                   `content_tree`.`record_id`,
+                   `content_tree`.`link_id`,
+                   `content_tree`.`table_name`,
+                   `content_tree`.`lft`,
+                   `content_tree`.`rgt`,
+                   `content_tree`.`depth`,
+                   `content_tree`.`hide`,
+                   IFNULL(ct.alias_path, IFNULL(ctt.alias_path, (SELECT alias_path FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `alias_path`,
+                   IFNULL(ct.name, IFNULL(ctt.name, (SELECT `name` FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `name`,
+                   IFNULL(ct.short_description, IFNULL(ctt.short_description, (SELECT short_description FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `short_description`,
+                   IFNULL(ct.language, IFNULL(ctt.language, (SELECT language FROM content_tree_translation WHERE content_tree_id = content_tree.id LIMIT 1))) AS `language`
+            FROM `content_tree`
+                     LEFT JOIN `content_tree_translation` `ct` ON
+                ct.content_tree_id = `content_tree`.id AND ct.language = :language
+                     LEFT JOIN `content_tree_translation` `ctt` ON
+                ctt.content_tree_id = `content_tree`.id AND ctt.language = :masterLanguage
+                     INNER JOIN content_tree_menu m ON 
+                content_tree.id = m.content_tree_id
+                INNER JOIN menu m2 ON m.menu_id = m2.id
+            WHERE (`content_tree`.`website` = :website)
+              AND (`content_tree`.`deleted_at` IS NULL)
+              AND `m2`.`key` = :menuKey
+            ORDER BY `content_tree`.`lft`
+        ", [
+            'menuKey' => $menuKey,
+            'website' => Yii::$app->websiteContentTree->id,
+            'language' => \Yii::$app->language,
+            'masterLanguage' => \Yii::$app->websiteMasterLanguage
+        ])->asArray()->all();
+        $nestedSetModel = new NestedSetModel($contentTreeItems, $extraFields, $appendParams);
+        $items = $nestedSetModel->getTree($fields);
+
+        return [$items];
+    }
+
+    /**
      * @param null  $id
      * @param null  $tableNames
      * @param null  $lft
