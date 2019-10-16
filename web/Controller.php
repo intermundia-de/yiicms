@@ -18,9 +18,9 @@ use intermundia\yiicms\helpers\Html;
 class Controller extends \yii\web\Controller
 {
 
-    public function render($view, $params = [])
-    {
-        $content = parent::render($view, $params);
-        return Html::replaceContentTreeIdsInContent($content);
-    }
+//    public function render($view, $params = [])
+//    {
+//        $content = parent::render($view, $params);
+//        return Html::replaceContentTreeIdsInContent($content);
+//    }
 }
