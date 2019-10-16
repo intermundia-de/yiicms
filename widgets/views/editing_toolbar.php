@@ -36,13 +36,13 @@ $model = new LoginForm();
                     <input id="with-hidden-checkbox" type="checkbox" name="with-hidden"
                         <?php echo( !Yii::$app->request->get('hidden') ? '' : 'checked' ) ?>>
                     <?php echo Yii::t('frontend', 'With Hidden') ?>
-                </label> <?php echo \yii\helpers\Html::a(
+                </label> <?php echo ( Yii::$app->pageContentTree ? \yii\helpers\Html::a(
                         Yii::t('frontend', 'Edit in backend'), Yii::$app->pageContentTree->getBackendFullUrl(),
                         [
                             'id' => 'to-backend-url',
                             'class' => 'btn btn-sm btn-warning btn-content-editing',
                             'target' => '_blank'
-                        ]) . '&nbsp' .
+                        ]) : '' ) . '&nbsp' .
                     \yii\helpers\Html::a(Yii::t('frontend', 'Logout'),
                         \yii\helpers\Url::to(['/user/sign-in/logout']),
                         ['data-method' => 'post', 'class' => 'btn btn-sm btn-danger btn-content-editing btn-logout'])

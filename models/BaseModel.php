@@ -397,12 +397,17 @@ abstract class BaseModel extends ActiveRecord implements BaseModelInterface
      * Return the content attribute of activeTranslation
      *
      * @param string $attribute
+     * @param bool   $handleLinks Whether linked content tree objects should be converted to real links or not
      * @return mixed
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function renderAttribute($attribute)
+    public function renderAttribute($attribute, $handleLinks = true)
     {
-        return $this->activeTranslation->$attribute;
+        $content = $this->activeTranslation->$attribute;
+        if ($handleLinks){
+            $content = \intermundia\yiicms\helpers\Html::replaceContentTreeIdsInContent($content);
+        }
+        return $content;
     }
 
     public function getContentType()
