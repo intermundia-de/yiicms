@@ -21,7 +21,7 @@ use yii\helpers\Html;
             'name' => 'go_to_parent',
             'value' => '1',
             'class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary',
-            'disabled' => $model->getModelClass()::getFormattedTableName() == \intermundia\yiicms\models\ContentTree::TABLE_NAME_WEBSITE
+            'disabled' => $model->contentTree && $model->contentTree->depth == 0
         ]) ?>
     <?php echo Html::submitButton(Yii::t('intermundiacms',
         $model->isNewRecord ? 'Create and stay' : 'Update and stay'),
