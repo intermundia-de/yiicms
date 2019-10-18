@@ -318,16 +318,17 @@ class ContentTreeQuery extends \yii\db\ActiveQuery
     /**
      * Find only ContentTree which has translation on current language or default language
      *
+     * @param bool $checkMasterLanguageAlso
      * @return self
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    public function hasTranslation()
+    public function hasTranslation($checkMasterLanguageAlso = true)
     {
         $ctt = ContentTreeTranslation::tableName();
         $this->leftJoin($ctt . ' ctt', ContentTree::tableName() . ".id = ctt.content_tree_id AND ctt.language = :language", [
             'language' => Yii::$app->language,
         ]);
-        if (Yii::$app->language !== Yii::$app->websiteMasterLanguage) {
+        if ($checkMasterLanguageAlso && Yii::$app->language !== Yii::$app->websiteMasterLanguage) {
             $this->leftJoin($ctt . ' ctt2', ContentTree::tableName() . ".id = ctt2.content_tree_id AND ctt2.language = :masterLanguage", [
                 'masterLanguage' => Yii::$app->websiteMasterLanguage
             ])
