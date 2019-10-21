@@ -718,7 +718,8 @@ ORDER BY par.lft;");
 
     public function getCssClass()
     {
-        return "content-{$this->table_name} content-{$this->table_name}-" . ( $this->view ?: 'default' )
+        return "content-{$this->table_name} content-{$this->content_type} content-{$this->table_name}-" . ( $this->view ?: 'default' )
+            . " content-{$this->content_type}-" . ( $this->view ?: 'default' )
             . " content-{$this->table_name}-" . $this->id . ( $this->hide == 1 ? ' content-hidden' : '' )
             . " content-{$this->table_name}-{$this->getAlias()}" . " content-{$this->table_name}-{$this->key}";
     }
