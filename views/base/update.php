@@ -33,7 +33,7 @@ foreach ($breadCrumbs as $breadCrumb) {
 }
 
 
-$BreadCrumb[] = ['label' => Yii::t('intermundiacms', $displayName . ' ' . $model->getTitle()), 'url' => ''];
+$BreadCrumb[] = ['label' => Yii::t('intermundiacms', $displayName . ' ' . $model->getTitle()), 'url' => $contentTreeModel->getBackendFullUrl()];
 $BreadCrumb[] = Yii::t('intermundiacms', 'Update');
 $this->params['breadcrumbs'] = $BreadCrumb;
 
