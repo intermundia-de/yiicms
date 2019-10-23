@@ -23,10 +23,10 @@ class Html extends \yii\helpers\Html
     /**
      * Generate thumbnail image for BaseModel $attribute
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param FileManagerItem $fileManagerItem
      * @param $options
      * @return string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public static function thumbnail(FileManagerItem $fileManagerItem, $options)
     {
@@ -39,11 +39,11 @@ class Html extends \yii\helpers\Html
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param BaseModel|FileManagerItem $modelOrFileManagerItem
      * @param string $attribute The attribute is necessary only when $modelOrFileManagerItem is instance of BaseModel
      * @param array $options
      * @return string
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public static function video($modelOrFileManagerItem, $attribute = null, $options = [])
     {
@@ -67,9 +67,9 @@ class Html extends \yii\helpers\Html
     /**
      * Convert ContentTree array data into [[Nav]] compatible `items` array
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param ContentTree[] $contentTreeItems
      * @return array
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public static function convertToNavData($contentTreeItems)
     {
@@ -83,13 +83,15 @@ class Html extends \yii\helpers\Html
         }
         return $navData;
     }
+
     /**
      * Replace contentTreeid array data in given content
      *
      * @param $content string
      * @return array
      */
-    public static function replaceContentTreeIdsInContent($content){
+    public static function replaceContentTreeIdsInContent($content)
+    {
 
         preg_match_all('/(?<=\{{contentTreeId:)(.*?)(?=\}})/', $content, $matches);
 
@@ -102,10 +104,19 @@ class Html extends \yii\helpers\Html
             'id',
             function ($model) {
                 /** @var $model ContentTree */
-                return [
+                $urlData = [
                     'replace' => '/{{contentTreeId:' . $model->id . '}}/',
                     'alias_path' => '/' . $model->activeTranslation->alias_path
                 ];
+                if ($model->table_name != ContentTree::TABLE_NAME_PAGE) {
+                    $pageAlias = $model->getPageUrl();
+                    $alias_path = $model->activeTranslation->alias;
+                    $urlData = [
+                        'replace' => '/{{contentTreeId:' . $model->id . '}}/',
+                        'alias_path' => $pageAlias . "#{$alias_path}_id_" . $model->id
+                    ];
+                }
+                return $urlData;
             });
 
         return preg_replace(
