@@ -190,10 +190,13 @@ class UtilsController extends Controller
                 // If the base model is website, we just need to update website translation
                 if ($formattedTableName === ContentTree::TABLE_NAME_WEBSITE) {
                     $websiteTranslation = $translateModelClass::find()->andWhere(['language' => $to])->one();
-                    if (!$websiteTranslation){
+                    if (!$websiteTranslation) {
                         $this->log("Website translation on language: \"$to\" does not exist");
                         continue;
                     }
+
+                    $fromContentTreeId = Yii::$app->websiteContentTree->id;
+                    $newContentTreeId = $websiteContentTree->id;
                     $baseModelId = $websiteTranslation->website_id;
                     unset($translationData['id']);
                     unset($translationData['language']);
@@ -293,21 +296,22 @@ class UtilsController extends Controller
                             $search['content_tree_id'] = $newContentTreeId;
                             $connection->createCommand()->insert(Search::tableName(), $search)->execute();
                         }
-
-                        // Copy menu
-
-                        $menuItems = ContentTreeMenu::find()
-                            ->byContentTreeId($fromContentTreeId)
-                            ->asArray()
-                            ->all();
-
-                        foreach ($menuItems as $menuItem) {
-                            unset($menuItem['id']);
-                            $menuItem['content_tree_id'] = $newContentTreeId;
-                            $connection->createCommand()->insert(ContentTreeMenu::tableName(), $menuItem)->execute();
-                        }
+                    } else {
+                        $this->log("Content Tree does not exist for BaseModel ID = $baseModelId and table name: \"$tableName\"");
+                        continue;
                     }
 
+                }
+                // Copy menu
+                $menuItems = ContentTreeMenu::find()
+                    ->byContentTreeId($fromContentTreeId)
+                    ->asArray()
+                    ->all();
+
+                foreach ($menuItems as $menuItem) {
+                    unset($menuItem['id']);
+                    $menuItem['content_tree_id'] = $newContentTreeId;
+                    $connection->createCommand()->insert(ContentTreeMenu::tableName(), $menuItem)->execute();
                 }
 
                 /** copy filemanager items */
@@ -542,6 +546,37 @@ class UtilsController extends Controller
 
         return $modifiedData;
 
+    }
+
+    /**
+     * ${CARET}
+     *
+     * @param                                        $to
+     * @param                                        $websiteContentTree
+     * @param \intermundia\yiicms\models\ContentTree $linkedContentTree
+     * @param \yii\db\Connection                     $connection
+     * @param                                        $linkedContentTreeTranslationData
+     * @return \intermundia\yiicms\models\ContentTree
+     * @throws \yii\db\Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    protected function createContentTree($to, $websiteContentTree, ContentTree $linkedContentTree, \yii\db\Connection $connection, $linkedContentTreeTranslationData): \intermundia\yiicms\models\ContentTree
+    {
+        $linkedContentTree['website'] = $websiteContentTree->id;
+        $linkedContentTree = $this->modifyBlameData($linkedContentTree);
+
+        $connection->createCommand()->insert(ContentTree::tableName(),
+            $linkedContentTree)->execute();
+
+        $newLinkedContentTreeId = $connection->getLastInsertID();
+        unset($linkedContentTreeTranslationData['id']);
+        $linkedContentTreeTranslationData['content_tree_id'] = $newLinkedContentTreeId;
+        $linkedContentTreeTranslationData['language'] = $to;
+
+        $connection->createCommand()->insert(ContentTreeTranslation::tableName(),
+            $linkedContentTreeTranslationData)->execute();
+
+        return $linkedContentTree;
     }
 
     private function removeAttributes(&$attributes)
