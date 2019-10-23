@@ -172,6 +172,7 @@ abstract class BaseTranslateModel extends ActiveRecord
         $this->alias_path = $contentTreeTranslation ? $contentTreeTranslation->alias_path : null;
 
         parent::afterSave($insert, $changedAttributes);
+        ContentTree::invalidateAliasMap(Yii::$app->frontendCache, $this->language);
     }
 
 
