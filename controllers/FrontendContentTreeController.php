@@ -27,6 +27,9 @@ use yii\web\Response;
  */
 class FrontendContentTreeController extends Controller
 {
+    const EVENT_BEFORE_SELECT_CONTENT_TREE = 'beforeSelectContentTree';
+    const EVENT_AFTER_SELECT_CONTENT_TREE = 'afterSelectContentTree';
+
     public function behaviors()
     {
         return [
@@ -201,7 +204,9 @@ class FrontendContentTreeController extends Controller
      */
     protected function selectPageContentTree()
     {
+        $this->beforeSelectContentTree();
         Yii::$app->pageContentTree = $this->findContentTreeByFullPath();
+        $this->afterSelectContentTree();
 //        $this->contentTreeObjects = [$this->pageContentTree] + ContentTree::find()->notDeleted()->all();
 //        Yii::$app->contentTreeObjects = array_merge([Yii::$app->pageContentTree],
 //            Yii::$app->pageContentTree->children()->notHidden()->notDeleted()->all());
@@ -259,5 +264,15 @@ class FrontendContentTreeController extends Controller
         }
 //        $this->getView()->contentTreeObject = $contentTree;
         return $contentTree;
+    }
+
+    public function beforeSelectContentTree()
+    {
+        $this->trigger(self::EVENT_BEFORE_SELECT_CONTENT_TREE);
+    }
+
+    public function afterSelectContentTree()
+    {
+        $this->trigger(self::EVENT_AFTER_SELECT_CONTENT_TREE);
     }
 }
