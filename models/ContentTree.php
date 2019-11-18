@@ -995,6 +995,9 @@ ORDER BY par.lft;");
      */
     public function deleteWithBaseModel()
     {
+        if ($this->isLeaf()){
+            return true;
+        }
         $children = array_merge($this->children()->orderBy('lft DESC')->all(), [$this]);
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -1017,9 +1020,11 @@ ORDER BY par.lft;");
         if (!$this->link_id) {
             $baseModel = $this->getModel();
             if (!$baseModel) {
-                Yii::warning("Base model does not exist for ContentTree: " . $this->id);
-            } elseif ($baseModel && $baseModel->delete()) {
+                Yii::error("Base model does not exist for ContentTree: " . $this->id);
+            } elseif ($baseModel->delete()) {
                 Yii::info("ContentTree with base model was deleted");
+            } else {
+                Yii::error("Unable to delete BaseModel. Method: ".__METHOD__.'. Data: '.VarDumper::dumpAsString($baseModel->toArray()).'. Errors: '.VarDumper::dumpAsString($baseModel->errors));
             }
         }
 
