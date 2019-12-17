@@ -39,7 +39,7 @@ use yii\helpers\FileHelper;
 /**
  * Class UtilsController
  *
- * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+ * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\console\controllers
  */
 class UtilsController extends Controller
@@ -73,7 +73,7 @@ class UtilsController extends Controller
                 $translateTableName = preg_replace('/^(\{\{%)|(}}$)/', '', $translateModelClass::tableName());
                 $sql = "UPDATE " . $translateTableName . " SET " . implode(", ", $updateAttributesText) . "
                         WHERE language = '$to';";
-                if (($count = $this->executePdo($sql))) {
+                if (( $count = $this->executePdo($sql) )) {
                     Console::output("Run command: \"$sql\"");
                     Console::output("Affected: \"$count\" rows");
                 }
@@ -137,6 +137,7 @@ class UtilsController extends Controller
         ], ['id' => $websiteContentTree->id])->execute();
         if (!$websiteContentTree) {
             Console::output('Please insert website first');
+
             return;
         }
         Yii::$app->db->createCommand('set foreign_key_checks=0')->execute();
@@ -150,9 +151,6 @@ class UtilsController extends Controller
 //        Console::output("Copy the following SQL UPDATE statements and run in your database console");
 //        Console::output("=========================================================================");
         foreach (Yii::$app->contentTree->editableContent as $tableName => $item) {
-            if ($tableName == 'website') {
-                continue;
-            }
             $attributes = ArrayHelper::getValue($item, 'searchableAttributes');
             /** @var BaseModel $baseModelClass */
             $baseModelClass = $item['class'];
@@ -176,118 +174,145 @@ class UtilsController extends Controller
 
             foreach ($baseModels as $baseModel) {
                 $translationModelTableName = $baseModel::getTranslateModelClass()::tableName();
+                $formattedTableName = $baseModel::getFormattedTableName();
                 /** @var BaseModel $baseModel */
-                $data = $baseModel->toArray();
-                /** @var BaseModel $newBaseModel */
-                unset($data['id']);
-                $data = $this->modifyBlameData($data);
-                /** copying into baseModel */
-                $connection->createCommand()->insert($tableName, $data)->execute();
-                $baseModelId = $connection->getLastInsertID();
+                $baseModelId = $baseModel->id;
 
-                /** @var copying into baseModelTranslation */
+
                 $foreignKey = $translateModelClass::getForeignKeyNameOnModel();
                 $translationData = $connection->createCommand("SELECT * FROM {$translationModelTableName} WHERE language = :lang AND {$foreignKey} = :baseId")
                     ->bindValue(':lang', $from)
-                    ->bindValue(':baseId', $baseModel->id)
+                    ->bindValue(':baseId', $baseModelId)
                     ->queryOne();
 
-
-                unset($translationData['id']);
-                $translationData[$translateModelClass::getForeignKeyNameOnModel()] = $baseModelId;
-                $translationData['language'] = $to;
                 $translationData = $this->modifyBlameData($translationData);
 
-                $connection->createCommand()->insert($translationModelTableName, $translationData)->execute();
+                // If the base model is website, we just need to update website translation
+                if ($formattedTableName === ContentTree::TABLE_NAME_WEBSITE) {
+                    $websiteTranslation = $translateModelClass::find()->andWhere(['language' => $to])->one();
+                    if (!$websiteTranslation) {
+                        $this->log("Website translation on language: \"$to\" does not exist");
+                        continue;
+                    }
+
+                    $fromContentTreeId = Yii::$app->websiteContentTree->id;
+                    $newContentTreeId = $websiteContentTree->id;
+                    $baseModelId = $websiteTranslation->website_id;
+                    unset($translationData['id']);
+                    unset($translationData['language']);
+                    unset($translationData['website_id']);
+                    unset($translationData['name']);
+                    unset($translationData['title']);
+
+                    // Update WebsiteTranslation on target language
+                    $connection->createCommand()->update($translationModelTableName, $translationData, [
+                        'language' => $to
+                    ])->execute();
+                } else {
+                    $data = $baseModel->toArray();
+                    /** @var BaseModel $newBaseModel */
+                    unset($data['id']);
+                    $data = $this->modifyBlameData($data);
+                    /** copying into baseModel */
+                    $connection->createCommand()->insert($tableName, $data)->execute();
+                    $baseModelId = $connection->getLastInsertID();
+
+                    $translationData[$translateModelClass::getForeignKeyNameOnModel()] = $baseModelId;
+
+                    unset($translationData['id']);
+                    $translationData['language'] = $to;
+                    $connection->createCommand()->insert($translationModelTableName, $translationData)->execute();
 
 
-                /**start copying into content Tree */
-                $contentTreeData = ContentTree::findClean()
-                    ->byRecordIdTableName($baseModel->id, $tableName)
-                    ->asArray()
-                    ->one();
-                if ($contentTreeData) {
-
-                    $contentTreeTranslationData = ContentTreeTranslation::find()->byLanguageAndTreeId($contentTreeData['id'],
-                        $from)->asArray()->one();
-
-                    /** linked items */
-                    $linkedContentTreeData = ContentTree::findClean()
-                        ->byLinkId($contentTreeData['id'])
+                    /**start copying into content Tree */
+                    $contentTreeData = ContentTree::findClean()
+                        ->byRecordIdTableName($baseModel->id, $tableName)
                         ->asArray()
-                        ->all();
+                        ->one();
+                    if ($contentTreeData) {
+
+                        $contentTreeTranslationData = ContentTreeTranslation::find()->byLanguageAndTreeId($contentTreeData['id'],
+                            $from)->asArray()->one();
+
+                        /** linked items */
+                        $linkedContentTreeData = ContentTree::findClean()
+                            ->byLinkId($contentTreeData['id'])
+                            ->asArray()
+                            ->all();
 
 
-                    $fromContentTreeId = $contentTreeData['id'];
-                    unset($contentTreeData['id']);
-                    $contentTreeData['record_id'] = $baseModelId;
-                    $contentTreeData['website'] = $websiteContentTree->id;
-                    $contentTreeData = $this->modifyBlameData($contentTreeData);
-                    $connection->createCommand()->insert(ContentTree::tableName(), $contentTreeData)->execute();
+                        $fromContentTreeId = $contentTreeData['id'];
+                        unset($contentTreeData['id']);
+                        $contentTreeData['record_id'] = $baseModelId;
+                        $contentTreeData['website'] = $websiteContentTree->id;
+                        $contentTreeData = $this->modifyBlameData($contentTreeData);
+                        $connection->createCommand()->insert(ContentTree::tableName(), $contentTreeData)->execute();
 
 
-                    $newContentTreeId = $connection->getLastInsertID();
-                    unset($contentTreeTranslationData['id']);
-                    $contentTreeTranslationData['content_tree_id'] = $newContentTreeId;
-                    $contentTreeTranslationData['language'] = $to;
+                        $newContentTreeId = $connection->getLastInsertID();
+                        unset($contentTreeTranslationData['id']);
+                        $contentTreeTranslationData['content_tree_id'] = $newContentTreeId;
+                        $contentTreeTranslationData['language'] = $to;
 
-                    $connection->createCommand()->insert(ContentTreeTranslation::tableName(),
-                        $contentTreeTranslationData)->execute();
+                        $connection->createCommand()->insert(ContentTreeTranslation::tableName(),
+                            $contentTreeTranslationData)->execute();
 
-                    /** copy all linked items */
-                    if ($linkedContentTreeData) {
-                        foreach ($linkedContentTreeData as $linkedContentTree) {
-                            $linkedContentTreeTranslationData = ContentTreeTranslation::find()->byLanguageAndTreeId($linkedContentTree['id'],
-                                $from)->asArray()->one();
-                            unset($linkedContentTree['id']);
-                            $linkedContentTree['record_id'] = $baseModelId;
-                            $linkedContentTree['link_id'] = $newContentTreeId;
-                            $linkedContentTree['website'] = $websiteContentTree->id;
-                            $linkedContentTree = $this->modifyBlameData($linkedContentTree);
+                        /** copy all linked items */
+                        if ($linkedContentTreeData) {
+                            foreach ($linkedContentTreeData as $linkedContentTree) {
+                                $linkedContentTreeTranslationData = ContentTreeTranslation::find()->byLanguageAndTreeId($linkedContentTree['id'],
+                                    $from)->asArray()->one();
+                                unset($linkedContentTree['id']);
+                                $linkedContentTree['record_id'] = $baseModelId;
+                                $linkedContentTree['link_id'] = $newContentTreeId;
+                                $linkedContentTree['website'] = $websiteContentTree->id;
+                                $linkedContentTree = $this->modifyBlameData($linkedContentTree);
 
-                            $connection->createCommand()->insert(ContentTree::tableName(),
-                                $linkedContentTree)->execute();
+                                $connection->createCommand()->insert(ContentTree::tableName(),
+                                    $linkedContentTree)->execute();
 
-                            $newLinkedContentTreeId = $connection->getLastInsertID();
-                            unset($linkedContentTreeTranslationData['id']);
-                            $linkedContentTreeTranslationData['content_tree_id'] = $newLinkedContentTreeId;
-                            $linkedContentTreeTranslationData['language'] = $to;
+                                $newLinkedContentTreeId = $connection->getLastInsertID();
+                                unset($linkedContentTreeTranslationData['id']);
+                                $linkedContentTreeTranslationData['content_tree_id'] = $newLinkedContentTreeId;
+                                $linkedContentTreeTranslationData['language'] = $to;
 
-                            $connection->createCommand()->insert(ContentTreeTranslation::tableName(),
-                                $linkedContentTreeTranslationData)->execute();
+                                $connection->createCommand()->insert(ContentTreeTranslation::tableName(),
+                                    $linkedContentTreeTranslationData)->execute();
 
+                            }
                         }
+
+                        // Copy search items
+                        $searches = Search::find()
+                            ->byContentTreeId($fromContentTreeId)
+                            ->byLanguage($from)
+                            ->asArray()
+                            ->all();
+
+                        foreach ($searches as $search) {
+                            unset($search['id']);
+                            $search['language'] = $to;
+                            $search['record_id'] = $baseModelId;
+                            $search['content_tree_id'] = $newContentTreeId;
+                            $connection->createCommand()->insert(Search::tableName(), $search)->execute();
+                        }
+                    } else {
+                        $this->log("Content Tree does not exist for BaseModel ID = $baseModelId and table name: \"$tableName\"");
+                        continue;
                     }
 
-                    // Copy search items
-                    $searches = Search::find()
-                        ->byContentTreeId($fromContentTreeId)
-                        ->byLanguage($from)
-                        ->asArray()
-                        ->all();
-
-                    foreach ($searches as $search) {
-                        unset($search['id']);
-                        $search['language'] = $to;
-                        $search['record_id'] = $baseModelId;
-                        $search['content_tree_id'] = $newContentTreeId;
-                        $connection->createCommand()->insert(Search::tableName(), $search)->execute();
-                    }
-
-                    // Copy menu
-
-                    $menuItems = ContentTreeMenu::find()
-                        ->byContentTreeId($fromContentTreeId)
-                        ->asArray()
-                        ->all();
-
-                    foreach ($menuItems as $menuItem) {
-                        unset($menuItem['id']);
-                        $menuItem['content_tree_id'] = $newContentTreeId;
-                        $connection->createCommand()->insert(ContentTreeMenu::tableName(), $menuItem)->execute();
-                    }
                 }
+                // Copy menu
+                $menuItems = ContentTreeMenu::find()
+                    ->byContentTreeId($fromContentTreeId)
+                    ->asArray()
+                    ->all();
 
+                foreach ($menuItems as $menuItem) {
+                    unset($menuItem['id']);
+                    $menuItem['content_tree_id'] = $newContentTreeId;
+                    $connection->createCommand()->insert(ContentTreeMenu::tableName(), $menuItem)->execute();
+                }
 
                 /** copy filemanager items */
                 $fileManagerItems = FileManagerItem::find()
@@ -296,7 +321,6 @@ class UtilsController extends Controller
                     ->byTable($tableName)
                     ->asArray()
                     ->all();
-
 
                 foreach ($fileManagerItems as $fileManagerItem) {
                     unset($fileManagerItem['id']);
@@ -317,7 +341,7 @@ class UtilsController extends Controller
                 $translateTableName = preg_replace('/^(\{\{%)|(}}$)/', '', $translateModelClass::tableName());
                 $sql = "UPDATE " . $translateTableName . " SET " . implode(", ",
                         $updateAttributesText) . " WHERE language = '$to' ;";
-                if (($count = $this->executePdo($sql))) {
+                if (( $count = $this->executePdo($sql) )) {
                     Console::output("Run command: \"$sql\"");
                     Console::output("Affected: \"$count\" rows");
                 }
@@ -354,6 +378,7 @@ class UtilsController extends Controller
         $website = ContentTree::findClean()->byKey($websiteKey)->byTableName('website')->one();
         if (!$website) {
             Console::output('Please insert website first');
+
             return;
         }
         Yii::$app->db->createCommand('set foreign_key_checks=0')->execute();
@@ -419,7 +444,7 @@ class UtilsController extends Controller
                 $translateTableName = preg_replace('/^(\{\{%)|(}}$)/', '', $translateModelClass::tableName());
                 $sql = "UPDATE " . $translateTableName . " SET " . implode(", ",
                         $updateAttributesText) . " WHERE language = '$to' ;";
-                if (($count = $this->executePdo($sql))) {
+                if (( $count = $this->executePdo($sql) )) {
                     Console::output("Run command: \"$sql\"");
                     Console::output("Affected: \"$count\" rows");
                 }
@@ -487,8 +512,8 @@ class UtilsController extends Controller
     {
         $dir = opendir($src);
         @mkdir($dst);
-        while (false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..')) {
+        while (false !== ( $file = readdir($dir) )) {
+            if (( $file != '.' ) && ( $file != '..' )) {
                 if (is_dir($src . '/' . $file)) {
                     $this->copyDirectory($src . '/' . $file, $dst . '/' . $file);
                 } else {
@@ -521,6 +546,37 @@ class UtilsController extends Controller
 
         return $modifiedData;
 
+    }
+
+    /**
+     * ${CARET}
+     *
+     * @param                                        $to
+     * @param                                        $websiteContentTree
+     * @param \intermundia\yiicms\models\ContentTree $linkedContentTree
+     * @param \yii\db\Connection                     $connection
+     * @param                                        $linkedContentTreeTranslationData
+     * @return \intermundia\yiicms\models\ContentTree
+     * @throws \yii\db\Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     */
+    protected function createContentTree($to, $websiteContentTree, ContentTree $linkedContentTree, \yii\db\Connection $connection, $linkedContentTreeTranslationData): \intermundia\yiicms\models\ContentTree
+    {
+        $linkedContentTree['website'] = $websiteContentTree->id;
+        $linkedContentTree = $this->modifyBlameData($linkedContentTree);
+
+        $connection->createCommand()->insert(ContentTree::tableName(),
+            $linkedContentTree)->execute();
+
+        $newLinkedContentTreeId = $connection->getLastInsertID();
+        unset($linkedContentTreeTranslationData['id']);
+        $linkedContentTreeTranslationData['content_tree_id'] = $newLinkedContentTreeId;
+        $linkedContentTreeTranslationData['language'] = $to;
+
+        $connection->createCommand()->insert(ContentTreeTranslation::tableName(),
+            $linkedContentTreeTranslationData)->execute();
+
+        return $linkedContentTree;
     }
 
     private function removeAttributes(&$attributes)
@@ -626,10 +682,10 @@ class UtilsController extends Controller
             return;
         }
         if (!is_link($dir)) {
-            if (!($handle = opendir($dir))) {
+            if (!( $handle = opendir($dir) )) {
                 return;
             }
-            while (($file = readdir($handle)) !== false) {
+            while (( $file = readdir($handle) ) !== false) {
                 if ($file === '.' || $file === '..') {
                     continue;
                 }
@@ -676,8 +732,9 @@ class UtilsController extends Controller
     {
         $connection = Yii::$app->db;
         Yii::$app->websiteContentTree = ContentTree::findClean()->byKey($websiteKey)->one();
-        if(!Yii::$app->websiteContentTree) {
+        if (!Yii::$app->websiteContentTree) {
             Console::error("Website content tree was not found for {$websiteKey}");
+
             return;
         }
         Yii::$app->websiteMasterLanguage = \Yii::$app->multiSiteCore->websites[$websiteKey]['masterLanguage'];
@@ -706,14 +763,14 @@ class UtilsController extends Controller
 
                 $transaction = Yii::$app->db->beginTransaction();
                 if ($contentTreeTranslation->save()) {
-                    $aliasChanged = (($contentTreeTranslation->alias != $beforeUpdateAlias)
-                        || ($contentTreeTranslation->alias_path != $beforeUpdateAliasPath));
+                    $aliasChanged = ( ( $contentTreeTranslation->alias != $beforeUpdateAlias )
+                        || ( $contentTreeTranslation->alias_path != $beforeUpdateAliasPath ) );
 
                     if ($aliasChanged) {
                         Console::output("-------------------------------------------------------------------");
                         $linkText = $contentTreeItem->link_id ? "(LINK)" : "";
-                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) ".
-                                "{$linkText} [{$contentTreeTranslation->language}] updated:");
+                        Console::output("ContentTreeTranslation (id = {$contentTreeTranslation->id}) " .
+                            "{$linkText} [{$contentTreeTranslation->language}] updated:");
                         Console::output("alias: {$beforeUpdateAlias} => {$contentTreeTranslation->alias}");
                         Console::output("alias_path: {$beforeUpdateAliasPath} => {$contentTreeTranslation->alias_path}");
                     }
@@ -844,5 +901,10 @@ class UtilsController extends Controller
     private function executePdo($str)
     {
         return Yii::$app->db->masterPdo->exec($str);
+    }
+
+    public function log($message)
+    {
+        Console::output($message);
     }
 }

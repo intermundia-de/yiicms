@@ -8,23 +8,9 @@
 namespace intermundia\yiicms\behaviors;
 
 use intermundia\yiicms\models\BaseTranslateModel;
-use intermundia\yiicms\models\ContentTree;
 use intermundia\yiicms\models\ContentTreeTranslation;
-use intermundia\yiicms\models\FileManagerItem;
-use intermundia\yiicms\web\Application;
-use intermundia\yiicms\web\BackendApplication;
-use intermundia\yiicms\web\BaseApplication;
-use function GuzzleHttp\Psr7\parse_request;
-use Imagick;
-use Yii;
 use yii\base\Behavior;
-use yii\base\Exception;
-use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
-use yii\helpers\FileHelper;
 use yii\helpers\VarDumper;
-use yii\web\UploadedFile;
 
 
 /**
@@ -69,7 +55,7 @@ class ContentChangeListener extends Behavior
         /** @var  $contentTreeTranslation ContentTreeTranslation */
         $contentTreeTranslation = $this->owner;
         $contentTreeTranslation->updateOwnFileManagerItems();
-        if ($contentTreeTranslation->children) {
+        if ($contentTreeTranslation->children && $contentTreeTranslation->contentTree->depth > 0) {
             $contentTreeTranslation->updateChildrenAliasPath();
             $contentTreeTranslation->updateChildrenFileManagerItem();
         }

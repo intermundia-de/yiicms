@@ -20,8 +20,8 @@ class LanguageHelper
 {
     public static function convertLongCodeIntoShort($langCode)
     {
-        if (strpos($langCode, "-") === false){
-            throw new InvalidConfigException('$langCode argument must be language in the format: "en-US"');
+        if (!preg_match('/^[a-z]{2}$/', $langCode) && !preg_match('/^[a-z]{2,3}\-[A-Z]{2}$/', $langCode) ){
+            throw new InvalidConfigException('$langCode argument must be language in the format: "en" or "en-US"');
         }
         return explode("-", $langCode)[0];
     }

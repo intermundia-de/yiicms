@@ -124,7 +124,8 @@ class BaseApplication extends \yii\web\Application
                         $this->websiteLanguages = $this->getWebsiteLanguages($websiteKey);
                         $shortCode = LanguageHelper::convertLongCodeIntoShort($this->language);
                         if (strpos($domain, '/') !== false
-                            && (substr($domain, strpos($domain, '/') + 1) === $lang || $shortCode)) {
+                            && (substr($domain, strpos($domain, '/') + 1) === $lang
+                                || substr($domain, strpos($domain, '/') + 1) === $shortCode )) {
                             $this->hasLanguageInUrl = true;
                         }
                         $frontendHost = ArrayHelper::getValue($websiteData, 'frontendHost');
