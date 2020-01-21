@@ -68,7 +68,35 @@ class UtilsController extends Controller
 
 
             // Update base model translation attributes
-            $attributes = ArrayHelper::getValue($item, 'searchableAttributes');
+            // Searchable attributes now contain attributes for both base model and translation in the following format
+            /*
+             * array(2) {
+                  'translation' =>
+                  array(6) {
+                    [0] =>
+                    string(5) "title"
+                    [1] =>
+                    string(17) "short_description"
+                    [2] =>
+                    string(4) "body"
+                    [3] =>
+                    string(12) "teaser_title"
+                    [4] =>
+                    string(18) "teaser_description"
+                    [5] =>
+                    string(8) "pdf_text"
+                  }
+                  'base' =>
+                  array(1) {
+                    [0] =>
+                    string(12) "product_code"
+                  }
+                }
+
+             *
+             *
+             */
+            $attributes = ArrayHelper::getValue($item, 'searchableAttributes.translation');
             if (!empty($attributes)) {
                 $updateAttributesText = [];
                 foreach ($attributes as $attribute) {
