@@ -121,3 +121,15 @@ run
 `SluggableBehavior` will update `alias` and `alias_path` attributes for each record in `content_tree_translation` table
 that belongs to provided `$websiteKey`.
 Corresponding `file_manager_item` records are also updated. 
+
+_________________
+
+Usersnap
+============
+For usersnap website_translation model have two parameters, usersnap_code where one should 
+input code from usersnap.com and type. There are 3 different types:
+1. `Disabled`. (in this case usersnap is not displayed)
+2. `Always display`. (in this case usersnap is always visible)
+3. `Display if url has usersnap=1 in get`(If you want to access usersnap and this option is selected,
+you should pass any get param `usersnap` to url once, which will save status in session and display usersnap
+untill session will expire or will be removed manually)

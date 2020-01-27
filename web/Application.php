@@ -9,6 +9,7 @@ namespace intermundia\yiicms\web;
 
 use intermundia\yiicms\helpers\LanguageHelper;
 use intermundia\yiicms\models\ContentTree;
+use intermundia\yiicms\models\WebsiteTranslation;
 
 /**
  * Class Application
@@ -38,6 +39,31 @@ class Application extends BaseApplication
     {
         parent::beforeRequest();
 
+        $website = \Yii::$app->websiteContentTree;
+        if ($website) {
+            $websiteTranslation = $website->getModel()->activeTranslation;
+            if ($websiteTranslation->usersnap_code && $websiteTranslation->usersnap_type !== WebsiteTranslation::USERSNAP_TYPE_DISABLED) {
+                $registerUsersnap = false;
+                if ($websiteTranslation->usersnap_type === WebsiteTranslation::USERSNAP_TYPE_GET_PARAM) {
+                    if (\Yii::$app->request->get('usersnap')) {
+                        \Yii::$app->session->set('usersnap', true);
+                    }
+                    if (\Yii::$app->session->get('usersnap')) {
+                        $registerUsersnap = true;
+                    }
+                } elseif ($websiteTranslation->usersnap_type === WebsiteTranslation::USERSNAP_TYPE_ALWAYS) {
+                    $registerUsersnap = true;
+                }
+
+                if ($registerUsersnap) {
+                    \Yii::$app->view->registerJs("
+                        (function() { var s = document.createElement(\"script\"); s.type = \"text/javascript\"; 
+                        s.async = true; s.src = '//api.usersnap.com/load/{$websiteTranslation->usersnap_code}.js'; 
+                        var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); })(); 
+                    ");
+                }
+            }
+        }
 //
         if ($this->hasLanguageInUrl) {
             $rules = &$this->urlManager->rules;

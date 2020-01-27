@@ -39,6 +39,13 @@ use yii\helpers\Url;
 <?php echo $form->field($model, 'copyright')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'ga_code')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'google_tag_manager_code')->textInput(['maxlength' => true]) ?>
+<?php echo $form->field($model, 'usersnap_code')->textInput(['maxlength' => true]) ?>
+<div class="form-group">
+    <label ><?php echo $model->attributeLabels()['usersnap_type'] ?></label>
+    <?php echo \yii\bootstrap\Html::activeDropDownList($model,'usersnap_type',$model->getUsersnapTypes(),
+        ['class' => 'form-control']) ?>
+</div>
+
 <?php echo $form->field($model, 'html_code_before_close_body')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'footer_name')->textInput(['maxlength' => true]) ?>
 <?php echo $form->field($model, 'footer_headline')->textInput(['maxlength' => true]) ?>

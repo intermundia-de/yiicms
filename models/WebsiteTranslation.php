@@ -29,12 +29,17 @@ use yii\web\UploadedFile;
  * @property string $og_site_name
  * @property string $ga_code
  * @property string $google_tag_manager_code
+ * @property string $usersnap_code
+ * @property string $usersnap_type
  *
  * @property Website $website
  */
 class WebsiteTranslation extends BaseTranslateModel
 {
 
+    const USERSNAP_TYPE_DISABLED = 'disabled';
+    const USERSNAP_TYPE_ALWAYS = 'always';
+    const USERSNAP_TYPE_GET_PARAM = 'get_param';
 
     /**
      * @var UploadedFile|FileManagerItem
@@ -65,6 +70,15 @@ class WebsiteTranslation extends BaseTranslateModel
 
 
     public $aliasMutable = true;
+
+    public function getUsersnapTypes()
+    {
+        return [
+          self::USERSNAP_TYPE_DISABLED => Yii::t('commen','Disabled'),
+          self::USERSNAP_TYPE_ALWAYS => Yii::t('commen','Always display'),
+          self::USERSNAP_TYPE_GET_PARAM => Yii::t('commen','Display if url has usersnap=1 in get'),
+        ];
+    }
 
     /**
      * {@inheritdoc}
@@ -100,6 +114,8 @@ class WebsiteTranslation extends BaseTranslateModel
             [['title'], 'required'],
             [['website_id',], 'integer'],
             [['language'], 'string', 'max' => 15],
+            [['usersnap_code'], 'string', 'max' => 64],
+            [['usersnap_type'], 'string', 'max' => 32],
             [['name'], 'string', 'max' => 255],
             [['title'], 'string', 'max' => 512],
             [['short_description'], 'string'],
@@ -157,7 +173,6 @@ class WebsiteTranslation extends BaseTranslateModel
     public function attributeLabels()
     {
         return [
-
             'id' => Yii::t('common', 'ID'),
             'logo_image_name' => Yii::t('common', 'Logo Image'),
             'name' => Yii::t('common', 'Name'),
@@ -178,6 +193,8 @@ class WebsiteTranslation extends BaseTranslateModel
             'footer_copyright' => Yii::t('common', 'Footer Copyright'),
             'footer_logo' => Yii::t('common', 'Footer Logo'),
             'og_site_name' => Yii::t('common', 'Og Site Name'),
+            'usersnap_code' => Yii::t('common', 'Usersnap Code'),
+            'usersnap_type' => Yii::t('common', 'Usersnap Type'),
             'image' => Yii::t('common', 'Image')
 
 
