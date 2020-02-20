@@ -183,12 +183,13 @@ class UtilsController extends Controller
         $STORAGE_URL = '{{%STORAGE_URL_PLACEHOLDER%}}';
 //        Console::output("Copy the following SQL UPDATE statements and run in your database console");
 //        Console::output("=========================================================================");
+        $processedTableNames = [];
         foreach (Yii::$app->contentTree->editableContent as $contentType => $item) {
             /** @var BaseModel $baseModelClass */
             $baseModelClass = $item['class'];
             $tableName = $baseModelClass::tableName();
             $tableName = preg_replace('/^(\{\{%)|(}}$)/', '', $baseModelClass::tableName());
-            if ($tableName == 'website') {
+            if ($tableName == 'website' || in_array($tableName, $processedTableNames)) {
                 continue;
             }
 
@@ -362,6 +363,7 @@ class UtilsController extends Controller
                     }
                 }
             }
+            $processedTableNames[] = $tableName;
         }
 
         $textWidgets = WidgetTextTranslation::find()
