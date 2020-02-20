@@ -12,7 +12,7 @@ class m200220_190852_update_content_type_of_website_content_tree extends Migrati
      */
     public function safeUp()
     {
-        $this->update(\common\models\ContentTree::tableName(),
+        $this->update(\intermundia\yiicms\models\ContentTree::tableName(),
             ['content_type' => \intermundia\yiicms\models\ContentTree::TABLE_NAME_WEBSITE],
             ['table_name' => \intermundia\yiicms\models\ContentTree::TABLE_NAME_WEBSITE, 'content_type' => null]);
     }
