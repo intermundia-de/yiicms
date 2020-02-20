@@ -183,13 +183,15 @@ class UtilsController extends Controller
         $STORAGE_URL = '{{%STORAGE_URL_PLACEHOLDER%}}';
 //        Console::output("Copy the following SQL UPDATE statements and run in your database console");
 //        Console::output("=========================================================================");
-        foreach (Yii::$app->contentTree->editableContent as $tableName => $item) {
+        foreach (Yii::$app->contentTree->editableContent as $contentType => $item) {
+            /** @var BaseModel $baseModelClass */
+            $baseModelClass = $item['class'];
+            $tableName = $baseModelClass::tableName();
+            $tableName = preg_replace('/^(\{\{%)|(}}$)/', '', $baseModelClass::tableName());
             if ($tableName == 'website') {
                 continue;
             }
-            $attributes = ArrayHelper::getValue($item, 'searchableAttributes');
-            /** @var BaseModel $baseModelClass */
-            $baseModelClass = $item['class'];
+
             /** @var BaseTranslateModel $translateModelClass */
             $translateModelClass = $baseModelClass::getTranslateModelClass();
             /** @var BaseQuery $baseModelQuery */
@@ -342,18 +344,22 @@ class UtilsController extends Controller
                 }
 
             }
+            $attributes = ArrayHelper::getValue($item, 'searchableAttributes');
             if (!empty($attributes)) {
                 $updateAttributesText = [];
-                foreach ($attributes as $attribute) {
+                $translationAttributes = ArrayHelper::getValue($attributes, 'translation', []);
+                foreach ($translationAttributes as $attribute) {
                     $updateAttributesText[] = "$attribute = REPLACE($attribute, '{$STORAGE_URL}{$from}/', '{$STORAGE_URL}$to/')";
                 }
 
-                $translateTableName = preg_replace('/^(\{\{%)|(}}$)/', '', $translateModelClass::tableName());
-                $sql = "UPDATE " . $translateTableName . " SET " . implode(", ",
-                        $updateAttributesText) . " WHERE language = '$to' ;";
-                if (( $count = $this->executePdo($sql) )) {
-                    Console::output("Run command: \"$sql\"");
-                    Console::output("Affected: \"$count\" rows");
+                if (!empty($updateAttributesText)) {
+                    $translateTableName = preg_replace('/^(\{\{%)|(}}$)/', '', $translateModelClass::tableName());
+                    $sql = "UPDATE " . $translateTableName . " SET " . implode(", ",
+                            $updateAttributesText) . " WHERE language = '$to' ;";
+                    if (( $count = $this->executePdo($sql) )) {
+                        Console::output("Run command: \"$sql\"");
+                        Console::output("Affected: \"$count\" rows");
+                    }
                 }
             }
         }
