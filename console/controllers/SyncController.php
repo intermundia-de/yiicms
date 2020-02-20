@@ -288,6 +288,7 @@ class SyncController extends Controller
                     $dbContentTreeWebsite->record_id = $websiteId;
                     $dbContentTreeWebsite->key = $website;
                     $dbContentTreeWebsite->table_name = ContentTree::TABLE_NAME_WEBSITE;
+                    $dbContentTreeWebsite->content_type = ContentTree::TABLE_NAME_WEBSITE;
                     if (!$dbContentTreeWebsite->makeRoot()) {
                         $transaction->rollBack();
                         $this->log("Unable make root: RecordId=" . $websiteId . ". TableName=" . ContentTree::TABLE_NAME_WEBSITE);
