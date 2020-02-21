@@ -244,6 +244,7 @@ class FrontendContentTreeController extends Controller
             if ($contentTreeId) {
                 $contentTree = ContentTree::find()
                     ->byId($contentTreeId)
+                    ->byTableName($pageTableName)
                     ->notHidden()
                     ->notDeleted()
                     ->one();
