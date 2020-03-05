@@ -995,8 +995,8 @@ ORDER BY par.lft;");
      */
     public function deleteWithBaseModel()
     {
-        if ($this->isLeaf()){
-            return true;
+        if ($this->link_id){
+            return $this->delete();
         }
         $children = array_merge($this->children()->orderBy('lft DESC')->all(), [$this]);
 
