@@ -520,7 +520,9 @@ ORDER BY par.lft;");
         if (!$baseModel) {
             $className = Yii::$app->contentTree->getClassName($this->content_type);
             if ($className) {
-                return $className::find()->byId($this->record_id)->one();
+                $obj = $className::find()->byId($this->record_id)->one();
+                Yii::$app->baseModelObjects[$this->content_type . '.' . $this->record_id] = $obj;
+                return $obj;
             }
         }
 

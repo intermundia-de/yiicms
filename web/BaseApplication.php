@@ -171,6 +171,6 @@ class BaseApplication extends \yii\web\Application
     {
         $languageCodes = array_unique(array_values($this->getWebsiteDomains($websiteKey)));
 
-        return ArrayHelper::map(Language::find()->byCode($languageCodes)->asArray()->all(), 'code', 'name');
+        return ArrayHelper::map(Language::find()->byCode($languageCodes)->asArray()->cache(10000)->all(), 'code', 'name');
     }
 }

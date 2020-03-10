@@ -57,7 +57,7 @@ class DbText extends Widget
     public function getModel()
     {
         if (!$this->model) {
-            $this->model = WidgetText::findOne(['key' => $this->key, 'status' => WidgetText::STATUS_ACTIVE]);
+            $this->model = WidgetText::find()->andWhere(['key' => $this->key, 'status' => WidgetText::STATUS_ACTIVE])->cache(10000)->one();
         }
         return $this->model;
     }

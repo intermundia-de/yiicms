@@ -103,7 +103,7 @@ class WidgetText extends ActiveRecord
      */
     public function getDefaultTranslation()
     {
-        return $this->hasOne(WidgetTextTranslation::class, ['widget_text_id' => 'id'])->andWhere(['language' => Yii::$app->websiteMasterLanguage]);
+        return $this->hasOne(WidgetTextTranslation::class, ['widget_text_id' => 'id'])->andWhere(['language' => Yii::$app->websiteMasterLanguage])->cache(10000);
     }
 
     /**
@@ -111,7 +111,7 @@ class WidgetText extends ActiveRecord
      */
     public function getCurrentTranslation()
     {
-        return $this->hasOne(WidgetTextTranslation::class, ['widget_text_id' => 'id'])->andWhere(['language' => Yii::$app->language]);
+        return $this->hasOne(WidgetTextTranslation::class, ['widget_text_id' => 'id'])->andWhere(['language' => Yii::$app->language])->cache(10000);
     }
 
     /**

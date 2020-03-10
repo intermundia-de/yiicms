@@ -76,7 +76,9 @@ class FrontendLanguageSelector extends Nav
         $multipleDomainPerLanguage = array_count_values($this->languageDomains);
 
         $checkHosts = $multipleDomainPerLanguage ? ( max(array_values($multipleDomainPerLanguage)) > 1 ) : false;
-
+        $languages = ArrayHelper::index(
+            Language::find()->byCode(array_values($this->languageDomains))
+            ->cache(10000)->all(), 'code');
         foreach ($this->languageDomains as $languageDomain => $langCode) {
             if ($checkHosts) {
                 //Check if domain host matches requested url host
@@ -94,11 +96,11 @@ class FrontendLanguageSelector extends Nav
                 continue;
             }
 
-            $language = Language::find()->byCode($langCode)->one();
-            if (!$language) {
+
+            if (!isset($languages[$langCode])) {
                 throw new \yii\base\Exception("No record with code=\"{$langCode}\" found in \"language\" table.");
             }
-            $this->languageDomains[$languageDomain] = $language;
+            $this->languageDomains[$languageDomain] = $languages[$langCode];
 //            if ($langCode == Yii::$app->websiteMasterLanguage) {
 //                $masterLanguageDomain = true;
 //            }
