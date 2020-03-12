@@ -17,7 +17,7 @@ use yii\helpers\FileHelper;
 /**
  * Class View
  *
- * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+ * @author  Zura Sekhniashvili <zurasekhniashvili@gmail.com>
  * @package intermundia\yiicms\web
  */
 class View extends \yii\web\View
@@ -38,17 +38,14 @@ class View extends \yii\web\View
     /**
      * Get find the root element in content tree and return it. Assuming that root element must be Website
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @return \intermundia\yiicms\models\Website|null
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public function getWebsite()
     {
-        if ($this->website === false) {
-            /** @var ContentTree $contentTree */
-            $contentTree = \frontend\models\ContentTree::find()->roots()->one();
-            $this->website = $contentTree->getModel();
+        if (Yii::$app->websiteContentTree) {
+            $this->website = Yii::$app->websiteContentTree->getModel();
         }
-
         return $this->website;
     }
 
@@ -77,6 +74,7 @@ class View extends \yii\web\View
                 'language' => Yii::$app->language
             ];
         }
+
         return $this->meta_tags;
     }
 
