@@ -94,7 +94,7 @@ class Application extends BaseApplication
      */
     public function getCurrentAlias()
     {
-        return \Yii::$app->request->get('nodes') ?: $this->defaultAlias;
+        return rtrim(\Yii::$app->request->get('nodes'), '/') ?: $this->defaultAlias;
     }
 
 }
