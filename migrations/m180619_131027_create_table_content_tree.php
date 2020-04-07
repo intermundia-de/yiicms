@@ -20,6 +20,7 @@ class m180619_131027_create_table_content_tree extends Migration
             'lft' => $this->integer()->notNull(),
             'rgt' => $this->integer()->notNull(),
             'depth' => $this->integer()->notNull(),
+            'key' => $this->string(1024),
             'created_at' => $this->bigInteger(),
             'created_by' => $this->integer(),
             'updated_at' => $this->bigInteger(),
