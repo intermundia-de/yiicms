@@ -52,15 +52,13 @@ class NestedMenu extends Nav
      */
     public function init()
     {
-        $this->items = self::getItemsForFrontMenu();
-//        for ($i = 0; $i < count($this->items); $i++) {
-//            if (!$this->itemOptions) {
-//                continue;
-//            } else {
-//                $this->items[$i]['options'] = $this->itemOptions;
-//            }
-//        }
+        $this->selectItems();
         parent::init();
+    }
+
+    public function selectItems()
+    {
+        $this->items = static::getItemsForFrontMenu();
     }
 
     /**
