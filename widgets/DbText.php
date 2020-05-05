@@ -2,6 +2,7 @@
 
 namespace intermundia\yiicms\widgets;
 
+use intermundia\yiicms\helpers\Html;
 use intermundia\yiicms\models\WidgetText;
 use Yii;
 use yii\base\Widget;
@@ -46,7 +47,7 @@ class DbText extends Widget
         if (!$content) {
             $model = $this->getModel();
             if ($model && ($activeTranslation = $model->activeTranslation)) {
-                $content = $activeTranslation->body;
+                $content = Html::replaceContentTreeIdsInContent($activeTranslation->body);
                 Yii::$app->cache->set($cacheKey, $content, $this->cacheDuration);
             }
         }
