@@ -496,9 +496,11 @@ FROM content_tree c
                    ON part3.content_tree_id = par.id
                    
 WHERE c.table_name != 'website'
+AND c.website = :currentWebsiteId
 GROUP BY c.id
 ORDER BY par.lft;");
 
+        $command->bindParam(":currentWebsiteId", Yii::$app->websiteContentTree->id);
         $command->bindParam(":currentLanguage", $language);
         $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
 
