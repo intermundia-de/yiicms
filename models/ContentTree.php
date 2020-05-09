@@ -500,9 +500,9 @@ AND c.website = :currentWebsiteId
 GROUP BY c.id
 ORDER BY par.lft;");
 
-        $command->bindParam(":currentWebsiteId", Yii::$app->websiteContentTree->id);
-        $command->bindParam(":currentLanguage", $language);
-        $command->bindParam(":masterLanguage", \Yii::$app->websiteMasterLanguage);
+        $command->bindValue(":currentWebsiteId", Yii::$app->websiteContentTree->id);
+        $command->bindValue(":currentLanguage", $language);
+        $command->bindValue(":masterLanguage", \Yii::$app->websiteMasterLanguage);
 
         $data = $command->queryAll();
         $data = ArrayHelper::map($data, 'id', 'alias_path');
