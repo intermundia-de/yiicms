@@ -528,6 +528,9 @@ class UtilsController extends Controller
 
     private function copyDirectory($src, $dst)
     {
+        if (!is_dir($src)){
+            return false;
+        }
         $dir = opendir($src);
         @mkdir($dst);
         while (false !== ( $file = readdir($dir) )) {
@@ -1000,7 +1003,7 @@ class UtilsController extends Controller
 
 
         if ($notFoundItemsIds) {
-            Console::output("The following ".count($notFoundItemsIds)." timeline event items does not exist any more: [" . implode(',',
+            Console::output("The following " . count($notFoundItemsIds) . " timeline event items does not exist any more: [" . implode(',',
                     $notFoundItemsIds) . "]");
             if (Console::confirm("Delete these timeline_event records?")) {
                 $transaction = Yii::$app->db->beginTransaction();
