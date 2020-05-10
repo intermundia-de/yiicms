@@ -485,7 +485,7 @@ IFNULL(CONCAT(GROUP_CONCAT(IFNULL(IFNULL(part.alias, part2.alias), part3.alias) 
               IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)),
        IFNULL(IFNULL(ctt.alias, ctt2.alias), ctt3.alias)) as alias_path
 FROM content_tree c
-         LEFT JOIN content_tree par on par.lft < c.lft AND par.rgt > c.rgt AND par.table_name != 'website'
+         LEFT JOIN content_tree par on par.lft < c.lft AND par.rgt > c.rgt AND par.table_name != 'website' AND par.website = :currentWebsiteId
          LEFT JOIN content_tree_translation ctt on c.id = ctt.content_tree_id AND ctt.language = :currentLanguage
          LEFT JOIN content_tree_translation ctt2 on c.id = ctt2.content_tree_id AND ctt2.language = :masterLanguage
          LEFT JOIN (SELECT * FROM content_tree_translation ctt GROUP BY ctt.content_tree_id) ctt3
