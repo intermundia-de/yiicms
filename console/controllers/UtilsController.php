@@ -326,7 +326,7 @@ class UtilsController extends Controller
                     unset($fileManagerItem['id']);
                     $fileManagerItem['record_id'] = $baseModelId;
                     $fileManagerItem['language'] = $to;
-                    $fileManagerItem['path'] = str_replace($from, $to, $fileManagerItem['path']);
+                    $fileManagerItem['path'] = preg_replace("/^$from/", $to, $fileManagerItem['path']);
                     $fileManagerItem = $this->modifyBlameData($fileManagerItem);
                     $connection->createCommand()->insert(FileManagerItem::tableName(), $fileManagerItem)->execute();
                 }
@@ -493,7 +493,7 @@ class UtilsController extends Controller
         foreach ($fileManagerItems as $fileManagerItem) {
             unset($fileManagerItem['id']);
             $fileManagerItem['language'] = $to;
-            $fileManagerItem['path'] = str_replace($from, $to, $fileManagerItem['path']);
+            $fileManagerItem['path'] = preg_replace("/^$from/", $to, $fileManagerItem['path']);
             $fileManagerItem = $this->modifyBlameData($fileManagerItem);
             $connection->createCommand()->insert(FileManagerItem::tableName(), $fileManagerItem)->execute();
         }
