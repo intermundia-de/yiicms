@@ -134,7 +134,7 @@ class SyncController extends Controller
                                 if (count($editedAttributes) > 0) {
                                     foreach ($editedAttributes as $searchAttribute) {
                                         $insert++;
-                                        $data['translation'] = [
+                                        $data['translation'][] = [
                                             'content_tree_id' => $translateModel['contentTree']['id'],
                                             'table_name' => $tableName,
                                             'record_id' => $translateModel[$tableName . '_id'],
@@ -207,7 +207,7 @@ class SyncController extends Controller
                             if (count($editedAttributes) > 0) {
                                 foreach ($editedAttributes as $searchAttribute) {
                                     $insert++;
-                                    $data['base'] = [
+                                    $data['base'][] = [
                                         'content_tree_id' => $baseModel['contentTree']['id'],
                                         'table_name' => $tableName,
                                         'record_id' => $baseModel['id'],
