@@ -42,6 +42,10 @@ class BaseApplication extends \yii\web\Application
 
     public $websiteLanguages = [];
 
+    public $productionFrontendDomains = [];
+
+    public $frontendDomains = [];
+
     public $hasLanguageInUrl = false;
 
     /**
@@ -92,7 +96,22 @@ class BaseApplication extends \yii\web\Application
             uksort($websiteData['domains'], function ($a, $b) {
                 return strlen($b) - strlen($a);
             });
-            foreach ($websiteData['domains'] as $domain => $lang) {
+            foreach ($websiteData['domains'] as $domain => $langOrConfig) {
+                if (is_string($langOrConfig)) {
+                    $lang = $langOrConfig;
+                    $isProduction = false;
+                    $isFrontend = false;
+                } else {
+                    $lang = $langOrConfig['language'];
+                    $isProduction = ArrayHelper::getValue($langOrConfig, 'isProduction');
+                    $isFrontend = ArrayHelper::getValue($langOrConfig, 'isFrontend');
+                }
+                if ($isProduction && $isFrontend) {
+                    $this->productionFrontendDomains[$websiteKey][$domain] = $lang;
+                }
+                if ($isFrontend) {
+                    $this->frontendDomains[$websiteKey][$domain] = $lang;
+                }
                 //Compare domain host. '//$domain' prevents parse_url failure, since parse_url requires url with schema
                 $domainHost = parse_url("//$domain", PHP_URL_HOST);
                 if ($domainHost == parse_url($this->request->getAbsoluteUrl(), PHP_URL_HOST)) {
@@ -154,7 +173,11 @@ class BaseApplication extends \yii\web\Application
 
     public function getWebsiteLanguages($websiteKey)
     {
-        $languageCodes = array_unique(array_values(\Yii::$app->multiSiteCore->websites[$websiteKey]['domains']));
+        $values = array_values(\Yii::$app->multiSiteCore->websites[$websiteKey]['domains']);
+        $languageCodes = array_unique(array_map(function($value) {
+            if (is_string($value)) return $value;
+            return $value['language'];
+        }, $values));
 
         return ArrayHelper::map(Language::find()->byCode($languageCodes)->asArray()->all(), 'code', 'name');
     }
