@@ -162,9 +162,6 @@ class BaseApplication extends \yii\web\Application
                     }
                 }
             }
-            if ($this->websiteContentTree) {
-                break;
-            }
         }
         if (!$this->websiteContentTree) {
             throw new Exception("Current domain is not added in domain list in multisite config");
