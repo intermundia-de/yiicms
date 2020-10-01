@@ -115,6 +115,14 @@ class BaseApplication extends \yii\web\Application
                 if ($isFrontend) {
                     $this->frontendDomains[$websiteKey][$domain] = $lang;
                 }
+            }
+
+            foreach ($websiteData['domains'] as $domain => $langOrConfig) {
+                if (is_string($langOrConfig)) {
+                    $lang = $langOrConfig;
+                } else {
+                    $lang = $langOrConfig['language'];
+                }
                 //Compare domain host. '//$domain' prevents parse_url failure, since parse_url requires url with schema
                 $domainHost = parse_url("//$domain", PHP_URL_HOST);
                 if ($domainHost == parse_url($this->request->getAbsoluteUrl(), PHP_URL_HOST)) {
@@ -146,7 +154,7 @@ class BaseApplication extends \yii\web\Application
                         $this->websiteLanguages = $this->getWebsiteLanguages($websiteKey);
                         $shortCode = LanguageHelper::convertLongCodeIntoShort($this->language);
                         if (strpos($domain, '/') !== false
-                            && (substr($domain, strpos($domain, '/') + 1) === $lang
+                            && ( substr($domain, strpos($domain, '/') + 1) === $lang
                                 || substr($domain, strpos($domain, '/') + 1) === $shortCode )) {
                             $this->hasLanguageInUrl = true;
                         }
@@ -158,9 +166,10 @@ class BaseApplication extends \yii\web\Application
 
                         \Yii::setAlias('@frontendUrl', $requestUrlParsed['scheme'] . '://' . $frontendHost);
                         \Yii::$app->urlManagerFrontend->setHostInfo(\Yii::getAlias('@frontendUrl'));
-                        $this->setHomeUrl($requestUrlParsed['scheme'] . '://'. $domain);
+                        $this->setHomeUrl($requestUrlParsed['scheme'] . '://' . $domain);
                         $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
                         \Yii::setAlias('@storageUrl', $storageUrl);
+                        break;
                     }
                 }
             }
@@ -173,8 +182,9 @@ class BaseApplication extends \yii\web\Application
     public function getWebsiteLanguages($websiteKey)
     {
         $values = array_values(\Yii::$app->multiSiteCore->websites[$websiteKey]['domains']);
-        $languageCodes = array_unique(array_map(function($value) {
+        $languageCodes = array_unique(array_map(function ($value) {
             if (is_string($value)) return $value;
+
             return $value['language'];
         }, $values));
 
