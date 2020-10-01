@@ -877,7 +877,7 @@ class ContentTree extends \yii\db\ActiveRecord
     {
         $masterLanguageAliasPath = Yii::$app->pageContentTree->defaultTranslation->alias_path;
 
-        $master = \common\models\ContentTreeTranslation::find()
+        $master = ContentTreeTranslation::find()
             ->select('tr.*')
             ->leftJoin(ContentTreeTranslation::tableName() . ' tr', 'tr.content_tree_id = ' . ContentTreeTranslation::tableName() . '.content_tree_id')
             ->andWhere([ContentTreeTranslation::tableName() . '.alias_path' => $masterLanguageAliasPath])
