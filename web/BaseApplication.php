@@ -93,6 +93,7 @@ class BaseApplication extends \yii\web\Application
             $masterLanguage = $websiteData['masterLanguage'];
 
             $this->productionFrontendDomains[$websiteKey] = [];
+            $this->frontendDomains[$websiteKey] = [];
             //Sort website domains based on key length descending order
             uksort($websiteData['domains'], function ($a, $b) {
                 return strlen($b) - strlen($a);
@@ -110,7 +111,6 @@ class BaseApplication extends \yii\web\Application
                 if ($isProduction && $isFrontend) {
                     $this->productionFrontendDomains[$websiteKey][$domain] = $lang;
                 }
-                $this->frontendDomains[$websiteKey] = [];
                 if ($isFrontend) {
                     $this->frontendDomains[$websiteKey][$domain] = $lang;
                 }
