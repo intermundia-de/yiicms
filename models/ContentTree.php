@@ -872,4 +872,35 @@ class ContentTree extends \yii\db\ActiveRecord
         }
         return $class;
     }
+
+    public static function getOtherLanguageUrls()
+    {
+        $masterLanguageAliasPath = Yii::$app->pageContentTree->defaultTranslation->alias_path;
+
+        $master = \common\models\ContentTreeTranslation::find()
+            ->select('tr.*')
+            ->leftJoin(ContentTreeTranslation::tableName() . ' tr', 'tr.content_tree_id = ' . ContentTreeTranslation::tableName() . '.content_tree_id')
+            ->andWhere([ContentTreeTranslation::tableName() . '.alias_path' => $masterLanguageAliasPath])
+            ->asArray()
+            ->all();
+
+        $allDomains = [];
+        foreach (Yii::$app->productionFrontendDomains as $websiteKey => $productionFrontendDomain) {
+            $allDomains = array_merge($allDomains, $productionFrontendDomain);
+        }
+        $languageDomains = array_flip($allDomains);
+
+        $pagesArray = [];
+
+        foreach ($master as $item) {
+            if (isset($languageDomains[$item['language']])) {
+                $pagesArray[] = [
+                    'language' => $item['language'],
+                    'page' => 'http://' . $languageDomains[$item['language']] . '/' . $item['alias_path']
+                ];
+            }
+        }
+
+        return $pagesArray;
+    }
 }
