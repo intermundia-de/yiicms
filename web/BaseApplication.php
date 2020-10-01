@@ -98,6 +98,7 @@ class BaseApplication extends \yii\web\Application
             uksort($websiteData['domains'], function ($a, $b) {
                 return strlen($b) - strlen($a);
             });
+
             foreach ($websiteData['domains'] as $domain => $langOrConfig) {
                 if (is_string($langOrConfig)) {
                     $lang = $langOrConfig;
@@ -160,7 +161,6 @@ class BaseApplication extends \yii\web\Application
                         $this->setHomeUrl($requestUrlParsed['scheme'] . '://'. $domain);
                         $storageUrl = ArrayHelper::getValue($websiteData, 'storageUrl', \Yii::getAlias('@frontendUrl') . "/storage/web");
                         \Yii::setAlias('@storageUrl', $storageUrl);
-                        break;
                     }
                 }
             }
