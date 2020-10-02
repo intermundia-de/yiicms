@@ -86,6 +86,33 @@ Make sure you do not override `ContentTree::getActiveTranslation` and `BaseModel
         ]
     ]
     ```
+    ###[Update]. 
+    Each domain now can correspond to associative array in the following format
+    ```php
+    'domain1' => [
+        'language' => 'en-US',
+        'isProduction' => false,
+    ]
+    ```
+    #### Full Example:
+    ```php
+    'mywebsite.com' => [
+        'defaultContentId' => 1234,
+        'masterLanguage' => 'en-US',
+        "storageUrl" => 'mywebsite.com/storage/web',
+        "domains" => [
+            'frontend' => [
+                'mywebsite.com' => [
+                    'language' => 'en-US',
+                    'isProduction' => true,
+                ],
+            ],
+            'backend' => [
+                'admin.mywebsite.com' => 'en-US', // You can leave en-US as string which means that isProduction and isFrontend both are false
+            ]   
+        ]
+    ]
+    ```
 
  1. Add console script to run core migrations in `./migrate` bash script as the first line
 
