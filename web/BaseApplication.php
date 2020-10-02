@@ -47,6 +47,8 @@ class BaseApplication extends \yii\web\Application
 
     public $websiteLanguages = [];
 
+    public $productionFrontendDomains = [];
+
     public $hasLanguageInUrl = false;
 
     /**
@@ -106,7 +108,28 @@ class BaseApplication extends \yii\web\Application
             uksort($websiteDomains, function ($a, $b) {
                 return strlen($b) - strlen($a);
             });
-            foreach ($websiteDomains as $domain => $lang) {
+
+            foreach ($websiteDomains as $domain => $langOrConfig) {
+                $isFrontendDomain = in_array($domain, array_keys($frontendDomains));
+
+                if (is_string($langOrConfig)) {
+                    $lang = $langOrConfig;
+                    $isProduction = false;
+                } else {
+                    $lang = $langOrConfig['language'];
+                    $isProduction = ArrayHelper::getValue($langOrConfig, 'isProduction');
+                }
+
+                if ($isProduction && $isFrontendDomain) {
+                    $this->productionFrontendDomains[$websiteKey][$domain] = $lang;
+                }
+            }
+            foreach ($websiteDomains as $domain => $langOrConfig) {
+                 if (is_string($langOrConfig)) {
+                    $lang = $langOrConfig;
+                } else {
+                    $lang = $langOrConfig['language'];
+                }
                 $isFrontendDomain = in_array($domain, array_keys($frontendDomains));
                 //Compare domain host. '//$domain' prevents parse_url failure, since parse_url requires url with schema
                 $domainHost = parse_url("//$domain", PHP_URL_HOST);
@@ -158,9 +181,6 @@ class BaseApplication extends \yii\web\Application
                     }
                 }
             }
-            if ($this->websiteContentTree) {
-                break;
-            }
         }
         if (!$this->websiteContentTree) {
             throw new Exception('Current domain is not added neither in "frontend" nor in "backend" domain list in multisite config');
@@ -169,7 +189,12 @@ class BaseApplication extends \yii\web\Application
 
     public function getWebsiteLanguages($websiteKey)
     {
-        $languageCodes = array_unique(array_values($this->getWebsiteDomains($websiteKey)));
+        $values = array_values($this->getWebsiteDomains($websiteKey));
+        $languageCodes = array_unique(array_map(function ($value) {
+            if (is_string($value)) return $value;
+
+            return $value['language'];
+        }, $values));
 
         return ArrayHelper::map(Language::find()->byCode($languageCodes)->asArray()->cache(10000)->all(), 'code', 'name');
     }
