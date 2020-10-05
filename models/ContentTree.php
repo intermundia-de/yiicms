@@ -344,9 +344,9 @@ class ContentTree extends \yii\db\ActiveRecord
      *
      *
      * @param string $menuKey
-     * @param array $fields
-     * @param array $extraFields
-     * @param array $appendParams
+     * @param array  $fields
+     * @param array  $extraFields
+     * @param array  $appendParams
      * @return array
      * @throws \Exception
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
@@ -448,8 +448,8 @@ class ContentTree extends \yii\db\ActiveRecord
 
         $key = self::getAliasMapCacheKey($language);
 
-        if (!ArrayHelper::getValue(self::$aliasMap, $language)){
-            if (!$cache->exists($key)){
+        if (!ArrayHelper::getValue(self::$aliasMap, $language)) {
+            if (!$cache->exists($key)) {
                 self::$aliasMap[$language] = self::getAliasMapData($language);
                 $cache->set($key, self::$aliasMap[$language]);
             } else {
@@ -458,6 +458,7 @@ class ContentTree extends \yii\db\ActiveRecord
         } else {
             $cache->set($key, self::$aliasMap[$language]);
         }
+
         return self::$aliasMap[$language];
     }
 
@@ -524,6 +525,7 @@ ORDER BY par.lft;");
             if ($className) {
                 $obj = $className::find()->byId($this->record_id)->one();
                 Yii::$app->baseModelObjects[$this->content_type . '.' . $this->record_id] = $obj;
+
                 return $obj;
             }
         }
@@ -651,7 +653,7 @@ ORDER BY par.lft;");
 
     public function getUrlForLanguage($languageCode, $asArray = false, $schema = false)
     {
-        if ($this->id == Yii::$app->defaultContentId){
+        if ($this->id == Yii::$app->defaultContentId) {
             return $asArray ? ['content-tree/index', 'nodes' => ''] : Url::to('/', $schema);
         }
         $aliasMap = ContentTree::getIdAliasMap(false, $languageCode);
@@ -696,6 +698,7 @@ ORDER BY par.lft;");
     public function getBackendFullUrl()
     {
         $language = Yii::$app->language;
+
         return Yii::getAlias('@backendUrl/content/' . $language . '/website/') . $this->getNodes();
     }
 
@@ -999,7 +1002,7 @@ ORDER BY par.lft;");
      */
     public function deleteWithBaseModel()
     {
-        if ($this->link_id){
+        if ($this->link_id) {
             return $this->delete();
         }
         $children = array_merge($this->children()->orderBy('lft DESC')->all(), [$this]);
@@ -1028,7 +1031,7 @@ ORDER BY par.lft;");
             } elseif ($baseModel->delete()) {
                 Yii::info("ContentTree with base model was deleted");
             } else {
-                Yii::error("Unable to delete BaseModel. Method: ".__METHOD__.'. Data: '.VarDumper::dumpAsString($baseModel->toArray()).'. Errors: '.VarDumper::dumpAsString($baseModel->errors));
+                Yii::error("Unable to delete BaseModel. Method: " . __METHOD__ . '. Data: ' . VarDumper::dumpAsString($baseModel->toArray()) . '. Errors: ' . VarDumper::dumpAsString($baseModel->errors));
             }
         }
 
@@ -1109,10 +1112,13 @@ ORDER BY par.lft;");
         $pagesArray = [];
 
         foreach ($master as $item) {
+            if ($item['language'] === Yii::$app->language) {
+                continue;
+            }
             if (isset($languageDomains[$item['language']])) {
                 $pagesArray[] = [
                     'language' => $item['language'],
-                    'page' => 'http://' . $languageDomains[$item['language']] . '/' . $item['alias_path']
+                    'page' => 'http://' . $languageDomains[$item['language']] . ( Yii::$app->pageContentTree->id === Yii::$app->defaultContentId ? '' : '/' . $item['alias_path'] )
                 ];
             }
         }
