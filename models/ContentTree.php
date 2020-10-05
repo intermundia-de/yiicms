@@ -912,6 +912,9 @@ class ContentTree extends \yii\db\ActiveRecord
         $pagesArray = [];
 
         foreach ($master as $item) {
+            if ($item['language'] === Yii::$app->language) {
+                continue;
+            }
             if (isset($languageDomains[$item['language']])) {
                 $pagesArray[] = [
                     'language' => $item['language'],
