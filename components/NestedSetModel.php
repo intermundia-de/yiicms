@@ -71,9 +71,9 @@ class NestedSetModel
      * $data is assumed to be array of associative arrays,
      * where each associative array is record (single item in tree)
      *
-     * @param array $data
-     * @param array $extraFields
-     * @param array $appendParams Array where key refers to the property of each node.
+     * @param array  $data
+     * @param array  $extraFields
+     * @param array  $appendParams                         Array where key refers to the property of each node.
      *                                                     Value is array of the following format.
      *                                                     ```
      *                                                     [
@@ -110,11 +110,11 @@ class NestedSetModel
     /**
      * Get Tree in any level.
      *
-     * @param array $params "Keys (with optional mappings) which will be used to extract properties from record"
-     * @param boolean $addLeaf "Whether or not add leaf => true to all leafs"
-     * @param array $extraFields Key-value pairs which will be added to all nodes
-     * @throws Exception
+     * @param array   $params      "Keys (with optional mappings) which will be used to extract properties from record"
+     * @param boolean $addLeaf     "Whether or not add leaf => true to all leafs"
+     * @param array   $extraFields Key-value pairs which will be added to all nodes
      * @return array
+     * @throws Exception
      */
     public function getTree(array $params = [], $addLeaf = true, $extraFields = [])
     {
@@ -234,31 +234,30 @@ class NestedSetModel
     /**
      *
      *
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      * @param $items
      * @param $fields
      * @param $extraFields
      * @param $appendParams
      * @return mixed
      * @throws Exception
+     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     public static function getMenuTree($items, $fields = null, $extraFields = [], $appendParams = [])
     {
         if ($fields === null) {
             $fields = ['name' => 'label', 'url' => function ($item) {
                 /** @var \intermundia\yiicms\models\ContentTree $item */
-                return $item->getUrl( true);
+                return $item->getUrl(true);
             }, 'active' => function ($item) {
                 /** @var \intermundia\yiicms\models\ContentTree $item */
 
                 $url = $item->getUrl();
                 $firstParam = \Yii::$app->request->get('nodes');
-                if (!$firstParam && trim($url, '/') === trim(\Yii::$app->defaultRoute, '/')) {
+                if (trim($url, '/') === trim($firstParam, '/')) {
                     return true;
                 }
-
-                if ($firstParam) {
-                    return null;
+                if (!$firstParam && (!trim($url, '/') || trim($url, '/') === trim(\Yii::$app->defaultRoute, ''))) {
+                    return true;
                 }
 
                 return false;
@@ -266,6 +265,7 @@ class NestedSetModel
         }
         $nestedSetModel = new NestedSetModel($items, $extraFields, $appendParams);
         $websiteRoot = $nestedSetModel->getTree($fields);
+
         return ArrayHelper::getValue($websiteRoot, 'items', []);
     }
 
