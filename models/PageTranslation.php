@@ -66,7 +66,7 @@ class PageTranslation extends BaseTranslateModel
             [['page_id'], 'integer'],
             [['body'], 'string'],
             [['image_deleted'], 'safe'],
-            ['image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
+            ['image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg, webp'],
             [['language'], 'string', 'max' => 15],
             [['short_description'], 'string'],
             [['title', 'meta_title', 'meta_keywords', 'meta_description'], 'string', 'max' => 512],
