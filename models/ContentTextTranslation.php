@@ -64,7 +64,7 @@ class ContentTextTranslation extends BaseTranslateModel
             [['image_deleted'], 'safe'],
             [['language'], 'string', 'max' => 12],
             [['name'], 'string', 'max' => 1024],
-            ['image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
+            ['image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg, webp'],
             [['single_line'], 'string', 'max' => 2048],
             [['content_text_id'], 'exist', 'skipOnError' => true, 'targetClass' => ContentText::class, 'targetAttribute' => ['content_text_id' => 'id']],
             [['language'], 'exist', 'skipOnError' => true, 'targetClass' => Language::class, 'targetAttribute' => ['language' => 'code']],

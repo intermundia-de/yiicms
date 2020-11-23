@@ -120,11 +120,11 @@ class WebsiteTranslation extends BaseTranslateModel
                 ],
                 'string'
             ],
-            ['og_image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
-            ['image', 'file','maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
-            ['logo_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
-            ['additional_logo_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
-            ['claim_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg'],
+            ['og_image', 'file', 'maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg, webp'],
+            ['image', 'file','maxFiles' => 20, 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg, webp'],
+            ['logo_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg, webp'],
+            ['additional_logo_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg, webp'],
+            ['claim_image', 'file', 'maxFiles' => 20,'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg, svg, webp'],
             [
                 [
                     'logo_image_name',

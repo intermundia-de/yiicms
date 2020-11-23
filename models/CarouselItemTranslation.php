@@ -64,7 +64,7 @@ class CarouselItemTranslation extends BaseTranslateModel
                 'file',
                 'maxFiles' => 20,
                 'skipOnEmpty' => true,
-                'extensions' => 'png, jpg, jpeg, svg'
+                'extensions' => 'png, jpg, jpeg, svg, webp'
             ],
             [
                 ['language'],
