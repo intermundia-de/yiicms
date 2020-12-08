@@ -361,6 +361,11 @@ class SyncController extends Controller
         foreach ($websites as $websiteKey => $website) {
             $languages = array_merge($languages, Yii::$app->getWebsiteDomains($websiteKey));
         }
+        foreach ($languages as $i => $language) {
+            if (is_array($language)) {
+                $languages[$i] = $language['language'];
+            }
+        }
 
         $codes = array_map(function ($item) {
             return $item['code'];
