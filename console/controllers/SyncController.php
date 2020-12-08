@@ -243,10 +243,15 @@ class SyncController extends Controller
             }
 
 
-            $domains = array_unique($websiteDomains['domains']);
+            $domainLanguageMap = $websiteDomains['domains'];
+            foreach ($domainLanguageMap as $domain => $item) {
+                if (is_array($item)) {
+                    $domainLanguageMap[$domain] = $item['language'];
+                }
+            }
 
             // Add website translations
-            foreach ($domains as $domain => $lang) {
+            foreach ($domainLanguageMap as $domain => $lang) {
                 $websiteTranslation = ContentTreeTranslation::find()->andWhere([
                     'language' => $lang,
                     'content_tree_id' => $dbContentTreeWebsite->id,
