@@ -156,11 +156,12 @@ class UtilsController extends Controller
             $baseModelClass = $item['class'];
             /** @var BaseTranslateModel $translateModelClass */
             $translateModelClass = $baseModelClass::getTranslateModelClass();
+            $translateModelObj = new $translateModelClass();
             /** @var BaseQuery $baseModelQuery */
             $baseModelQuery = $baseModelClass::find();
             $baseModels = $baseModelQuery
                 ->innerJoin($translateModelClass::tableName() . ' t',
-                    't.' . $translateModelClass::getForeignKeyNameOnModel() . " = $tableName.id AND t.language = :lang",
+                    't.' . $translateModelObj->getForeignKeyNameOnModel() . " = $tableName.id AND t.language = :lang",
                     [
                         'lang' => $from
                     ])
@@ -179,7 +180,7 @@ class UtilsController extends Controller
                 $baseModelId = $baseModel->id;
 
 
-                $foreignKey = $translateModelClass::getForeignKeyNameOnModel();
+                $foreignKey = $translateModelObj->getForeignKeyNameOnModel();
                 $translationData = $connection->createCommand("SELECT * FROM {$translationModelTableName} WHERE language = :lang AND {$foreignKey} = :baseId")
                     ->bindValue(':lang', $from)
                     ->bindValue(':baseId', $baseModelId)
@@ -217,7 +218,7 @@ class UtilsController extends Controller
                     $connection->createCommand()->insert($tableName, $data)->execute();
                     $baseModelId = $connection->getLastInsertID();
 
-                    $translationData[$translateModelClass::getForeignKeyNameOnModel()] = $baseModelId;
+                    $translationData[$translateModelObj->getForeignKeyNameOnModel()] = $baseModelId;
 
                     unset($translationData['id']);
                     $translationData['language'] = $to;
