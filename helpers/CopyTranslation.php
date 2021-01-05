@@ -299,7 +299,6 @@ class CopyTranslation
             return is_numeric($lastElement) ? intval($lastElement) : 0;
         }, ContentTreeTranslation::find()->select('alias_path')->startWith($aliasPath)->asArray()->all());
         $numeric = max($numericAliasPath) + 1;
-        $this->owner->alias = $this->owner->alias . '-' . $numeric;
 
         $this->newAliasPath = $aliasPath . '-' . $numeric;
         return $this->newAliasPath;
