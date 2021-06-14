@@ -45,7 +45,8 @@ class SearchBackend extends Search
                     /** @var ContentTreeQuery $query */
                     $query->notDeleted();
                 },
-                'linkedContentTrees.activeTranslation'
+                'linkedContentTrees.currentTranslation',
+                'linkedContentTrees.defaultTranslation',
             ]);
 
         if (!($this->load($params, $formName) && $this->validate())) {
