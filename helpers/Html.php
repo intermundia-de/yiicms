@@ -11,6 +11,7 @@ use intermundia\yiicms\models\BaseModel;
 use intermundia\yiicms\models\ContentTree;
 use intermundia\yiicms\models\FileManagerItem;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * Class Html
@@ -106,7 +107,7 @@ class Html extends \yii\helpers\Html
                 /** @var $model ContentTree */
                 $urlData = [
                     'replace' => '/{{contentTreeId:' . $model->id . '}}/',
-                    'alias_path' => '/' . $model->activeTranslation->alias_path
+                    'alias_path' => Url::to(['/content-tree/index', 'nodes' => $model->activeTranslation->alias_path])
                 ];
                 if ($model->table_name != ContentTree::TABLE_NAME_PAGE) {
                     $pageAlias = $model->getPageUrl();
